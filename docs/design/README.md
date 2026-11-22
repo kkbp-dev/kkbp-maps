@@ -59,3 +59,7 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0008 The Grade is applied to the lit result in EEVEE, with an ungraded output for Cycles](../adr/0008-the-grade-is-applied-to-the-lit-result-in-eevee.md)
 - [0009 Times of Day that light a Map the same are one Map Variant](../adr/0009-identical-times-of-day-are-one-map-variant.md)
 - [0010 The game camera's settings are captured once and kept as Game data](../adr/0010-camera-settings-are-captured-once-as-game-data.md)
+- [0011 The Map Bundle is in Blender's space, with meshes as raw buffers](../adr/0011-the-map-bundle-is-in-blender-space-with-raw-mesh-buffers.md)
+- [0012 Meshes, materials and textures are named by Content Hash](../adr/0012-meshes-materials-and-textures-are-named-by-content-hash.md)
+- [0013 The checker validates the JSON Schemas itself](../adr/0013-the-checker-validates-the-schemas-itself.md)
+- [0014 The Schema Version stays 0.x until the first release](../adr/0014-the-schema-version-stays-0x-until-the-first-release.md)

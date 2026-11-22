@@ -60,6 +60,18 @@ _Avoid_: shader prop name
 The meaning of a texture slot on a material, such as main, normal or occlusion, drawn from a small closed set. A texture outside that set is known only by its Raw Property.
 _Avoid_: texture type, suffix
 
+**Content Hash**:
+The hash a Map Bundle gives a mesh, material, texture, Prop or Structure from its content alone, so the same thing has the same hash in every Map.
+_Avoid_: path id, checksum, fingerprint
+
+**Candidate**:
+A part of a Map that the Extractor proposes as a Prop or a Structure, with its Content Hash and the rule that picked it. The Builder makes the final call.
+_Avoid_: asset, prefab
+
+**Camera Profile**:
+The settings of one game camera that no map file holds, such as its tonemapper, exposure and sun shaft strength, kept in the repository as Game data. A Map names the one that shows it.
+_Avoid_: camera preset, post settings
+
 ### What a Map Library holds
 
 **Map Library**:

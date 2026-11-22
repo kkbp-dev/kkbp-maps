@@ -24,7 +24,7 @@ Numbered so code and reviews can point at them. Each says what holds now.
 
 - **D1 Files only.** The Extractor reads the game's files and never starts the game (ADR 0001).
 - **D2 Order.** KK first, then KKS, then SVS. Vanilla and DLC Maps first; Sideloader map mods (KK and KKS) later.
-- **D3 Props.** A Prop is a `p_` subtree, kept once per Map Library by a hash of its meshes, materials and relative transforms, and tagged with every Map it appears in. Shell pieces are Structures (ADR 0004).
+- **D3 Props.** A Prop is a `p_` subtree, kept once per Map Library by a hash of its meshes, materials and relative transforms, and tagged with every Map it appears in. Shell pieces are Structures (ADR 0004). A room container such as `p_koi_map71_park` is walked into, not made one Candidate (ADR 0019).
 - **D4 EEVEE first.** The look is matched in EEVEE with the Standard view transform. Cycles renders sensibly but isn't matched.
 - **D5 Two stages, one extension.** See "Shape".
 - **D6 Separate repository.** kkbp-maps adapts KKBP's patterns rather than sharing code with it, and stays compatible with KKBP Characters: the same scale, axes, units and colour space.
@@ -68,3 +68,4 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0016 Sky Domes are kept as sky nodes without a renderer](../adr/0016-sky-domes-are-renderer-less-sky-nodes.md)
 - [0017 Every readable renderer is carried, whatever its shader](../adr/0017-every-readable-renderer-is-carried-whatever-its-shader.md)
 - [0018 Materials keep only the properties their shader declares](../adr/0018-materials-keep-only-their-shaders-properties.md)
+- [0019 Room containers are walked into, not made one Candidate](../adr/0019-room-containers-are-walked-into.md)

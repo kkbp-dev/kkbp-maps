@@ -34,6 +34,10 @@ _Avoid_: skybox, sky sphere, background
 An object in a Scene Bundle that the player never sees, such as a collision box, a shadow-only caster or a navigation mesh. The Extractor leaves it out.
 _Avoid_: dummy, hidden object, collider
 
+**Room Container**:
+An object in a Scene Bundle that holds a whole room or shell under a name that looks like a Prop's or a Structure's. It is neither: the pieces under it are.
+_Avoid_: map root, wrapper, group
+
 **Studio Map**:
 A Map listed in a Game's Studio rather than its story or free mode. It is a Map of its own only when its geometry differs from the story Map's.
 _Avoid_: studio scene, studio stage

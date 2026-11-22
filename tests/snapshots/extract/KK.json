@@ -1,0 +1,222 @@
+{
+ "map/scene/1f": {
+  "camera": "game",
+  "candidates": {
+   "mo_prefix": {
+    "candidates": 44,
+    "placements": 46
+   },
+   "o_prefix": {
+    "candidates": 1,
+    "placements": 1
+   },
+   "p_prefix": {
+    "candidates": 12,
+    "placements": 62
+   }
+  },
+  "contents": {
+   "candidates": 57,
+   "lightmap_sets": 1,
+   "materials": 136,
+   "meshes": 175,
+   "nodes": 332,
+   "placements": 109,
+   "textures": 265,
+   "variants": 3
+  },
+  "geometry_hash": "bf1835552956d6aa01f85473d0e17c78",
+  "lightmaps": [
+   {
+    "assignments": 68,
+    "lightmaps": 4,
+    "mode": "directional"
+   }
+  ],
+  "outdoor": true,
+  "skipped": {},
+  "thumbnails": [
+   [
+    "day"
+   ],
+   [
+    "evening"
+   ],
+   [
+    "night"
+   ]
+  ],
+  "variants": [
+   {
+    "grade": true,
+    "hidden": 2,
+    "lights": 1,
+    "probes": 1,
+    "reflection": "custom",
+    "sky": "cubemap/dome",
+    "sun_shafts": true,
+    "times_of_day": [
+     "day"
+    ]
+   },
+   {
+    "grade": true,
+    "hidden": 2,
+    "lights": 1,
+    "probes": 1,
+    "reflection": "custom",
+    "sky": "cubemap/dome",
+    "sun_shafts": true,
+    "times_of_day": [
+     "evening"
+    ]
+   },
+   {
+    "grade": true,
+    "hidden": 2,
+    "lights": 1,
+    "probes": 1,
+    "reflection": "custom",
+    "sky": "cubemap/dome",
+    "sun_shafts": false,
+    "times_of_day": [
+     "night"
+    ]
+   }
+  ]
+ },
+ "map/scene/ground": {
+  "camera": "game",
+  "candidates": {
+   "mo_prefix": {
+    "candidates": 26,
+    "placements": 26
+   },
+   "p_prefix": {
+    "candidates": 8,
+    "placements": 14
+   }
+  },
+  "contents": {
+   "candidates": 34,
+   "lightmap_sets": 1,
+   "materials": 113,
+   "meshes": 119,
+   "nodes": 135,
+   "placements": 40,
+   "textures": 231,
+   "variants": 3
+  },
+  "geometry_hash": "01634de1cb306c07bc2e4139f0f9c9c4",
+  "lightmaps": [
+   {
+    "assignments": 18,
+    "lightmaps": 8,
+    "mode": "directional"
+   }
+  ],
+  "outdoor": true,
+  "skipped": {},
+  "thumbnails": [
+   [
+    "day"
+   ],
+   [
+    "evening"
+   ],
+   [
+    "night"
+   ]
+  ],
+  "variants": [
+   {
+    "grade": true,
+    "hidden": 2,
+    "lights": 1,
+    "probes": 1,
+    "reflection": "custom (none)",
+    "sky": "cubemap/dome",
+    "sun_shafts": true,
+    "times_of_day": [
+     "day"
+    ]
+   },
+   {
+    "grade": true,
+    "hidden": 2,
+    "lights": 1,
+    "probes": 1,
+    "reflection": "custom (none)",
+    "sky": "cubemap/dome",
+    "sun_shafts": true,
+    "times_of_day": [
+     "evening"
+    ]
+   },
+   {
+    "grade": true,
+    "hidden": 2,
+    "lights": 1,
+    "probes": 1,
+    "reflection": "custom (none)",
+    "sky": "cubemap/dome",
+    "sun_shafts": false,
+    "times_of_day": [
+     "night"
+    ]
+   }
+  ]
+ },
+ "map/scene/park": {
+  "camera": "game",
+  "candidates": {
+   "o_prefix": {
+    "candidates": 29,
+    "placements": 54
+   }
+  },
+  "contents": {
+   "candidates": 29,
+   "lightmap_sets": 1,
+   "materials": 21,
+   "meshes": 31,
+   "nodes": 90,
+   "placements": 54,
+   "textures": 44,
+   "variants": 1
+  },
+  "geometry_hash": "ce7f3f88a6f66851de7164b5f0c1b6ec",
+  "lightmaps": [
+   {
+    "assignments": 8,
+    "lightmaps": 3,
+    "mode": "directional"
+   }
+  ],
+  "outdoor": true,
+  "skipped": {
+   "realtime_gi": 8
+  },
+  "thumbnails": [
+   [
+    "night"
+   ]
+  ],
+  "variants": [
+   {
+    "grade": true,
+    "hidden": 0,
+    "lights": 1,
+    "probes": 0,
+    "reflection": "skybox",
+    "sky": "cubemap/skybox",
+    "sun_shafts": false,
+    "times_of_day": [
+     "day",
+     "evening",
+     "night"
+    ]
+   }
+  ]
+ }
+}

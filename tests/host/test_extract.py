@@ -313,3 +313,26 @@ def test_light_probes_stop_the_extraction(install, tmp_path):
     scene.add("LightProbes", {"m_Data": {"m_Positions": [{"x": 0.0, "y": 1.0, "z": 0.0}]}})
     with pytest.raises(Unsupported, match="light probes"):
         extract(install, tmp_path, scene)
+
+
+def test_room_containers_are_walked_into(install, tmp_path):
+    """ADR 0019: park's whole Map sits under p_koi_map71_park; its pieces are Candidates of their own."""
+    scene, _ = build_scene()
+    root = next(pid for pid, (t, tr) in scene.objects.items() if t == "GameObject" and tr["m_Name"] == "Map")
+    mat = scene.material("bench")
+    room = scene.object("p_koi_map71_park", root)
+    shell = scene.object("o_koi_map02_00", room)
+    for i in range(2):
+        scene.mesh_renderer(scene.object(f"o_kouen_isu_0{i}", shell, position=(float(i), 0.0, 0.0)),
+                            scene.mesh("isu", offset=(0.0, 0.0, 1.5)), [mat])
+    lamp = scene.object("p_koi_map37_water00", room)  # a container name with a renderer is a Prop
+    scene.mesh_renderer(lamp, scene.mesh("water", offset=(0.0, 0.0, 3.0)), [mat])
+    out = extract(install, tmp_path, scene)
+    n = names(out)
+    placed = {n[p]: c["rule"] for c in load(out, "assets")["candidates"] for p in c["placements"]}
+    assert placed["o_kouen_isu_00"] == placed["o_kouen_isu_01"] == "o_prefix"
+    assert placed["p_koi_map37_water00"] == "p_prefix"
+    assert "p_koi_map71_park" not in placed and "o_koi_map02_00" not in placed
+    benches = [c for c in load(out, "assets")["candidates"] if n[c["placements"][0]] == "o_kouen_isu_00"]
+    assert len(benches[0]["placements"]) == 2
+    assert check(out, deep=True) == []

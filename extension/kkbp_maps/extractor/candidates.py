@@ -1,18 +1,25 @@
 """The Prop and Structure Candidates, picked by the game's name prefixes (ADR 0004).
 
-One walk from the roots: sky nodes are passed over; a `p_` node starts a Prop, and nothing inside it is
-a root of its own; a `mo_` or `o_` node starts a Structure, inside which only `p_` starts a new root;
-any other node with a renderer starts an `unprefixed` Structure; a group without a renderer is walked
-into. The prefixes are Game data (games.Game.prefixes).
+One walk from the roots: sky nodes are passed over; a room container (a node without a renderer whose
+name marks it as a whole room, ADR 0019) is walked into like a group; a `p_` node starts a Prop, and
+nothing inside it is a root of its own; a `mo_` or `o_` node starts a Structure, inside which only `p_`
+starts a new root; any other node with a renderer starts an `unprefixed` Structure; a group without a
+renderer is walked into. The prefixes and container names are Game data (games.Game).
+
+Placements with the same shape are one Candidate, which takes the rule of the first of them in walk
+order; a Prop and a Structure with the same shape can't be told apart, and stop the extraction.
 """
 
 from __future__ import annotations
 
+import re
+
 from ..bundle import hashing
 
 
-def candidates(nodes: list[dict], prefixes: tuple[tuple[str, str], ...]) -> list[dict]:
+def candidates(nodes: list[dict], prefixes: tuple[tuple[str, str], ...], containers: tuple[str, ...] = ()) -> list[dict]:
     """assets.json's Candidates for scene.json's `nodes`, each with its Placements in walk order."""
+    container = [re.compile(c) for c in containers]
     children: list[list[int]] = [[] for _ in nodes]
     for n in nodes:
         if n["parent"] is not None:
@@ -20,6 +27,8 @@ def candidates(nodes: list[dict], prefixes: tuple[tuple[str, str], ...]) -> list
     roots: dict[int, str] = {}
 
     def rule_of(node) -> str | None:
+        if "renderer" not in node and any(c.search(node["name"]) for c in container):
+            return None  # a room container: walked into
         for prefix, rule in prefixes:
             if node["name"].startswith(prefix):
                 return rule
@@ -38,7 +47,7 @@ def candidates(nodes: list[dict], prefixes: tuple[tuple[str, str], ...]) -> list
         elif inside is None and rule is not None:
             roots[i] = rule
             inside = "structure"
-        elif inside is None and "renderer" in node:
+        elif inside is None and rule is None and "renderer" in node:
             roots[i] = "unprefixed"
             inside = "structure"
         for c in children[i]:

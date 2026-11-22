@@ -37,6 +37,9 @@ class Game:
     camera_by_list: tuple[tuple[str, str], ...] = (("map", "game"), ("studio", "studio"))
     # Candidate rules by name prefix, tried in order; case-sensitive (ADR 0004).
     prefixes: tuple[tuple[str, str], ...] = (("p_", "p_prefix"), ("mo_", "mo_prefix"), ("o_", "o_prefix"))
+    # Names of room containers: a node without a renderer of its own whose name matches one of these
+    # regular expressions holds a whole room or shell, so it is walked into like a group (ADR 0019).
+    containers: tuple[str, ...] = ()
     # Renderer types that are always Helpers (KK uses SpriteRenderers only for action-point icons).
     helper_renderers: frozenset[str] = frozenset()
     # Renderer types the bundle can't carry, by skip reason.
@@ -62,6 +65,7 @@ KK = Game(
         MapListSource(list="studio", folder="studio/info", layout="studio_rows", name_prefix="Map_"),
     ),
     helper_renderers=frozenset({"SpriteRenderer"}),
+    containers=(r"^(p_|o_|mo_)(o_)?koi_(stu_)?map",),
 )
 
 KKS = Game(id="KKS", data_folder="KoikatsuSunshine_Data", normal_x_from_alpha=False)

@@ -96,7 +96,7 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
     nodes = node_records(w, graph, lambda ref: meshes.add(store, ref), lambda n: draws(store, n, meshes, materials, queues))
     lm = lightmap_set(graph, w, meshes, textures)
     vs = variants(graph, w, textures, lm["id"] if lm else None)
-    assets = candidates(nodes, game.prefixes)
+    assets = candidates(nodes, game.prefixes, game.containers)
     map_record = {
         "key": m.key,
         "times_of_day": list(game.times_of_day),

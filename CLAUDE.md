@@ -4,13 +4,14 @@ Instructions for an AI agent (or anyone) changing this repository. Read this fir
 
 kkbp-maps reads the maps of a user's own KK, KKS or SVS install and builds Blender asset libraries from them. It is one Blender extension in two stages: the **Extractor** writes **Map Bundles**, and the **Builder** turns them into a **Map Library**. It is a sister project of KKBP, whose repository sits beside this one at `../kkbp` on the development machine.
 
-Status: Phase 1 of [docs/design/roadmap.md](docs/design/roadmap.md) is done ([docs/design/kk-spike.md](docs/design/kk-spike.md)). The design is settled; there is no code yet.
+Status: Phases 1 and 2 of [docs/design/roadmap.md](docs/design/roadmap.md) are done: the KK spike ([docs/design/kk-spike.md](docs/design/kk-spike.md)) and the Map Bundle contract ([docs/design/map-bundle.md](docs/design/map-bundle.md)), with its checker and tests. There is no Extractor or Builder code yet.
 
 ## Read before changing anything
 
 - [CONTEXT.md](CONTEXT.md): the glossary. Use its terms, not the ones it lists under "Avoid".
 - [docs/design/README.md](docs/design/README.md): the shape of the tool and every numbered decision (D1 onwards).
 - [docs/design/games.md](docs/design/games.md): what each Game's map data looks like.
+- [docs/design/map-bundle.md](docs/design/map-bundle.md) and [extension/kkbp_maps/bundle/README.md](extension/kkbp_maps/bundle/README.md): the Map Bundle contract and its rules.
 - [docs/adr/](docs/adr/): decisions that look wrong without context. Check them before "fixing" something that seems odd.
 
 ## How to work
@@ -30,7 +31,17 @@ Status: Phase 1 of [docs/design/roadmap.md](docs/design/roadmap.md) is done ([do
 - **Three platforms:** Windows, macOS arm64 and Linux x64. Use `pathlib`, never hard-coded separators, drive letters or Wine paths; no shell-only tooling (D23). A wheel must match the running Python and platform; never hard-code a tag.
 - **Game differences** are data about each Game, not checks of the Game's id scattered through the code.
 - **Find things by meaning**, such as Texture Roles and Prop hashes, not by object or node names, except where a name is the only marker the game gives (the `p_`, `mo_`, `o_` prefixes, the helper names in [games.md](docs/design/games.md)); those are listed in one place.
-- **The contract** (once it exists): change it only with the user's OK. Additive changes raise the Schema Version's minor; anything else raises its major.
+- **The contract** is `extension/kkbp_maps/bundle/`: change it only with the user's OK. Until the first release the Schema Version is `0.x` and every change raises its minor (ADR 0014); from `1.0`, additive changes raise the minor and anything else the major. A change touches the schema in `schema/`, the rule text in its `README.md`, the checker (`rules.py`, or `hashing.py` for a Content Hash, which is never additive), `tests/bundle_builder.py` and a test for the new rule.
+- **One space:** every value in a Map Bundle is in Blender's space, converted from Unity in one module of the Extractor (ADR 0011). Nothing else converts axes.
+
+## Commands
+
+| What | Command |
+|---|---|
+| The host tests (about 12 s) | `../kkbp/importer/.venv/bin/python -I -m pytest tests` |
+| Check Map Bundles, deep (any Python 3.11 or later) | `python3 tools/check_bundle.py <bundle>...` |
+
+The tests need `pytest` and `jsonschema`, which KKBP's dev venv has; `bundle/` itself needs only the standard library.
 
 ## Running the games safely
 

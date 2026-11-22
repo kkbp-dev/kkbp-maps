@@ -116,7 +116,7 @@ So ground confirms that the renderer's own `m_LightmapIndex` alone is wrong. par
 
 ## 5. Times of Day: `SunLightInfo`
 
-On the `Map` root: `_targetLight` (the sun), `_bgParam` (null in these Maps; it is for 2D backdrops) and `_infos[]`, one per `type` (0 day, 1 evening, 2 night). `Set(type, camera)` (decompiled) shows the other two infos' `visibleList` objects and hides those of the chosen one. Then it sets:
+On the `Map` root: `_targetLight` (the sun), `_bgParam` (null in these Maps; it is for 2D backdrops) and `_infos[]`, one per `type` (0 day, 1 evening, 2 night). `Set(type, camera)` (decompiled) goes through the infos in order, showing the chosen one's `visibleList` objects and hiding the others' (corrected in Phase 3; an object in two lists is hidden whenever the later list isn't chosen). Then it sets:
 
 - `light.color`, `light.intensity`, and `light.transform.eulerAngles = angle` (world rotation).
 - `RenderSettings.fog = fogUse`, mode **always Linear**, `fogColor`, `fogStart`, `fogEnd`.
@@ -159,7 +159,7 @@ AmplifyColor's `Hidden/Amplify Color/Base` (in `Koikatu_Data/resources.assets`, 
 | SH probe L0 (r, g, b) | 0.183 0.227 0.295 (stale, see below) | 0.127 0.134 0.121 | 0.183 0.227 0.295 |
 | Fog (until `SunLightInfo` sets it) | Linear, 0–500, on | Exp², off | Linear, 0–800, on |
 | Skybox material | `Default-Skybox`, `Skybox/Procedural` (exposure 1.3, sun size 0.04), hidden behind the domes | `SkyMat_Night_1`, `Skybox/6 Sided`, `_Rotation` 282, `_Exposure` 1.09, `_Tint` 0.5 | as 1F |
-| Reflection | Custom: the reflection probe's baked BC6H cubemap, intensity 1 | Skybox, intensity 1 | Skybox, intensity 0.717 |
+| Reflection | Custom: the reflection probe's baked BC6H cubemap, intensity 1 | Skybox, intensity 1, with the baked skybox reflection `m_GeneratedSkyboxReflection` (128² BC6H) | Custom with an empty slot (corrected in Phase 3), intensity 0.717 |
 | Reflection probe | 1, box 70×10×107 m, baked 256² BC6H | 1, 128² | 1, 200 m box, 256² |
 | `m_Sun` | the sun light | none | the sun light |
 | GI | baked only | baked + realtime | baked + realtime, `m_IndirectOutputScale 0.5` |

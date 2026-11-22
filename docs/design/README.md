@@ -2,7 +2,7 @@
 
 How kkbp-maps is meant to work. Terms are defined in [CONTEXT.md](../../CONTEXT.md). Decisions that would be surprising without context are in [docs/adr/](../adr/). What each Game's map data looks like is in [games.md](games.md), and the order of work is in [roadmap.md](roadmap.md).
 
-Status: the KK spike's findings are in [kk-spike.md](kk-spike.md), and the Map Bundle contract is in [map-bundle.md](map-bundle.md).
+Status: the KK spike's findings are in [kk-spike.md](kk-spike.md), the Map Bundle contract is in [map-bundle.md](map-bundle.md), and the KK Extractor is in `extension/kkbp_maps/extractor/` (Phase 3).
 
 ## Shape
 
@@ -64,3 +64,7 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0012 Meshes, materials and textures are named by Content Hash](../adr/0012-meshes-materials-and-textures-are-named-by-content-hash.md)
 - [0013 The checker validates the JSON Schemas itself](../adr/0013-the-checker-validates-the-schemas-itself.md)
 - [0014 The Schema Version stays 0.x until the first release](../adr/0014-the-schema-version-stays-0x-until-the-first-release.md)
+- [0015 The Extractor replays what the game shows when a Map loads](../adr/0015-the-extractor-replays-the-games-start-up-visibility.md)
+- [0016 Sky Domes are kept as sky nodes without a renderer](../adr/0016-sky-domes-are-renderer-less-sky-nodes.md)
+- [0017 Every readable renderer is carried, whatever its shader](../adr/0017-every-readable-renderer-is-carried-whatever-its-shader.md)
+- [0018 Materials keep only the properties their shader declares](../adr/0018-materials-keep-only-their-shaders-properties.md)

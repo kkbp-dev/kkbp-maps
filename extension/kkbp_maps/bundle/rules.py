@@ -273,7 +273,7 @@ class _Context:
                 if sky["kind"] == "cubemap":
                     self.texture_of("variants", f"{where}: sky", sky["texture"], fmt="exr")
             r = v["reflection"]
-            if r["source"] == "custom":
+            if r["texture"] is not None:
                 self.texture_of("variants", f"{where}: reflection", r["texture"], fmt="exr")
             for i, probe in enumerate(r["probes"]):
                 self.texture_of("variants", f"{where}: probe {i}", probe["texture"], fmt="exr")

@@ -67,8 +67,8 @@ def test_without_manifest_it_is_unfinished(bundle):
 
 
 def test_another_schema_version_is_refused(bundle):
-    edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.2"))
-    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.2; this checker reads only 0.1 "
+    edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.1"))
+    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.2 "
                                    "(ADR 0014), so extract the Map again"]
 
 
@@ -439,9 +439,27 @@ def test_grade_lut_size(bundle):
     assert_problem(bundle, "of 8 × 4; it should be 1024 × 32")
 
 
-def test_custom_reflection_needs_its_texture(bundle):
-    edit_json(bundle, "variants", lambda d: d["variants"][0]["reflection"].update(source="custom"))
+def test_reflection_needs_its_texture_field(bundle):
+    edit_json(bundle, "variants", lambda d: d["variants"][0]["reflection"].pop("texture"))
     assert_problem(bundle, "variants/0/reflection: 'texture' is missing")
+
+
+def test_a_custom_reflection_may_have_an_empty_slot(bundle):
+    edit_json(bundle, "variants", lambda d: d["variants"][0]["reflection"].update(source="custom"))
+    assert problems_of(bundle) == []
+
+
+def test_a_reflection_texture_is_an_exr(bundle):
+    lut = texture_id(bundle, "Lut_Amount")
+    edit_json(bundle, "variants", lambda d: d["variants"][0]["reflection"].update(texture=lut))
+    assert_problem(bundle, "Map Variant day: reflection names texture")
+
+
+def test_a_baked_skybox_reflection_is_carried(tmp_path):
+    def change(b):
+        b.add_texture("skybox_reflection", 8, 4, 3, fmt="exr", color_space="linear")
+        b.variants[1]["reflection"]["texture"] = "skybox_reflection"
+    assert problems_of(built(tmp_path, change), deep=True) == []
 
 
 def test_lights_by_type(bundle):

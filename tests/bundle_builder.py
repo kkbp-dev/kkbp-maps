@@ -158,7 +158,7 @@ class MapBundleBuilder:
             "ambient": {"mode": "flat", "intensity": 1.0, "sky_color": [0.212, 0.227, 0.259, 1.0]},
             "fog": {"enabled": True, "mode": "linear", "color": [0.294, 0.883, 1.0, 1.0], "start": 0.0,
                     "end": 500.0, "density": 0.01},
-            "reflection": {"source": "skybox", "intensity": 1.0, "probes": []},
+            "reflection": {"source": "skybox", "intensity": 1.0, "texture": None, "probes": []},
             "sky": None, "sun_shafts": None, "grade": None,
         }
         v.update(changes)
@@ -300,7 +300,7 @@ class MapBundleBuilder:
         for v in variants:
             if v["sky"] and "texture" in v["sky"]:
                 v["sky"]["texture"] = tex_id.get(v["sky"]["texture"], v["sky"]["texture"])
-            if "texture" in v["reflection"]:
+            if v["reflection"]["texture"]:
                 v["reflection"]["texture"] = tex_id.get(v["reflection"]["texture"], v["reflection"]["texture"])
             for p in v["reflection"]["probes"]:
                 p["texture"] = tex_id.get(p["texture"], p["texture"])

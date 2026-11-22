@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.1/variants.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.2/variants.schema.json",
   "title": "variants.json",
   "description": "The Map Variants: one per distinct lighting state, each covering the Times of Day that light the Map the same (ADR 0009).",
   "type": "object",
@@ -238,32 +238,25 @@
     },
     "reflection": {
       "description": "The environment reflection, and the reflection probes.",
-      "oneOf": [
-        {
-          "type": "object",
-          "properties": {
-            "source": { "const": "skybox" },
-            "intensity": { "type": "number" },
-            "probes": { "type": "array", "items": { "$ref": "#/$defs/probe" } }
-          },
-          "required": ["source", "intensity", "probes"],
-          "additionalProperties": false
+      "type": "object",
+      "properties": {
+        "source": {
+          "description": "skybox: Unity's reflection of the skybox, baked into a cubemap when the Map was built. custom: a cubemap the Map names.",
+          "type": "string",
+          "enum": ["skybox", "custom"]
         },
-        {
-          "type": "object",
-          "properties": {
-            "source": { "const": "custom" },
-            "intensity": { "type": "number" },
-            "texture": {
-              "description": "The custom reflection cubemap as an equirectangular EXR, in Blender's world orientation.",
-              "$ref": "common.schema.json#/$defs/hash"
-            },
-            "probes": { "type": "array", "items": { "$ref": "#/$defs/probe" } }
-          },
-          "required": ["source", "intensity", "texture", "probes"],
-          "additionalProperties": false
-        }
-      ]
+        "intensity": { "type": "number" },
+        "texture": {
+          "description": "The source's cubemap as an equirectangular EXR, in Blender's world orientation, or null where the game holds none: no skybox reflection was baked, or the custom slot is empty.",
+          "oneOf": [
+            { "$ref": "common.schema.json#/$defs/hash" },
+            { "type": "null" }
+          ]
+        },
+        "probes": { "type": "array", "items": { "$ref": "#/$defs/probe" } }
+      },
+      "required": ["source", "intensity", "texture", "probes"],
+      "additionalProperties": false
     },
     "sky_geometry": {
       "description": "The sky nodes this Map Variant shows: the Sky Dome's clouds or stars.",

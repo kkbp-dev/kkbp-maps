@@ -23,8 +23,16 @@ One of the lighting states a Game gives a Map, such as day, evening or night; ea
 _Avoid_: time slot, period, lighting preset
 
 **Map Variant**:
-A Map at one Time of Day. The unit a Map asset is made of.
+A Map at one Time of Day, or at several Times of Day that light it the same. The unit a Map asset is made of.
 _Avoid_: map version, map preset
+
+**Sky Dome**:
+The sky a Game shows around a Map at one Time of Day, as geometry: KK's cubemap-textured sphere with its clouds or stars.
+_Avoid_: skybox, sky sphere, background
+
+**Helper**:
+An object in a Scene Bundle that the player never sees, such as a collision box, a shadow-only caster or a navigation mesh. The Extractor leaves it out.
+_Avoid_: dummy, hidden object, collider
 
 **Studio Map**:
 A Map listed in a Game's Studio rather than its story or free mode. It is a Map of its own only when its geometry differs from the story Map's.

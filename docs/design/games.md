@@ -1,15 +1,15 @@
 # The Games' map data
 
-What a survey of the HF Patched installs found (KK HF Patch v4.2, KKS v2.2, SVS v2.0), read with UnityPy 1.25.4. Paths are relative to the game folder. The Phase 1 spike checks the items marked *to confirm*.
+What a survey of the HF Patched installs found (KK HF Patch v4.2, KKS v2.2, SVS v2.0), read with UnityPy 1.25.4. Paths are relative to the game folder. The Phase 1 spike checked KK's items; its evidence is in [kk-spike.md](kk-spike.md). Items still marked *to confirm* belong to later Games.
 
 ## Common to all three
 
 - Map bundles are standard UnityFS with LZ4HC compression and no encryption. They carry type trees, so UnityPy reads every component, MonoBehaviours included.
 - Every 3D Map is a streamed Scene Bundle: `BuildPlayer-<Scene>` and `BuildPlayer-<Scene>.sharedAssets`, with one `Assets/…/<Scene>.unity` path.
-- Object names are ASCII, romanized Japanese, with Unity's ` (N)` duplicate suffixes. Prefixes: `p_` props, `mo_` and `o_` shell geometry, `n_` groups. Repeated objects share one Mesh (path id), which makes Prop hashing reliable.
+- Object names are ASCII, romanized Japanese, with Unity's ` (N)` duplicate suffixes. Prefixes: `p_` props, `mo_` and `o_` shell geometry, `n_` groups. Within a Scene Bundle, repeated objects share one Mesh (path id). Across Scene Bundles the same mesh has another path id but identical content, so Prop hashes come from mesh content.
 - Every Shader object carries a compiled D3D11 blob, so shaders can be disassembled as KKBP's `importer/tools/game_shaders/dump.py` does.
 - No crunched textures. Normal maps are DXT5 with the DXT5nm swizzle.
-- Helpers to leave out: inactive GameObjects, disabled renderers, shadow-only casters (`castShadows = 3`), collider-only objects, Unity's built-in meshes. Layer names aren't in the bundles, only their numbers.
+- Helpers to leave out: inactive GameObjects, disabled renderers, renderers with no mesh, shadow-only casters (`m_CastShadows 3`), collider-only objects. Unity's built-in meshes are helpers except where a sky dome uses the built-in Sphere (KK). Layer names aren't in the bundles, only their numbers.
 - Map names are Japanese. SVS keeps its lists in MemoryPack binaries; KK and KKS keep them in Excel-style MonoBehaviours.
 
 ## KK
@@ -17,12 +17,16 @@ What a survey of the HF Patched installs found (KK HF Patch v4.2, KKS v2.2, SVS 
 - Unity 5.6.2f1, Mono, built-in render pipeline; post effects from AmplifyColor and AmplifyOcclusion.
 - 41 Scene Bundles in `abdata/map/scene/` (about 1.1 GB), each self-contained; 2 Studio-only Maps in `abdata/studio/map/`.
 - Lists: `abdata/map/list/mapinfo/*` (`MapName`, `No`, `AssetBundleName`, `AssetName`, `isOutdoors`, thumbnails) and Studio's `abdata/studio/info/*` (`Map_*`).
-- A single `Map` root with 3 to 18 group nodes, usually 150 to 300 MeshRenderers per Map. No static batching, no LODGroups; meshes are readable.
-- Shaders: 22 in all, mostly Unity `Standard`; also `Shader Forge/main_*`, `Custom/StandardDouble`, skyboxes and particles.
-- Lightmaps: baked directional lightmaps (`Lightmap-N_comp_light`, `_comp_dir`, up to 2048²) in most Maps; `m_LightmapsMode 1`, `m_LightmapFormat 2` (*to confirm*: RGBM, and whether the project is gamma or linear). Which renderer uses which lightmap comes from the `LightmapPrefab` component, not the renderer's own `m_LightmapIndex`. No lightmaps in backyard, courtyard, rooftop or livestage.
-- Lights: one realtime directional sun per Map, plus RenderSettings ambient (skybox SH or flat), linear fog and a procedural or 6-sided skybox.
-- Times of Day: day, evening, night, in `SunLightInfo`: sun angle, colour and intensity, fog, sun shafts, an AmplifyColor LUT, and a `visibleList` of objects to show. The lightmaps are the same for all three.
-- Helpers: `Cube (N)` collision boxes, `*_kage*` and `p_koi_map00_shadow` shadow casters.
+- A single `Map` root with 3 to 18 group nodes, usually 150 to 300 MeshRenderers per Map (park has 75). No static batching, no LODGroups. Every mesh a renderer uses is readable, uncompressed, triangles with 16-bit indices, with normals and tangents and no vertex colours. Some lightmapped meshes have no UV1 and are lit through UV0.
+- Linear colour space (`PlayerSettings.m_ActiveColorSpace 1`), HDR.
+- Shaders: 22 in all, mostly Unity `Standard`; also `Shader Forge/main_*`, `Custom/StandardDouble`, skyboxes (`Skybox/Procedural`, `6 Sided`, `Cubemap`), particles, `Unlit/Transparent` and `Xffect/heat_distortion`.
+- Lightmaps: baked directional lightmaps (`Lightmap-N_comp_light`, `_comp_dir`, up to 2048², RGBA32 or DXT5) in most Maps; `m_LightmapsMode 1`. `_comp_light` is RGBM (`m_LightmapFormat 2`) sampled as sRGB: value = 34.493242 · a^2.2 · srgb_to_linear(rgb). `_comp_dir` holds a Unity world-space direction. Which renderer uses which lightmap: the renderer's own `m_LightmapIndex` and `m_LightmapTilingOffset`, replaced by its `LightmapPrefab` entry where it has one (some Maps, like ground, rely on `LightmapPrefab` alone; park also on the renderers' own values). No lightmaps in backyard, courtyard, rooftop or livestage.
+- Some Maps (park, ground) also carry Enlighten realtime GI, which the game solves at run time; park lights 8 renderers with it.
+- Lights: one realtime directional sun per Map, plus RenderSettings ambient (skybox SH or flat), fog and a procedural or 6-sided skybox. 1F, park and ground have no light probes, so their unlightmapped renderers get the ambient SH and a baked reflection probe.
+- Sky: Maps with a view of the sky, such as 1F and ground, have a sky dome per Time of Day: Unity's built-in Sphere (448 to 613 m radius) with a `Skybox/Cubemap` material, plus cloud or star meshes. The RenderSettings skybox only shows where a Map has no dome.
+- Times of Day: day, evening, night, in `SunLightInfo`: sun world rotation, colour and intensity, linear fog, sun shafts, an AmplifyColor LUT, and a `visibleList` of objects to show (the sky domes). Ambient, lightmaps and reflection probes are the same for all three. Some Maps (park) have three identical entries.
+- Grade: AmplifyColor LUTs are 1024×32 (32 slices of 32×32, R across a slice, G up from the bottom row, B by slice), applied to the whole frame in sRGB-encoded values. The camera's tonemapper and exposure are not in the map files.
+- Helpers: `Cube (N)` collision boxes, and shadow-only casters such as 1F's `*_kage*` and `p_koi_map00_shadow`. Not every `*_kage*` or `*_shadow` is a helper: park's are visible fake-shadow decals.
 - Mods: 53 Sideloader map zipmods (305 Scene Bundles, 8.5 GB), laid out like the base game and stored uncompressed.
 
 ## KKS

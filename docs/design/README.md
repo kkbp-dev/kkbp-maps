@@ -2,7 +2,7 @@
 
 How kkbp-maps is meant to work. Terms are defined in [CONTEXT.md](../../CONTEXT.md). Decisions that would be surprising without context are in [docs/adr/](../adr/). What each Game's map data looks like is in [games.md](games.md), and the order of work is in [roadmap.md](roadmap.md).
 
-Status: designed, no code yet.
+Status: designed, no code yet. The KK spike's findings are in [kk-spike.md](kk-spike.md).
 
 ## Shape
 
@@ -28,9 +28,9 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - **D4 EEVEE first.** The look is matched in EEVEE with the Standard view transform. Cycles renders sensibly but isn't matched.
 - **D5 Two stages, one extension.** See "Shape".
 - **D6 Separate repository.** kkbp-maps adapts KKBP's patterns rather than sharing code with it, and stays compatible with KKBP Characters: the same scale, axes, units and colour space.
-- **D7 Lighting.** Map Variants use the Game's own Lightmap Set where it has one (KK, SVS, KKS's ported KK Studio Maps), plus a Lighting Rig recreated from the game's lights, sky, ambient light and fog. Props and Structures carry no lightmap.
-- **D8 One asset per Map Variant** (ADR 0003).
-- **D9 The Grade lives in materials**, through Variant Materials around shared Base Materials (ADR 0002).
+- **D7 Lighting.** Map Variants use the Game's own Lightmap Set where it has one (KK, SVS, KKS's ported KK Studio Maps), plus a Lighting Rig recreated from the game's lights, sky, ambient light and fog. Props and Structures carry no lightmap. KK's Sky Domes become the Map Variant's World background (the cubemap with its tint, exposure and rotation), and their clouds and stars stay as geometry in that Map Variant only, never as assets.
+- **D8 One asset per Map Variant** (ADR 0003). Times of Day that light a Map the same are one Map Variant, tagged with each of them (ADR 0009).
+- **D9 The Grade lives in materials**, through Variant Materials around shared Base Materials (ADR 0002). In EEVEE the Grade is applied to the lit result through Shader to RGB; a second Material Output gives Cycles the ungraded BSDF (ADR 0008).
 - **D10 One Map Library per Game**: `KK Maps`, `KKS Maps`, `SVS Maps`, with catalogs `Maps/<area>`, `Props/<category>` and `Structure/<area>`. Nothing is shared across Games. Catalog UUIDs are uuid5 of the catalog path, so they stay the same across rebuilds.
 - **D11 SVS's indoor rooms** are 2D sprites in the game: their 3D H furniture becomes Props and the backdrops are skipped.
 - **D12 Level of detail.** Only LOD0 is kept; billboards are dropped. Vegetation gets a simple generic wind, scaled from the SpeedTree wind where it can be read.
@@ -45,6 +45,7 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - **D21 Files out.** Textures are written as PNG; HDR lightmaps and cubemaps as EXR. An optional size limit scales textures down.
 - **D22 Studio Maps.** A Studio Map is a Map of its own only when its geometry hash differs from the story Map's.
 - **D23 Developer tools are Python**, not shell scripts, so they run on all three platforms.
+- **D24 Camera settings.** The game camera's tonemapper, exposure and sun shafts aren't in the map files. The capture plugin reads them once per Game, and they are kept in the repository as Game data (ADR 0010).
 
 ## ADRs
 
@@ -55,3 +56,6 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0005 Python dependencies download at first run](../adr/0005-dependencies-download-at-first-run.md)
 - [0006 Tests run locally, and the look is checked against Reference Captures](../adr/0006-tests-are-local-and-the-look-is-checked-against-reference-captures.md)
 - [0007 Game content is never committed](../adr/0007-game-content-is-never-committed.md)
+- [0008 The Grade is applied to the lit result in EEVEE, with an ungraded output for Cycles](../adr/0008-the-grade-is-applied-to-the-lit-result-in-eevee.md)
+- [0009 Times of Day that light a Map the same are one Map Variant](../adr/0009-identical-times-of-day-are-one-map-variant.md)
+- [0010 The game camera's settings are captured once and kept as Game data](../adr/0010-camera-settings-are-captured-once-as-game-data.md)

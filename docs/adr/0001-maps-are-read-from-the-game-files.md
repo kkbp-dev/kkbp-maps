@@ -10,5 +10,5 @@ KKBP captures Characters inside the running game with BepInEx plugins. kkbp-maps
 
 ## Consequences
 
-- The Extractor works out what the game would do at runtime: which objects each Time of Day shows (`SunLightInfo.visibleList` in KK and KKS), which lightmaps each renderer uses (KK's `LightmapPrefab`, not the renderer's own field; SVS's external `LightmapSettings` matched by object name) and which bundles a scene depends on.
-- The game still runs on developers' machines, but only for Reference Captures (ADR 0006), never for users.
+- The Extractor works out what the game would do at runtime: which objects each Time of Day shows (`SunLightInfo.visibleList` in KK and KKS), which lightmaps each renderer uses (in KK, the renderer's own fields, replaced by its `LightmapPrefab` entry where it has one; SVS's external `LightmapSettings` matched by object name) and which bundles a scene depends on.
+- The game still runs on developers' machines, but only for Reference Captures (ADR 0006) and the camera settings no file holds (ADR 0010), never for users.

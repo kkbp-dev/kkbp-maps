@@ -4,7 +4,7 @@ Instructions for an AI agent (or anyone) changing this repository. Read this fir
 
 kkbp-maps reads the maps of a user's own KK, KKS or SVS install and builds Blender asset libraries from them. It is one Blender extension in two stages: the **Extractor** writes **Map Bundles**, and the **Builder** turns them into a **Map Library**. It is a sister project of KKBP, whose repository sits beside this one at `../kkbp` on the development machine.
 
-Status: Phase 0 of [docs/design/roadmap.md](docs/design/roadmap.md). The design is settled; there is no code yet.
+Status: Phase 1 of [docs/design/roadmap.md](docs/design/roadmap.md) is done ([docs/design/kk-spike.md](docs/design/kk-spike.md)). The design is settled; there is no code yet.
 
 ## Read before changing anything
 

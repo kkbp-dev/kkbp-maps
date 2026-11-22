@@ -2,7 +2,7 @@
 
 How kkbp-maps is meant to work. Terms are defined in [CONTEXT.md](../../CONTEXT.md). Decisions that would be surprising without context are in [docs/adr/](../adr/). What each Game's map data looks like is in [games.md](games.md), and the order of work is in [roadmap.md](roadmap.md).
 
-Status: designed, no code yet. The KK spike's findings are in [kk-spike.md](kk-spike.md).
+Status: the KK spike's findings are in [kk-spike.md](kk-spike.md), and the Map Bundle contract is in [map-bundle.md](map-bundle.md).
 
 ## Shape
 
@@ -14,7 +14,7 @@ game install ──Extractor──▶ Map Bundles (cache) ──Builder──▶
 ```
 
 - The **Extractor** reads a Game install from disk (ADR 0001) and writes one Map Bundle per Map. It never imports `bpy`, so its tests run on any Python, and a build resumes where it stopped.
-- The **Map Bundle** is a contract in KKBP's style: JSON Schemas with `additionalProperties: false`, closed sets, a Manifest written last and a `major.minor` Schema Version.
+- The **Map Bundle** is a contract in KKBP's style: JSON Schemas with `additionalProperties: false`, closed sets, a Manifest written last and a `major.minor` Schema Version ([map-bundle.md](map-bundle.md)).
 - The **Builder** turns Map Bundles into a Map Library: Props, Structures and Map Variants, marked as assets with catalogs, tags and previews.
 - Both run from an N-panel or from `blender -b`. Planned package layout: `extension/kkbp_maps/` with `extractor/` and `bundle/` (both bpy-free), `builder/`, `ui/`, `compat/` (the only place that checks Blender's version) and `deps/` (the first-run installer).
 
@@ -45,7 +45,8 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - **D21 Files out.** Textures are written as PNG; HDR lightmaps and cubemaps as EXR. An optional size limit scales textures down.
 - **D22 Studio Maps.** A Studio Map is a Map of its own only when its geometry hash differs from the story Map's.
 - **D23 Developer tools are Python**, not shell scripts, so they run on all three platforms.
-- **D24 Camera settings.** The game camera's tonemapper, exposure and sun shafts aren't in the map files. The capture plugin reads them once per Game, and they are kept in the repository as Game data (ADR 0010).
+- **D24 Camera settings.** The game camera's tonemapper, exposure and sun shafts aren't in the map files. The capture plugin reads them once per Game, and they are kept in the repository as Game data, one Camera Profile per game camera (ADR 0010). Each Map names the Camera Profile that shows it.
+- **D25 The Map Bundle** is in Blender's space (ADR 0011), names meshes, materials and textures by Content Hash (ADR 0012), and is checked by `bundle/`'s own validator (ADR 0013). Its Schema Version is `0.x`, matched exactly, until the first release (ADR 0014). See [map-bundle.md](map-bundle.md).
 
 ## ADRs
 

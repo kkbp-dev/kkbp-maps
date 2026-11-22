@@ -29,3 +29,41 @@ def test_bundle_imports_itself_only_relatively():
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     assert alias.name.split(".")[0] in sys.stdlib_module_names, f"{path.name} imports {alias.name}"
+
+
+# --- the Extractor --------------------------------------------------------------------------------
+
+EXTRACTOR = PACKAGE_PARENT / "extractor"
+EXTRACTOR_THIRD_PARTY = {"numpy", "PIL", "UnityPy"}
+
+
+def test_the_extractor_never_imports_bpy_and_only_its_dependencies():
+    for path in sorted(EXTRACTOR.glob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            names = []
+            if isinstance(node, ast.Import):
+                names = [a.name for a in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.level == 0:
+                names = [node.module]
+            for name in names:
+                top = name.split(".")[0]
+                assert top != "bpy", f"{path.name} imports bpy"
+                assert top in sys.stdlib_module_names or top in EXTRACTOR_THIRD_PARTY, f"{path.name} imports {name}"
+
+
+def test_only_unity_py_imports_unitypy():
+    for path in sorted(EXTRACTOR.glob("*.py")):
+        if path.name == "unity.py":
+            continue
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
+                [node.module or ""] if isinstance(node, ast.ImportFrom) else []
+            assert not any(n.startswith("UnityPy") for n in names), f"{path.name} imports UnityPy"
+
+
+def test_only_space_py_holds_the_axis_matrix():
+    """ADR 0011: nothing else converts axes. The tell-tale is building (-x, -z, y) by hand."""
+    for path in sorted(EXTRACTOR.glob("*.py")):
+        if path.name != "space.py":
+            text = path.read_text(encoding="utf-8")
+            assert "[-x, -z, y]" not in text and "np.diag([-1" not in text, f"{path.name} converts axes"

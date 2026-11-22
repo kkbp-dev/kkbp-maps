@@ -20,6 +20,7 @@ from .unity import HDR_FORMATS, Ref, Store
 WRAP = {0: "repeat", 1: "clamp", 2: "mirror", 3: "mirror_once"}
 FILTER = {0: "point", 1: "bilinear", 2: "trilinear"}
 CUBE_EQUIRECT_SCALE = 4  # an equirectangular image is 4 faces wide and 2 high
+MAX_EQUIRECT_WIDTH = 4096  # 4 × KK's 1024² sky faces; larger faces gain nothing a world background shows
 
 
 class Textures:
@@ -105,7 +106,7 @@ class Textures:
         def make():
             info = store.texture(ref)
             faces = [_linear_float(store.pixels(ref, f), info.color_space, info.format) for f in range(6)]
-            return self.add(space.cubemap_to_equirect(faces, CUBE_EQUIRECT_SCALE * info.width), name=info.name,
+            return self.add(space.cubemap_to_equirect(faces, min(MAX_EQUIRECT_WIDTH, CUBE_EQUIRECT_SCALE * info.width)), name=info.name,
                             color_space="linear", limit=True)
         return self.once(("cubemap", ref), make)
 
@@ -118,7 +119,7 @@ class Textures:
                 faces[slot] = _linear_float(store.pixels(ref), info.color_space, info.format)
             cube = space.six_sided_to_cube(faces["_FrontTex"], faces["_BackTex"], faces["_LeftTex"],
                                            faces["_RightTex"], faces["_UpTex"], faces["_DownTex"])
-            width = CUBE_EQUIRECT_SCALE * max(f.shape[1] for f in cube)
+            width = min(MAX_EQUIRECT_WIDTH, CUBE_EQUIRECT_SCALE * max(f.shape[1] for f in cube))
             return self.add(space.cubemap_to_equirect(cube, width), name=name, color_space="linear", limit=True)
         return self.once(("six_sided", tuple(sorted(refs.items()))), make)
 

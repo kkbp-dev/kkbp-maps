@@ -147,13 +147,13 @@ def sh_eval(coefficients, direction) -> list[float]:
 
 # --- cubemaps and directional lightmaps --------------------------------------------------------
 
-def equirect_directions(width: int, height: int) -> np.ndarray:
+def equirect_directions(width: int, height: int, rows: range | None = None) -> np.ndarray:
     """The Blender world direction of each texel centre of an equirectangular image (height × width ×
     3), rows top first, as Blender's Environment Texture maps it: u = 0.5 - atan2(y, x) / 2π, and
     v = 0.5 + elevation / π with v = 1 at the top row. Measured in Blender 5.2.2 by rendering a UV
     image through a world: +X at u 0.5, +Y at u 0.25, -Y at u 0.75."""
     u = (np.arange(width) + 0.5) / width
-    v = 1.0 - (np.arange(height) + 0.5) / height
+    v = 1.0 - (np.asarray(rows if rows is not None else range(height)) + 0.5) / height
     azimuth = (0.5 - u) * 2 * math.pi
     elevation = (v - 0.5) * math.pi
     az, el = np.meshgrid(azimuth, elevation)
@@ -190,22 +190,29 @@ def cube_lookup(directions: np.ndarray):
     return face, col, row
 
 
+EQUIRECT_ROWS_PER_PASS = 128
+
+
 def cubemap_to_equirect(faces: list[np.ndarray], width: int, rotation_deg: float = 0.0) -> np.ndarray:
     """A Unity cubemap's six faces (each H × W × C, rows top first, in face order) as an equirectangular
     image in Blender's world axes, width × width/2, bilinear. `rotation_deg` turns the sky about
     Unity's +Y as Unity's skybox shaders do with _Rotation; the Extractor writes skies at 0."""
     height = width // 2
-    dirs = equirect_directions(width, height).reshape(-1, 3)
-    u = unity_vectors(dirs)
-    if rotation_deg:
-        u = u @ _rot_y(-rotation_deg).T
-    face, col, row = cube_lookup(u)
     channels = faces[0].shape[2]
-    out = np.empty((len(u), channels), dtype=np.float32)
-    for f in range(6):
-        m = face == f
-        out[m] = _bilinear(faces[f], col[m], row[m])
-    return out.reshape(height, width, channels)
+    out = np.empty((height, width, channels), dtype=np.float32)
+    turn = _rot_y(-rotation_deg).T if rotation_deg else None
+    for y0 in range(0, height, EQUIRECT_ROWS_PER_PASS):  # in bands, to keep memory low
+        y1 = min(height, y0 + EQUIRECT_ROWS_PER_PASS)
+        u = unity_vectors(equirect_directions(width, height, range(y0, y1)).reshape(-1, 3))
+        if turn is not None:
+            u = u @ turn
+        face, col, row = cube_lookup(u)
+        band = np.empty((len(u), channels), dtype=np.float32)
+        for f in range(6):
+            m = face == f
+            band[m] = _bilinear(faces[f], col[m], row[m])
+        out[y0:y1] = band.reshape(y1 - y0, width, channels)
+    return out
 
 
 def six_sided_to_cube(front, back, left, right, up, down) -> list[np.ndarray]:

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/sets/skip-reason.schema.json",
+  "title": "Skip reason",
+  "description": "Something the Extractor saw in a Map and couldn't carry into the bundle, counted for the Build Report.",
+  "type": "string",
+  "enum": [
+    "realtime_gi",
+    "particles",
+    "volumetric",
+    "skinned",
+    "animated",
+    "lod",
+    "billboard",
+    "unreadable_mesh"
+  ]
+}

@@ -1,0 +1,328 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/variants.schema.json",
+  "title": "variants.json",
+  "description": "The Map Variants: one per distinct lighting state, each covering the Times of Day that light the Map the same (ADR 0009).",
+  "type": "object",
+  "properties": {
+    "variants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The first Time of Day the Map Variant covers.",
+            "$ref": "sets/time-of-day.schema.json"
+          },
+          "times_of_day": { "$ref": "common.schema.json#/$defs/times_of_day" },
+          "hidden": {
+            "description": "The nodes this Map Variant hides, with everything under them, sorted.",
+            "type": "array",
+            "items": { "$ref": "common.schema.json#/$defs/node" }
+          },
+          "lightmap_set": {
+            "oneOf": [
+              { "$ref": "common.schema.json#/$defs/lightmap_set" },
+              { "type": "null" }
+            ]
+          },
+          "lights": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/light" }
+          },
+          "ambient": { "$ref": "#/$defs/ambient" },
+          "fog": { "$ref": "#/$defs/fog" },
+          "reflection": { "$ref": "#/$defs/reflection" },
+          "sky": {
+            "oneOf": [
+              { "$ref": "#/$defs/cubemap_sky" },
+              { "$ref": "#/$defs/procedural_sky" },
+              { "type": "null" }
+            ]
+          },
+          "sun_shafts": {
+            "description": "The sun shafts' colour; their strength is in the Camera Profile.",
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "color": { "$ref": "common.schema.json#/$defs/color" }
+                },
+                "required": ["color"],
+                "additionalProperties": false
+              },
+              { "type": "null" }
+            ]
+          },
+          "grade": {
+            "oneOf": [
+              { "$ref": "#/$defs/amplify_color_grade" },
+              { "type": "null" }
+            ]
+          }
+        },
+        "required": ["id", "times_of_day", "hidden", "lightmap_set", "lights", "ambient", "fog", "reflection", "sky", "sun_shafts", "grade"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["variants"],
+  "additionalProperties": false,
+  "$defs": {
+    "light": {
+      "description": "A game light. Its rotation follows Blender's convention: it shines along its local -Z. Colour and intensity are as the game serialized them, after the Time of Day's changes.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "directional" },
+            "rotation": { "$ref": "common.schema.json#/$defs/quat" },
+            "color": { "$ref": "common.schema.json#/$defs/color" },
+            "intensity": { "type": "number" },
+            "shadows": { "$ref": "#/$defs/shadows" },
+            "mode": { "$ref": "#/$defs/light_mode" }
+          },
+          "required": ["type", "rotation", "color", "intensity", "shadows", "mode"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "point" },
+            "position": { "$ref": "common.schema.json#/$defs/vec3" },
+            "color": { "$ref": "common.schema.json#/$defs/color" },
+            "intensity": { "type": "number" },
+            "range": { "type": "number", "minimum": 0 },
+            "shadows": { "$ref": "#/$defs/shadows" },
+            "mode": { "$ref": "#/$defs/light_mode" }
+          },
+          "required": ["type", "position", "color", "intensity", "range", "shadows", "mode"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "spot" },
+            "position": { "$ref": "common.schema.json#/$defs/vec3" },
+            "rotation": { "$ref": "common.schema.json#/$defs/quat" },
+            "color": { "$ref": "common.schema.json#/$defs/color" },
+            "intensity": { "type": "number" },
+            "range": { "type": "number", "minimum": 0 },
+            "spot_angle": {
+              "description": "The full cone angle in degrees.",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 180
+            },
+            "shadows": { "$ref": "#/$defs/shadows" },
+            "mode": { "$ref": "#/$defs/light_mode" }
+          },
+          "required": ["type", "position", "rotation", "color", "intensity", "range", "spot_angle", "shadows", "mode"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "area" },
+            "position": { "$ref": "common.schema.json#/$defs/vec3" },
+            "rotation": { "$ref": "common.schema.json#/$defs/quat" },
+            "size": {
+              "description": "Width and height in metres, along the light's local X and Y.",
+              "$ref": "common.schema.json#/$defs/vec2"
+            },
+            "color": { "$ref": "common.schema.json#/$defs/color" },
+            "intensity": { "type": "number" },
+            "range": { "type": "number", "minimum": 0 },
+            "shadows": { "$ref": "#/$defs/shadows" },
+            "mode": { "$ref": "#/$defs/light_mode" }
+          },
+          "required": ["type", "position", "rotation", "size", "color", "intensity", "range", "shadows", "mode"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "shadows": {
+      "type": "string",
+      "enum": ["none", "hard", "soft"]
+    },
+    "light_mode": {
+      "description": "realtime and mixed lights light the Map Variant; a baked light's light is already in the Lightmap Set.",
+      "type": "string",
+      "enum": ["realtime", "mixed", "baked"]
+    },
+    "sh": {
+      "description": "An L2 spherical-harmonics probe as 27 floats: 9 red, 9 green, 9 blue coefficients in Unity's SphericalHarmonicsL2 order, with the basis functions' x, y and z being Blender's world axes.",
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 27,
+      "maxItems": 27
+    },
+    "ambient": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "mode": { "const": "flat" },
+            "intensity": { "type": "number" },
+            "sky_color": { "$ref": "common.schema.json#/$defs/color" },
+            "sh": {
+              "description": "The probe the game still holds, which flat ambient doesn't use.",
+              "$ref": "#/$defs/sh"
+            }
+          },
+          "required": ["mode", "intensity", "sky_color"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": { "const": "trilight" },
+            "intensity": { "type": "number" },
+            "sky_color": { "$ref": "common.schema.json#/$defs/color" },
+            "equator_color": { "$ref": "common.schema.json#/$defs/color" },
+            "ground_color": { "$ref": "common.schema.json#/$defs/color" },
+            "sh": {
+              "description": "The probe the game still holds, which trilight ambient doesn't use.",
+              "$ref": "#/$defs/sh"
+            }
+          },
+          "required": ["mode", "intensity", "sky_color", "equator_color", "ground_color"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": { "const": "skybox_sh" },
+            "intensity": { "type": "number" },
+            "sh": { "$ref": "#/$defs/sh" }
+          },
+          "required": ["mode", "intensity", "sh"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fog": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "mode": {
+          "type": "string",
+          "enum": ["linear", "exponential", "exponential_squared"]
+        },
+        "color": { "$ref": "common.schema.json#/$defs/color" },
+        "start": { "type": "number" },
+        "end": { "type": "number" },
+        "density": { "type": "number" }
+      },
+      "required": ["enabled", "mode", "color", "start", "end", "density"],
+      "additionalProperties": false
+    },
+    "probe": {
+      "type": "object",
+      "properties": {
+        "texture": {
+          "description": "The probe's cubemap as an equirectangular EXR, in Blender's world orientation.",
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "position": { "$ref": "common.schema.json#/$defs/vec3" },
+        "box_size": {
+          "description": "The probe's box along Blender's world axes, in metres.",
+          "$ref": "common.schema.json#/$defs/vec3"
+        },
+        "box_projection": { "type": "boolean" },
+        "intensity": { "type": "number" }
+      },
+      "required": ["texture", "position", "box_size", "box_projection", "intensity"],
+      "additionalProperties": false
+    },
+    "reflection": {
+      "description": "The environment reflection, and the reflection probes.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "source": { "const": "skybox" },
+            "intensity": { "type": "number" },
+            "probes": { "type": "array", "items": { "$ref": "#/$defs/probe" } }
+          },
+          "required": ["source", "intensity", "probes"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "source": { "const": "custom" },
+            "intensity": { "type": "number" },
+            "texture": {
+              "description": "The custom reflection cubemap as an equirectangular EXR, in Blender's world orientation.",
+              "$ref": "common.schema.json#/$defs/hash"
+            },
+            "probes": { "type": "array", "items": { "$ref": "#/$defs/probe" } }
+          },
+          "required": ["source", "intensity", "texture", "probes"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "sky_geometry": {
+      "description": "The sky nodes this Map Variant shows: the Sky Dome's clouds or stars.",
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/node" }
+    },
+    "cubemap_sky": {
+      "description": "A cubemap sky: a Sky Dome's, or the skybox where the Map has no dome (D7).",
+      "type": "object",
+      "properties": {
+        "kind": { "const": "cubemap" },
+        "source": {
+          "type": "string",
+          "enum": ["dome", "skybox"]
+        },
+        "texture": {
+          "description": "The cubemap as an equirectangular EXR, in Blender's world orientation at rotation 0.",
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "tint": { "$ref": "common.schema.json#/$defs/color" },
+        "exposure": { "type": "number" },
+        "rotation": {
+          "description": "Degrees about Blender's +Z, right-handed.",
+          "type": "number"
+        },
+        "geometry": { "$ref": "#/$defs/sky_geometry" }
+      },
+      "required": ["kind", "source", "texture", "tint", "exposure", "rotation", "geometry"],
+      "additionalProperties": false
+    },
+    "procedural_sky": {
+      "description": "Unity's procedural skybox, by its Raw Properties.",
+      "type": "object",
+      "properties": {
+        "kind": { "const": "procedural" },
+        "source": { "const": "skybox" },
+        "colors": { "$ref": "common.schema.json#/$defs/colors" },
+        "floats": { "$ref": "common.schema.json#/$defs/floats" },
+        "geometry": { "$ref": "#/$defs/sky_geometry" }
+      },
+      "required": ["kind", "source", "colors", "floats", "geometry"],
+      "additionalProperties": false
+    },
+    "amplify_color_grade": {
+      "description": "An AmplifyColor Grade. The tonemapper and exposure it runs after are in the Map's Camera Profile (ADR 0010).",
+      "type": "object",
+      "properties": {
+        "kind": { "const": "amplify_color" },
+        "lut": {
+          "description": "A linear PNG.",
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "layout": {
+          "description": "amplify_32x32: 1024 × 32, defined in the rule text.",
+          "const": "amplify_32x32"
+        }
+      },
+      "required": ["kind", "lut", "layout"],
+      "additionalProperties": false
+    }
+  }
+}

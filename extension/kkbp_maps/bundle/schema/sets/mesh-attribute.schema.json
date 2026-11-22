@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/sets/mesh-attribute.schema.json",
+  "title": "Mesh attribute",
+  "description": "A vertex attribute of a mesh file. Listed in the order they come in the file; position and normal always come first.",
+  "type": "string",
+  "enum": [
+    "position",
+    "normal",
+    "uv0",
+    "uv1"
+  ]
+}

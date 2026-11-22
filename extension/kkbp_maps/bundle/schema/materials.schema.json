@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/materials.schema.json",
+  "title": "materials.json",
+  "description": "One record per unique material: the game shader's values keyed by Raw Property, and its textures.",
+  "type": "object",
+  "properties": {
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The material's Content Hash, defined in the rule text.",
+            "$ref": "common.schema.json#/$defs/hash"
+          },
+          "name": {
+            "description": "The game's material name where it was first seen.",
+            "type": "string"
+          },
+          "shader": {
+            "description": "The game shader's name.",
+            "type": "string",
+            "minLength": 1
+          },
+          "keywords": {
+            "description": "The material's shader keywords, sorted.",
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "render_queue": { "type": "integer" },
+          "blend_mode": { "$ref": "sets/blend-mode.schema.json" },
+          "double_sided": { "type": "boolean" },
+          "colors": { "$ref": "common.schema.json#/$defs/colors" },
+          "floats": { "$ref": "common.schema.json#/$defs/floats" },
+          "vectors": { "$ref": "common.schema.json#/$defs/vectors" },
+          "textures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": { "$ref": "sets/texture-role.schema.json" },
+                "raw": {
+                  "description": "The Raw Property: the game shader's own name for the slot.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texture": { "$ref": "common.schema.json#/$defs/hash" },
+                "offset": { "$ref": "common.schema.json#/$defs/vec2" },
+                "scale": { "$ref": "common.schema.json#/$defs/vec2" }
+              },
+              "required": ["raw", "texture", "offset", "scale"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["id", "name", "shader", "keywords", "render_queue", "blend_mode", "double_sided", "colors", "floats", "vectors", "textures"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["materials"],
+  "additionalProperties": false
+}

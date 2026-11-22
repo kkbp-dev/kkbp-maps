@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/map.schema.json",
+  "title": "map.json",
+  "description": "The Map's metadata. Names are the game's own; the Builder translates them with the Name Tables.",
+  "type": "object",
+  "properties": {
+    "key": { "$ref": "common.schema.json#/$defs/map_key" },
+    "times_of_day": {
+      "description": "The Times of Day the game gives this Map. A Map with no Time of Day switch has all of its Game's.",
+      "$ref": "common.schema.json#/$defs/times_of_day"
+    },
+    "outdoor": { "type": "boolean" },
+    "camera": {
+      "description": "The Camera Profile whose settings the Grade and the sun shafts run with. The bundle names it; the settings are Game data (ADR 0010).",
+      "$ref": "sets/camera.schema.json"
+    },
+    "list_entries": {
+      "description": "The game list entries that show this Map. A Studio Map whose geometry is the same as a story Map's is an entry here, not a Map of its own (D22).",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "list": { "$ref": "sets/map-list.schema.json" },
+          "no": {
+            "description": "The entry's number in that list.",
+            "type": "integer"
+          },
+          "name": {
+            "description": "The entry's name, as the list has it.",
+            "type": "string",
+            "minLength": 1
+          },
+          "display_name": {
+            "description": "The name the game shows, where the list has one apart from its name.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["list", "no", "name"],
+        "additionalProperties": false
+      }
+    },
+    "thumbnails": {
+      "description": "The game's own thumbnails, each for the Times of Day it shows.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "times_of_day": { "$ref": "common.schema.json#/$defs/times_of_day" },
+          "texture": { "$ref": "common.schema.json#/$defs/hash" }
+        },
+        "required": ["times_of_day", "texture"],
+        "additionalProperties": false
+      }
+    },
+    "geometry_hash": {
+      "description": "The Content Hash of the whole node tree, which tells two Maps with the same geometry apart from two that differ (D22).",
+      "$ref": "common.schema.json#/$defs/hash"
+    },
+    "skipped": {
+      "description": "What the Extractor saw and couldn't carry, counted.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reason": { "$ref": "sets/skip-reason.schema.json" },
+          "count": { "type": "integer", "minimum": 1 }
+        },
+        "required": ["reason", "count"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["key", "times_of_day", "outdoor", "camera", "list_entries", "thumbnails", "geometry_hash", "skipped"],
+  "additionalProperties": false
+}

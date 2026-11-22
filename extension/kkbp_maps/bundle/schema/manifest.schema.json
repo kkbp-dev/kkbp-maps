@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/manifest.schema.json",
+  "title": "manifest.json",
+  "description": "Identifies a Map Bundle. Written last; a bundle without one is unfinished.",
+  "type": "object",
+  "properties": {
+    "game": { "$ref": "common.schema.json#/$defs/game" },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "extractor": {
+      "description": "Informational only; never used to accept or reject a bundle.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 }
+      },
+      "required": ["name", "version"],
+      "additionalProperties": false
+    },
+    "extracted_at": {
+      "description": "RFC 3339 time in UTC.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+    },
+    "map": { "$ref": "common.schema.json#/$defs/map_key" },
+    "options": {
+      "description": "The extraction options used.",
+      "type": "object",
+      "properties": {
+        "max_texture_size": {
+          "description": "The longest side a texture was scaled down to (D21), or null for none.",
+          "oneOf": [
+            { "type": "integer", "minimum": 1 },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": ["max_texture_size"],
+      "additionalProperties": false
+    },
+    "sources": {
+      "description": "The game files the bundle was made from, so a cache can tell when it is stale.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "description": "Relative to the game folder, with forward slashes.",
+            "type": "string",
+            "pattern": "^(?!/)(?!.*[\\\\:])(?!(.*/)?\\.\\.(/|$)).+$"
+          },
+          "bytes": { "$ref": "common.schema.json#/$defs/count" },
+          "sha256": { "$ref": "common.schema.json#/$defs/sha256" }
+        },
+        "required": ["path", "bytes", "sha256"],
+        "additionalProperties": false
+      }
+    },
+    "contents": {
+      "description": "What the bundle holds, for the Build Report and estimates.",
+      "type": "object",
+      "properties": {
+        "nodes": { "$ref": "common.schema.json#/$defs/count" },
+        "meshes": { "$ref": "common.schema.json#/$defs/count" },
+        "materials": { "$ref": "common.schema.json#/$defs/count" },
+        "textures": { "$ref": "common.schema.json#/$defs/count" },
+        "lightmap_sets": { "$ref": "common.schema.json#/$defs/count" },
+        "variants": { "$ref": "common.schema.json#/$defs/count" },
+        "candidates": { "$ref": "common.schema.json#/$defs/count" },
+        "placements": { "$ref": "common.schema.json#/$defs/count" },
+        "bytes": {
+          "description": "The size of every file in the bundle except manifest.json.",
+          "$ref": "common.schema.json#/$defs/count"
+        }
+      },
+      "required": ["nodes", "meshes", "materials", "textures", "lightmap_sets", "variants", "candidates", "placements", "bytes"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["game", "schema_version", "extractor", "extracted_at", "map", "options", "sources", "contents"],
+  "additionalProperties": false
+}

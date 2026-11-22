@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/scene.schema.json",
+  "title": "scene.json",
+  "description": "The Map's nodes, Helpers left out, in walk order: a node's id is its position in the list, and its parent comes before it.",
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/node" },
+          "name": {
+            "description": "The game's object name.",
+            "type": "string"
+          },
+          "parent": {
+            "oneOf": [
+              { "$ref": "common.schema.json#/$defs/node" },
+              { "type": "null" }
+            ]
+          },
+          "translation": { "$ref": "common.schema.json#/$defs/vec3" },
+          "rotation": { "$ref": "common.schema.json#/$defs/quat" },
+          "scale": { "$ref": "common.schema.json#/$defs/vec3" },
+          "renderer": { "$ref": "#/$defs/renderer" },
+          "sky": {
+            "description": "Part of a Sky Dome's clouds or stars: shown only in the Map Variants whose Sky lists it, and never a Candidate. Every descendant of a sky node is one too.",
+            "const": true
+          }
+        },
+        "required": ["id", "name", "parent", "translation", "rotation", "scale"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["nodes"],
+  "additionalProperties": false,
+  "$defs": {
+    "renderer": {
+      "type": "object",
+      "properties": {
+        "mesh": { "$ref": "common.schema.json#/$defs/hash" },
+        "draws": {
+          "description": "What the renderer draws, in the game's order: each a submesh of its mesh with a material. A submesh that appears twice is drawn again with another material, as a second pass.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "submesh": { "type": "integer", "minimum": 0 },
+              "material": { "$ref": "common.schema.json#/$defs/hash" }
+            },
+            "required": ["submesh", "material"],
+            "additionalProperties": false
+          }
+        },
+        "cast_shadows": { "type": "boolean" },
+        "receive_shadows": { "type": "boolean" }
+      },
+      "required": ["mesh", "draws", "cast_shadows", "receive_shadows"],
+      "additionalProperties": false
+    }
+  }
+}

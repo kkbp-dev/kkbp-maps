@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/textures.schema.json",
+  "title": "textures.json",
+  "description": "Every texture the bundle uses, for materials, lightmaps, skies, reflections, Grades and thumbnails. Its file is textures/<id>.<format>, top row first.",
+  "type": "object",
+  "properties": {
+    "textures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The Content Hash of the full-size decoded pixels, before any size limit (ADR 0012).",
+            "$ref": "common.schema.json#/$defs/hash"
+          },
+          "name": {
+            "description": "The game's texture name.",
+            "type": "string"
+          },
+          "format": {
+            "description": "png: 8 bits per channel. exr: half float, for HDR values (D21).",
+            "type": "string",
+            "enum": ["png", "exr"]
+          },
+          "width": { "type": "integer", "minimum": 1 },
+          "height": { "type": "integer", "minimum": 1 },
+          "color_space": {
+            "description": "srgb: the file holds sRGB-encoded colours, which the game decodes when it samples them. linear: the values are used as stored (masks, normal maps, LUTs, lightmap directions, HDR).",
+            "type": "string",
+            "enum": ["srgb", "linear"]
+          },
+          "wrap": {
+            "description": "The wrap mode along U and V.",
+            "type": "array",
+            "items": { "type": "string", "enum": ["repeat", "clamp", "mirror", "mirror_once"] },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "filter": {
+            "type": "string",
+            "enum": ["point", "bilinear", "trilinear"]
+          }
+        },
+        "required": ["id", "name", "format", "width", "height", "color_space", "wrap", "filter"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["textures"],
+  "additionalProperties": false
+}

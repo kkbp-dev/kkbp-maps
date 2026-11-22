@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/common.schema.json",
+  "title": "Shared definitions",
+  "description": "Every position, rotation, scale and direction is in Blender's space: right-handed, +Z up, metres (ADR 0011).",
+  "$defs": {
+    "game": {
+      "type": "string",
+      "enum": ["KK", "KKS", "SVS"]
+    },
+    "hash": {
+      "description": "A Content Hash: the first 32 hex digits of a SHA-256 (ADR 0012).",
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "sha256": {
+      "description": "A whole SHA-256, in lower-case hex.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "node": {
+      "description": "A node id: its position in scene.json's node list.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "map_key": {
+      "description": "A Map's key: the path of its Scene Bundle in the game's asset folder, without the file extension, such as map/scene/1f.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$"
+    },
+    "lightmap_set": {
+      "description": "A Lightmap Set id.",
+      "type": "string",
+      "pattern": "^[a-z0-9_]{1,32}$"
+    },
+    "times_of_day": {
+      "description": "Times of Day, each once, in their set's order.",
+      "type": "array",
+      "items": { "$ref": "sets/time-of-day.schema.json" },
+      "minItems": 1
+    },
+    "vec2": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "vec3": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "vec4": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "quat": {
+      "description": "A unit quaternion as [w, x, y, z], Blender's order.",
+      "$ref": "#/$defs/vec4"
+    },
+    "color": {
+      "description": "[r, g, b, a] exactly as the game serialized it, with no colour space conversion.",
+      "$ref": "#/$defs/vec4"
+    },
+    "colors": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/color" }
+    },
+    "floats": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    },
+    "vectors": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/vec4" }
+    }
+  }
+}

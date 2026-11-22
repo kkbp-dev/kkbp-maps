@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/assets.schema.json",
+  "title": "assets.json",
+  "description": "The Prop and Structure Candidates the Extractor proposes, each with its Placements. The Builder applies the Name Tables' overrides.",
+  "type": "object",
+  "properties": {
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "description": "The Candidate's Content Hash: the shape hash of its root, defined in the rule text.",
+            "$ref": "common.schema.json#/$defs/hash"
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["prop", "structure"]
+          },
+          "rule": { "$ref": "sets/candidate-rule.schema.json" },
+          "placements": {
+            "description": "The root node of each Placement. Its transform is the node's world transform.",
+            "type": "array",
+            "items": { "$ref": "common.schema.json#/$defs/node" },
+            "minItems": 1
+          }
+        },
+        "required": ["hash", "kind", "rule", "placements"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["candidates"],
+  "additionalProperties": false
+}

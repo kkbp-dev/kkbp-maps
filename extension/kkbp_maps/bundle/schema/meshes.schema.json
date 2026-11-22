@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/meshes.schema.json",
+  "title": "meshes.json",
+  "description": "One record per unique mesh. Its data is meshes/<id>.bin: each attribute in turn as little-endian float32 for every vertex (position and normal 3 each, a UV set 2), then every submesh's triangle indices in turn as little-endian uint32, winding already converted (ADR 0011).",
+  "type": "object",
+  "properties": {
+    "meshes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The SHA-256 of the mesh file, cut to 32 hex digits.",
+            "$ref": "common.schema.json#/$defs/hash"
+          },
+          "name": {
+            "description": "The game's mesh name where it was first seen.",
+            "type": "string"
+          },
+          "vertices": { "type": "integer", "minimum": 1 },
+          "attributes": {
+            "type": "array",
+            "items": { "$ref": "sets/mesh-attribute.schema.json" },
+            "minItems": 2
+          },
+          "index_counts": {
+            "description": "Each submesh's number of indices, three per triangle.",
+            "type": "array",
+            "items": { "type": "integer", "minimum": 3 },
+            "minItems": 1
+          }
+        },
+        "required": ["id", "name", "vertices", "attributes", "index_counts"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["meshes"],
+  "additionalProperties": false
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kkbp-maps.invalid/0.1/lightmaps.schema.json",
+  "title": "lightmaps.json",
+  "description": "The Lightmap Sets: the baked light of one or more Map Variants, with the lightmap each renderer uses as the Extractor resolved it.",
+  "type": "object",
+  "properties": {
+    "sets": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/lightmap_set" },
+              "mode": { "const": "non_directional" },
+              "lightmaps": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "index": { "type": "integer", "minimum": 0 },
+                    "color": { "$ref": "#/$defs/color" }
+                  },
+                  "required": ["index", "color"],
+                  "additionalProperties": false
+                }
+              },
+              "assignments": { "$ref": "#/$defs/assignments" }
+            },
+            "required": ["id", "mode", "lightmaps", "assignments"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/lightmap_set" },
+              "mode": { "const": "directional" },
+              "direction_space": {
+                "description": "The space the direction lightmaps' vectors are in: Blender's world axes.",
+                "const": "world"
+              },
+              "lightmaps": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "index": { "type": "integer", "minimum": 0 },
+                    "color": { "$ref": "#/$defs/color" },
+                    "direction": {
+                      "description": "A linear PNG of the same size: RGB is 0.5 + 0.5 · the dominant light direction in Blender's world axes, A the directionality weight.",
+                      "$ref": "common.schema.json#/$defs/hash"
+                    }
+                  },
+                  "required": ["index", "color", "direction"],
+                  "additionalProperties": false
+                }
+              },
+              "assignments": { "$ref": "#/$defs/assignments" }
+            },
+            "required": ["id", "mode", "direction_space", "lightmaps", "assignments"],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": ["sets"],
+  "additionalProperties": false,
+  "$defs": {
+    "color": {
+      "description": "A linear EXR of the decoded light (RGBM decoded, D21).",
+      "$ref": "common.schema.json#/$defs/hash"
+    },
+    "assignments": {
+      "description": "Each lightmapped renderer of the set, once. A renderer that isn't listed has no lightmap in this set.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "node": { "$ref": "common.schema.json#/$defs/node" },
+          "lightmap": {
+            "description": "The index of the lightmap it uses.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "scale_offset": {
+            "description": "[scale u, scale v, offset u, offset v]: lightmap UV = uv · scale + offset.",
+            "$ref": "common.schema.json#/$defs/vec4"
+          },
+          "uv": {
+            "description": "The mesh UV set the lightmap UVs come from: 1, or 0 for a mesh without uv1.",
+            "type": "integer",
+            "enum": [0, 1]
+          }
+        },
+        "required": ["node", "lightmap", "scale_offset", "uv"],
+        "additionalProperties": false
+      }
+    }
+  }
+}

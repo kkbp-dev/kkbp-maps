@@ -279,7 +279,7 @@ def _bilinear(img: np.ndarray, col: np.ndarray, row: np.ndarray) -> np.ndarray:
     y1 = np.minimum(y0 + 1, h - 1)
     fx = (x - x0)[:, None]
     fy = (y - y0)[:, None]
-    f = img.astype(np.float32)
-    top = f[y0, x0] * (1 - fx) + f[y0, x1] * fx
+    f = np.asarray(img, dtype=np.float32)
+    top =f[y0, x0] * (1 - fx) + f[y0, x1] * fx
     bottom = f[y1, x0] * (1 - fx) + f[y1, x1] * fx
     return top * (1 - fy) + bottom * fy

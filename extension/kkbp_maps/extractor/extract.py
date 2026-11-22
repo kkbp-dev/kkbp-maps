@@ -84,6 +84,9 @@ class BundleError(RuntimeError):
 
 def write_bundle(install: Install, m: MapSource, store, folder: Path, options: Options, sources: list[Path]):
     game = install.game
+    for ref in store.refs("LightProbes"):  # the bundle has no place for them yet (map-bundle.md, "Later Games")
+        if store.tree(ref).get("m_Data", {}).get("m_Positions"):
+            raise Unsupported("the Map has light probes")
     graph = read_graph(store, game)
     textures = Textures(folder / "textures", options.max_texture_size)
     meshes = Meshes(folder / "meshes")

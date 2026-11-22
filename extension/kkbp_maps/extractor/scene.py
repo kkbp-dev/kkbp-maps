@@ -207,7 +207,8 @@ class Census:
 
 def mesh_renderer(graph: Graph, obj: Obj) -> Renderer | None:
     """The object's MeshRenderer as the game draws it, or None for none or a Helper: a disabled
-    renderer, a shadow-only caster or one without a mesh."""
+    renderer, a shadow-only caster, or one without a mesh or without any material (1F's navigation
+    meshes)."""
     store = graph.store
     ref = obj.component("MeshRenderer")
     mf = obj.component("MeshFilter")
@@ -221,9 +222,13 @@ def mesh_renderer(graph: Graph, obj: Obj) -> Renderer | None:
         return None
     if r.get("m_StaticBatchInfo", {}).get("subMeshCount", 0):
         raise Unsupported(f"{obj.name} is statically batched")
+    materials = [store.resolve(ref, m) for m in r.get("m_Materials", [])]
+    materials = [m if m is not None and store.is_loaded(m) else None for m in materials]
+    if not any(materials):
+        return None
     st = r.get("m_LightmapTilingOffset", {"x": 1.0, "y": 1.0, "z": 0.0, "w": 0.0})
     return Renderer(
-        ref=ref, mesh=mesh, materials=[store.resolve(ref, m) for m in r.get("m_Materials", [])],
+        ref=ref, mesh=mesh, materials=materials,
         cast_shadows=r.get("m_CastShadows", 1) != 0, receive_shadows=bool(r.get("m_ReceiveShadows", 1)),
         lightmap_index=r.get("m_LightmapIndex", 0xFFFF),
         lightmap_scale_offset=(st["x"], st["y"], st["z"], st["w"]),

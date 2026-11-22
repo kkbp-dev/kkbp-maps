@@ -64,6 +64,7 @@ def build_scene(*, same_light=False):
     s.component(s.object("Icon", room), "SpriteRenderer", {"m_Enabled": True})
     s.component(s.object("smoke", room), "ParticleSystemRenderer", {"m_Enabled": True})
     s.object("n_empty", room)
+    s.mesh_renderer(s.object("nav_map00", room), s.mesh("nav"), [0])  # a renderer with an empty slot only
 
     # Sky Domes
     cube = s.texture("mt_sky", [solid(4, 4, [10 * f, 100, 200, 255]) for f in range(6)], cube=True)
@@ -156,7 +157,7 @@ def test_the_bundle_passes_the_deep_check(bundle):
 
 def test_helpers_are_left_out(bundle):
     n = names(bundle)
-    for helper in ("o_kage00", "o_off00", "Cube (1)", "o_gone00", "Icon", "smoke", "n_empty"):
+    for helper in ("o_kage00", "o_off00", "Cube (1)", "o_gone00", "Icon", "smoke", "n_empty", "nav_map00"):
         assert helper not in n
     assert {"p_desk00", "p_desk00 (1)", "mo_wall00", "o_floor00", "p_vase00", "hana_01"} <= set(n)
 
@@ -305,3 +306,10 @@ def test_an_unknown_renderer_stops_the_extraction(install, tmp_path):
     with pytest.raises(Unsupported, match="LineRenderer"):
         extract(install, tmp_path, scene)
     assert not (tmp_path / "out" / "KK" / "map" / "scene" / "test").exists()
+
+
+def test_light_probes_stop_the_extraction(install, tmp_path):
+    scene, _ = build_scene()
+    scene.add("LightProbes", {"m_Data": {"m_Positions": [{"x": 0.0, "y": 1.0, "z": 0.0}]}})
+    with pytest.raises(Unsupported, match="light probes"):
+        extract(install, tmp_path, scene)

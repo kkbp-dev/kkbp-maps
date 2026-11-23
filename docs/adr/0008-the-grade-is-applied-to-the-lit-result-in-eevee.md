@@ -14,5 +14,5 @@ So each Variant Material has two Material Outputs. The EEVEE output takes the Ba
 
 - In EEVEE a Placement is emissive after grading, so it gets no further lighting from what a user adds to the scene, such as a Character's lights. That is the price of matching the game's frame.
 - Cycles renders the Map Variant ungraded. It is sensible but not matched (D4).
-- The fog is graded only approximately, so a foggy distance can drift from the Reference Capture. The look check (Phase 5) says how much.
+- The fog is graded only approximately, so a foggy distance can drift from the Reference Capture. The look check (Phase 5) says how much. *Superseded by ADR 0021: the fog is applied in the material, before the Grade.*
 - The tonemapper and exposure that run before the LUT come from the game camera, not the Map (ADR 0010).

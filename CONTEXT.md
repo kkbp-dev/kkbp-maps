@@ -128,6 +128,10 @@ _Avoid_: ripper, exporter, reader
 The stage that turns Map Bundles into a Map Library in Blender.
 _Avoid_: importer, generator
 
+**Shader Tier**:
+How the Builder rebuilds a game shader: exactly, approximated, or not at all, in which case its renderers are left out. The Build Report lists the last two.
+_Avoid_: shader support level, fallback
+
 **Build Report**:
 What a build tells its user afterwards: what was built and skipped, and which names the Name Tables didn't know.
 _Avoid_: log

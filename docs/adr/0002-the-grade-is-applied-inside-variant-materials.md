@@ -2,7 +2,7 @@
 
 Each Time of Day has its own colour grade in the games (KK's and KKS's AmplifyColor LUTs, KKS's PostProcessing, SVS's URP Volume). kkbp-maps applies it inside materials, as KKBP's templates do, and not in the compositor: a scene's look then travels with its objects, and needs no compositor setup when a Map Variant is dragged in. The view transform is Standard, not AgX.
 
-A Placement in a Map Variant therefore can't use the same material as its standalone Prop: it needs that Map Variant's Grade and its own part of the Lightmap Set. So each game material becomes one shared Base Material, a node group, and each Map Variant gives its Placements thin Variant Materials that wrap the Base Material and add the lightmap and the Grade. Meshes and Base Materials stay shared, so editing a Prop's look changes every Map it is in. A standalone Prop shows the Day Grade, and another can be picked.
+A Placement in a Map Variant therefore can't use the same material as its standalone Prop: it needs that Map Variant's Grade and its own part of the Lightmap Set. So each game material becomes one shared Base Material, a node group, and each Map Variant gives its Placements thin Variant Materials that wrap the Base Material and add the lightmap and the Grade. Meshes and Base Materials stay shared, so editing a Prop's look changes every Map it is in. (ADR 0022 narrows this to one file of the Map Library.) A standalone Prop shows the Day Grade, and another can be picked.
 
 ## Considered Options
 

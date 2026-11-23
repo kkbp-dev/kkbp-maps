@@ -4,6 +4,7 @@
 /golden/
 /captures/
 /out/
+/tests/.work/
 *.unity3d
 *.zipmod
 

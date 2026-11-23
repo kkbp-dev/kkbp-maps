@@ -1,0 +1,121 @@
+"""The build plan on synthetic Map Bundles: assets once per Library, names, catalogs, tags, tiers and
+the Build Report."""
+
+import uuid
+
+import pytest
+
+from bundle_builder import MapBundleBuilder
+from kkbp_maps.bundle import read
+from kkbp_maps.builder.catalogs import catalog_file, catalog_uuid
+from kkbp_maps.builder.names import NameTables
+from kkbp_maps.builder.plan import asset_nodes, plan_library, safe_file_name
+from kkbp_maps.builder.report import build_report, markdown
+
+ROOT, ROOM, WALL, VASE, DESK, DESK_TOP, DESK_LEG, DESK2, DESK2_TOP, DESK2_LEG, CLOUDS, CLOUD_PLANE = range(12)
+
+TABLES = NameTables({
+    "naming": {"strip": ["^p_", "^mo_", "^o_"]},
+    "words": {"desk": "Desk", "wall": "Wall", "vase": "Vase"},
+    "categories": [{"category": "Furniture", "words": ["desk"]}],
+    "maps": {"map/scene/a": {"name": "Room A", "area": "School"}},
+})
+
+
+def bundle(tmp_path, key="map/scene/a", name="a", change=None):
+    b = MapBundleBuilder(key=key)
+    if change:
+        change(b)
+    return read(b.build(tmp_path, name))
+
+
+def test_one_map(tmp_path):
+    p = plan_library([bundle(tmp_path)], TABLES)
+    m = p.maps[0]
+    assert (m.name, m.area, m.file, m.catalog) == ("Room A", "School", "Maps/Room A.blend", "Maps/School")
+    assert [v.name for v in m.variants] == ["Room A, Day", "Room A, Evening, Night"]
+    assert all(v.thumbnail for v in m.variants)
+    assert {(a.kind, a.name, a.catalog) for a in p.assets.values()} == {
+        ("structure", "Wall 00", "Structures/School"), ("prop", "Vase 00", "Props/Other"),
+        ("prop", "Desk 00", "Props/Furniture")}
+    desk = next(a for a in p.assets.values() if a.name == "Desk 00")
+    assert desk.placements == 2 and desk.source == ("map/scene/a", DESK)
+    assert p.tags(desk) == ["KK", "Room A", "Indoor", "Furniture"]
+    assert p.variant_tags(m, m.variants[1]) == ["KK", "Room A", "Evening", "Night", "Indoor"]
+    assert m.roots == {WALL: p.maps[0].bundle.candidates[0]["hash"], VASE: p.maps[0].bundle.candidates[1]["hash"],
+                       DESK: desk.hash, DESK2: desk.hash}
+
+
+def test_assets_are_kept_once_across_maps_and_tagged_with_each(tmp_path):
+    a = bundle(tmp_path)
+    b = bundle(tmp_path, key="map/scene/b", name="b", change=lambda x: x.map.update(outdoor=True))
+    p = plan_library([a, b], TABLES)
+    assert len(p.assets) == 3
+    desk = next(x for x in p.assets.values() if x.name == "Desk 00")
+    assert desk.maps == ["map/scene/a", "map/scene/b"] and desk.placements == 4
+    assert p.tags(desk) == ["KK", "Room A", "テスト教室", "Outdoor", "Indoor", "Furniture"]
+    assert p.maps[1].named is False and p.maps[1].area == "Other"
+
+
+def test_names_are_unique_per_kind(tmp_path):
+    def other_desk(b):
+        for top in (DESK_TOP, DESK2_TOP):  # another shape, the same game name
+            b.nodes[top]["scale"] = [2.0, 1.0, 1.0]
+    a = bundle(tmp_path)
+    b = bundle(tmp_path, key="map/scene/b", name="b", change=other_desk)
+    names = sorted(x.name for x in plan_library([a, b], TABLES).props())
+    assert names == ["Desk 00", "Desk 00 (2)", "Vase 00"]
+
+
+def test_overrides_change_the_kind(tmp_path):
+    tables = NameTables({"naming": {"strip": ["^mo_"]}, "overrides": [{"match": "^mo_wall", "kind": "prop",
+                                                                        "category": "Walls"}]})
+    p = plan_library([bundle(tmp_path)], tables)
+    wall = next(a for a in p.assets.values() if a.game_name == "mo_wall_00")
+    assert (wall.kind, wall.catalog, wall.overridden) == ("prop", "Props/Walls", True)
+
+
+def test_skipped_shaders(tmp_path):
+    def haze(b):
+        b.materials["desk"]["shader"] = "Xffect/heat_distortion"
+    p = plan_library([bundle(tmp_path, change=haze)], TABLES)
+    m = p.maps[0]
+    assert not m.drawn(DESK_TOP) and m.drawn(WALL)
+    assert [a.game_name for a in p.left_out_assets.values()] == ["p_vase_00", "p_desk_00"]
+    report = build_report(p)
+    tiers = report["maps"][0]["shader_tiers"]
+    assert tiers == [{"shader": "Xffect/heat_distortion", "level": "skipped", "reason": "heat haze",
+                      "materials": 1, "draws": 8}]
+    assert "heat haze" in markdown(report)
+
+
+def test_asset_nodes_leave_out_nested_placements(tmp_path):
+    b = bundle(tmp_path)
+    assert asset_nodes(b, WALL) == [WALL]
+    assert asset_nodes(b, DESK) == [DESK, DESK_TOP, DESK_LEG]
+
+
+def test_catalogs_are_seeded_by_game(tmp_path):
+    p = plan_library([bundle(tmp_path)], TABLES)
+    cats = p.catalogs()
+    assert set(cats) == {"Maps", "Maps/School", "Props", "Props/Furniture", "Props/Other", "Structures",
+                         "Structures/School"}
+    assert cats["Props"] == catalog_uuid("KK", "Props") != catalog_uuid("KKS", "Props")
+    uuid.UUID(cats["Props"])
+    text = catalog_file(cats)
+    assert "VERSION 1" in text and f"{cats['Props/Furniture']}:Props/Furniture:Props-Furniture" in text
+
+
+def test_grades_are_listed_once(tmp_path):
+    p = plan_library([bundle(tmp_path), bundle(tmp_path, key="map/scene/b", name="b")], TABLES)
+    assert [g[1] for g in p.grades] == ["Lut_Amount", "Lut_TimeNight1"]
+
+
+def test_one_game_per_library(tmp_path):
+    with pytest.raises(ValueError):
+        plan_library([bundle(tmp_path), read(MapBundleBuilder(game="KKS").build(tmp_path, "s"))], TABLES)
+
+
+def test_safe_file_names():
+    assert safe_file_name('Staff Toilet (Men)') == "Staff Toilet (Men)"
+    assert safe_file_name('a/b:c?') == "a_b_c_"

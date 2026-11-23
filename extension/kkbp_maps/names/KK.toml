@@ -1,0 +1,221 @@
+# The Name Tables for KK (D14): curated names, not game data, so they live in the repository (ADR 0007).
+#
+# [maps]        a Map's English name and the area its catalog goes under (Maps/<area>, Structures/<area>)
+# [naming]      what is cut from a game name before its words are translated
+# [words]       romaji word -> English; a word not listed keeps its romaji and goes to the Build Report
+# [[categories]] Props/<category>, by the first rule one of the Prop's words matches
+# [[overrides]] corrections by the Placement root's game name (a regular expression) or Content Hash:
+#               kind = "prop" or "structure", category, name
+
+[times_of_day]
+day = "Day"
+evening = "Evening"
+night = "Night"
+
+[naming]
+# Regular expressions removed from the start of a game name, repeatedly, in this order.
+strip = ['^p_', '^mo_', '^o_', '^m00_', '^koi_', '^stu_', '^map\d+_']
+default_category = "Other"
+
+[maps."map/scene/1-1"]
+name = "Classroom 1-1"
+area = "School"
+[maps."map/scene/1f"]
+name = "School 1F"
+area = "School"
+[maps."map/scene/1ftoilet"]
+name = "1F Girls' Toilet"
+area = "School"
+[maps."map/scene/2-1"]
+name = "Classroom 2-1"
+area = "School"
+[maps."map/scene/2-2"]
+name = "Classroom 2-2"
+area = "School"
+[maps."map/scene/2f"]
+name = "School 2F"
+area = "School"
+[maps."map/scene/2ftoilet"]
+name = "2F Girls' Toilet"
+area = "School"
+[maps."map/scene/3-1"]
+name = "Classroom 3-1"
+area = "School"
+[maps."map/scene/3f"]
+name = "School 3F"
+area = "School"
+[maps."map/scene/3ftoilet"]
+name = "3F Girls' Toilet"
+area = "School"
+[maps."map/scene/backyard"]
+name = "Backyard"
+area = "School"
+[maps."map/scene/church"]
+name = "Church"
+area = "Town"
+[maps."map/scene/church_volumelight"]
+name = "Church Event"
+area = "Town"
+[maps."map/scene/courtyard"]
+name = "Courtyard"
+area = "School"
+[maps."map/scene/diningroom"]
+name = "Cafeteria"
+area = "School"
+[maps."map/scene/ground"]
+name = "Sports Ground"
+area = "School"
+[maps."map/scene/gymnasium"]
+name = "Gymnasium"
+area = "School"
+[maps."map/scene/gymnasiumlive"]
+name = "Gymnasium Live"
+area = "School"
+[maps."map/scene/gymnasiumwarehouse"]
+name = "Gym Storeroom"
+area = "School"
+[maps."map/scene/healthroom"]
+name = "Nurse's Office"
+area = "School"
+[maps."map/scene/japanesestyleroom"]
+name = "Japanese-Style Room"
+area = "School"
+[maps."map/scene/karaoke"]
+name = "Karaoke"
+area = "Town"
+[maps."map/scene/libraryroom"]
+name = "Library"
+area = "School"
+[maps."map/scene/livestage_s"]
+name = "Live Stage"
+area = "Studio"
+[maps."map/scene/lockerroom"]
+name = "Locker Room"
+area = "School"
+[maps."map/scene/lockerroompeep"]
+name = "Locker Room Stall"
+area = "School"
+[maps."map/scene/lovehotel"]
+name = "Love Hotel"
+area = "Town"
+[maps."map/scene/myroom"]
+name = "My Room"
+area = "Home"
+[maps."map/scene/park"]
+name = "Park"
+area = "Town"
+[maps."map/scene/pool"]
+name = "Pool"
+area = "School"
+[maps."map/scene/rooftop"]
+name = "Rooftop"
+area = "School"
+[maps."map/scene/shawerroom"]
+name = "Shower Room"
+area = "School"
+[maps."map/scene/shawerroompeep"]
+name = "Shower Room Stall"
+area = "School"
+[maps."map/scene/staffadultroom"]
+name = "Staff Room"
+area = "School"
+[maps."map/scene/staffcomicresearchroom"]
+name = "Manga Club Room"
+area = "School"
+[maps."map/scene/staffroom"]
+name = "Club Room"
+area = "School"
+[maps."map/scene/toiletmale"]
+name = "Staff Toilet (Men)"
+area = "School"
+[maps."map/scene/toiletpeep"]
+name = "Girls' Toilet Stall"
+area = "School"
+[maps."map/scene/train"]
+name = "Train"
+area = "Town"
+[maps."map/scene/traincrowded"]
+name = "Crowded Train"
+area = "Town"
+[maps."map/scene/warehouse"]
+name = "Supply Storeroom"
+area = "School"
+[maps."studio/map/akikyoushitu"]
+name = "Empty Classroom"
+area = "School"
+[maps."studio/map/bushitu"]
+name = "Empty Club Room"
+area = "School"
+
+[words]
+bushitu = "Club Room"
+corn = "Traffic Cone"
+dan = "Step"
+desk = "Desk"
+enkei = "Backdrop"
+fuda = "Sign"
+gaiheki = "Outer Wall"
+gaitou = "Street Lamp"
+genkan = "Entrance"
+gomibako = "Bin"
+gura = "Ground"
+hunnsui = "Fountain"
+hunsui = "Fountain"
+ikegaki = "Hedge"
+isu = "Chair"
+kabe = "Wall"
+kadan = "Flower Bed"
+kage = "Shadow"
+kaidan = "Stairs"
+kakiwari = "Flat"
+ki = "Tree"
+kmichi = "Path"
+kouen = "Park"
+kousya = "School Building"
+kusa = "Grass"
+kyusui = "Drinking Fountain"
+pan = "Panel"
+pole = "Pole"
+pool = "Pool"
+road = "Road"
+saku = "Fence"
+seimon = "Main Gate"
+shadow = "Shadow"
+shitugaiki = "Outdoor Unit"
+sibahu = "Lawn"
+soto = "Outside"
+sotokabe = "Outer Wall"
+souzi = "Cleaning Tools"
+syakou = "Shade"
+syouka = "Fire Extinguisher"
+tana = "Shelf"
+tatemono = "Building"
+ueki = "Shrubs"
+wall = "Wall"
+water = "Water"
+wrouka = "Walkway"
+yane = "Roof"
+yuka = "Floor"
+zihan = "Vending Machine"
+
+[[categories]]
+category = "Furniture"
+words = ["desk", "isu", "nisu", "tana"]
+
+[[categories]]
+category = "Plants"
+words = ["kadan", "ki", "kusa", "ueki", "ikegaki"]
+
+[[categories]]
+category = "Street"
+words = ["gaitou", "pole", "corn", "zihan", "gomibako", "saku"]
+
+[[categories]]
+category = "Fixtures"
+words = ["souzi", "syouka", "water"]
+
+# park's benches, lamps, poles and trees are named o_ by the game, so they come out as Structures
+# (ADR 0019); they are movable furnishings.
+[[overrides]]
+match = '^o_kouen_(isu|gaitou|pole|ki)_'
+kind = "prop"

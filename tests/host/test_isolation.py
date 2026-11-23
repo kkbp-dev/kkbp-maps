@@ -67,3 +67,25 @@ def test_only_space_py_holds_the_axis_matrix():
         if path.name != "space.py":
             text = path.read_text(encoding="utf-8")
             assert "[-x, -z, y]" not in text and "np.diag([-1" not in text, f"{path.name} converts axes"
+
+
+# --- the Builder ----------------------------------------------------------------------------------
+
+BUILDER = PACKAGE_PARENT / "builder"
+
+
+def test_the_builders_plan_imports_only_the_standard_library():
+    """Everything in builder/ outside builder/blender/ is decided without Blender, so it is host-tested."""
+    for path in sorted(BUILDER.glob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
+                [node.module] if isinstance(node, ast.ImportFrom) and node.level == 0 else []
+            for name in names:
+                assert name.split(".")[0] in sys.stdlib_module_names, f"builder/{path.name} imports {name}"
+
+
+def test_only_compat_checks_blenders_version():
+    for path in sorted(PACKAGE_PARENT.rglob("*.py")):
+        if "compat" in path.relative_to(PACKAGE_PARENT).parts:
+            continue
+        assert "app.version" not in path.read_text(encoding="utf-8"), f"{path} checks Blender's version"

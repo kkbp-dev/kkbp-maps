@@ -30,19 +30,25 @@ from PIL import Image
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
 import look_compare as lc  # noqa: E402
-from build_golden import BUILDS, GOLDEN, blender, blender_path, copy_golden  # noqa: E402
+from build_golden import BUILDS, GOLDEN, WORK as BUILD_WORK, blender, blender_path, copy_golden  # noqa: E402
 from memory_watch import Limits  # noqa: E402
 
 WORK = REPO / "tests" / ".work" / "look"
+BUILD_BUNDLES = BUILD_WORK / "bundles"
 
 
 def tolerance(look: dict) -> lc.Tolerance:
     return lc.Tolerance(**look.get("tolerance", {}))
 
 
-def build_and_render(name: str, game: str, look: dict, limits: Limits, switches: list[str], root: Path) -> bool:
-    """Each Golden Map's file, built through the captures' Camera Profile, then its views rendered."""
-    bundles = copy_golden(REPO / "golden" / game, GOLDEN[game])
+def build_and_render(name: str, game: str, look: dict, limits: Limits, switches: list[str], root: Path,
+                     keep: bool = False) -> bool:
+    """Each Golden Map's file, built through the captures' Camera Profile, then its views rendered.
+    With `keep`, from the bundle copies as they are (an experiment may have edited them)."""
+    if keep:
+        bundles = [BUILD_BUNDLES / Path(*k.split("/")) for k in GOLDEN[game]]
+    else:
+        bundles = copy_golden(REPO / "golden" / game, GOLDEN[game])
     if bundles is None:
         return False
     library = root / f"{game} Maps"
@@ -147,15 +153,18 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--game", default="KK")
     ap.add_argument("--blender", default="min", choices=sorted(BUILDS))
     ap.add_argument("--no-render", action="store_true")
+    ap.add_argument("--keep-bundles", action="store_true", help="build from the bundle copies as they are")
+    ap.add_argument("--tag", default="", help="a name for an experiment's folder, such as one on edited bundle copies")
     ap.add_argument("--look", action="append", default=[], metavar="NAME=VALUE",
                     help="a look switch for the build (extension/kkbp_maps/builder/look.py)")
     ap.add_argument("--max-rss-gb", type=float, default=8.0)
     args = ap.parse_args(argv)
     look = json.loads((REPO / "tests" / "look" / f"{args.game}.json").read_text())
-    root = WORK / (args.blender + "".join(f"+{sw}" for sw in sorted(args.look)))
+    root = WORK / (args.blender + "".join(f"+{sw}" for sw in sorted(args.look)) + (f"+{args.tag}" if args.tag else ""))
     if not args.no_render and not build_and_render(args.blender, args.game, look,
                                                    Limits(max_rss_gb=args.max_rss_gb, min_available_gb=1.5,
-                                                          min_swap_free_gb=6.0), args.look, root):
+                                                          min_swap_free_gb=6.0), args.look, root,
+                                                   args.keep_bundles):
         return 1
     pre = compare_all(root, args.game, look, pregrade=True)
     pre_path = report(pre, root, args.game, "report-pregrade")

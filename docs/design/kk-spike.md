@@ -191,7 +191,7 @@ Points that bore on decisions, settled with the user after the spike:
 
 ## Open questions
 
-- The sRGB decode of the lightmaps' RGB (section 3).
+- park's real-time GI: see "Settled by the look check".
 - The story game camera's `AmplifyColorEffect`, `GlobalFog` and `SunShafts` settings: Studio's camera replaces all three (below), so they need a capture from the story game.
 
 ## Settled by the look check (Phase 5)
@@ -204,3 +204,6 @@ Measured against Reference Captures taken in CharaStudio (`tools/capture.py`, `t
 - **Shadow-only renderers keep the sun out of rooms,** and Unity's shadow pass culls as the material draws unless the renderer is `two_sided` (ADR 0024). 1F went from ΔE 26 to 1.5 in its worst view.
 - **Reflections are blurred by roughness.** Unity samples the reflection cubemap at mip `r · (1.7 − 0.7 r) · 6` of perceptual roughness `r`; the Builder samples a chain of halved maps the same way. Sharp reflections were worse on every Map (−0.7 on 1F, −0.4 on ground, −0.3 on park).
 - **The sun's soft shadow angle** (0.5° against 0°) changes no view by more than 0.13.
+- **The lightmaps' RGB is sRGB-decoded,** as section 3 has it: leaving the decode out makes 1F's mean ΔE 8.1 instead of 2.4 (ground and park barely move). Every lightmap of the three Maps has `m_ColorSpace 1`.
+- **park's `LightmapPrefab` entries or the renderers' own values** give the same frames (within 0.05), so section 4's rule stands untested there.
+- **park's largest surfaces are lit at run time.** Its 8 lightmapped renderers (the roads `o_kouen_road_00`/`01`, the lawn `o_kouen_sibahu_00`, the lamps `o_kouen_gaitou_00`–`04`) all have Enlighten real-time GI (`m_LightmapIndexDynamic 0`), which adds the sun's bounce at run time and isn't in the files. The shaded road is 3× darker in Blender than in the capture (linear 0.024 against 0.073). Replacing their lightmap with the Map's ambient helps some views and hurts others, so the bounce lies between the two.

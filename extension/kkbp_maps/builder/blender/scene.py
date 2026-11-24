@@ -16,13 +16,14 @@ import math
 import bpy
 from mathutils import Matrix, Quaternion, Vector
 
-from .. import look, shaders
+from .. import shaders
 from ..games import camera_profile, light_convention
 from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, passes
 from . import materials as mats
 from .meshes import Meshes
 from .nodes import Graph
 
+SOFT_SHADOW_ANGLE = math.radians(0.5)   # Unity's soft shadows have no angle; the look check sees no difference
 PROP_ASSET, PROP_KIND = "kkbp_maps_asset", "kkbp_maps_kind"
 
 
@@ -46,6 +47,7 @@ class FileBuilder:
         self.meshes: dict[str, Meshes] = {}
         self.mesh_by_id: dict[str, bpy.types.Mesh] = {}
         self.grades: dict[str, bpy.types.ShaderNodeTree] = {}
+        self.twins: dict[str, bpy.types.Material] = {}
 
     def mesh(self, bundle, mesh_id):
         """A Content Hash names the same mesh in every Map, so a file builds each once."""
@@ -62,6 +64,18 @@ class FileBuilder:
             img.colorspace_settings.name = "Non-Color"
             self.grades[tid] = mats.grade_group(f".KKM Grade {bundle.textures[tid]['name']}", img)
         return self.grades[tid]
+
+    def two_sided(self, mat: bpy.types.Material) -> bpy.types.Material:
+        """The material for a `two_sided` renderer: one that casts shadows from both faces, a twin of
+        `mat` where `mat` casts from its front only (Blender culls shadows per material, ADR 0024)."""
+        if not mat.use_backface_culling_shadow:
+            return mat
+        twin = self.twins.get(mat.name)
+        if twin is None:
+            twin = self.twins[mat.name] = mat.copy()
+            twin.name = f"{mat.name}, two-sided shadow"
+            twin.use_backface_culling_shadow = False
+        return twin
 
     def make_object(self, bundle, node: dict, tiers, collection, parent, material_for) -> list[bpy.types.Object]:
         """The objects for a node: a mesh object if it draws something, else an empty; and one more for
@@ -96,6 +110,8 @@ class FileBuilder:
                 draw, tier = assigned.get(i, (None, None))
                 slot.material = material_for(draw["material"]) if draw and tier.level != shaders.SKIPPED \
                     else mats.left_out_material()
+                if r["shadows"] == "two_sided":
+                    slot.material = self.two_sided(slot.material)
             target.visible_shadow = r["shadows"] != "off" and k == 0
             if r["shadows"] == "shadows_only":   # a hidden caster (ADR 0024)
                 target.visible_camera = target.visible_diffuse = target.visible_glossy = False
@@ -205,7 +221,7 @@ def _light_object(game: str, light: dict, name: str) -> bpy.types.Object:
     data.color = color
     data.energy = strength
     data.use_shadow = light["shadows"] != "none"
-    data.angle = math.radians(look.number("sun_angle")) if light["shadows"] == "soft" else 0.0
+    data.angle = SOFT_SHADOW_ANGLE if light["shadows"] == "soft" else 0.0
     obj = bpy.data.objects.new(name, data)
     obj.rotation_mode = "QUATERNION"
     obj.rotation_quaternion = light["rotation"]

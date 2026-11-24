@@ -191,9 +191,16 @@ Points that bore on decisions, settled with the user after the spike:
 
 ## Open questions
 
-- 1F's Flat ambient against its stale SH probe (section 6).
 - The sRGB decode of the lightmaps' RGB (section 3).
-- The game camera's `AmplifyColorEffect` and `SunShafts` settings.
-- What Studio does with `SunLightInfo` (not read here).
+- The story game camera's `AmplifyColorEffect`, `GlobalFog` and `SunShafts` settings: Studio's camera replaces all three (below), so they need a capture from the story game.
 
-All four can be settled against Reference Captures in Phase 5. The camera settings could also be read from the running game once, by the capture plugin.
+## Settled by the look check (Phase 5)
+
+Measured against Reference Captures taken in CharaStudio (`tools/capture.py`, `tools/look.py`), as the mean CIEDE2000 difference over 35 Capture Views of the three Golden Maps.
+
+- **What Studio does with `SunLightInfo`.** It shows the Map's sun, sky domes and visibility, but replaces the rest with the Studio scene's own settings: its fog (`GlobalFog`, a post effect, off by default), its sun shafts (off by default) and its filter, `Lut_Amount` unless the user picks another, at every Time of Day. Applying `Lut_Amount` to the captured frame before AmplifyColor gives the captured frame to ΔE 0.7. Studio's camera has no tonemapper, exposure 1 and no dithering. These are its Camera Profile in `builder/games.py`.
+- **The game camera's fog is a post effect.** KK's cameras carry `GlobalFog` (Standard Assets), which applies the RenderSettings fog to the depth buffer after the opaque pass and leaves the sky out. ADR 0021's fog in the material is checked only once the story game is captured.
+- **1F's ambient is its Flat colour,** not the stale probe: the probe makes 1F worse (+0.2).
+- **Shadow-only renderers keep the sun out of rooms,** and Unity's shadow pass culls as the material draws unless the renderer is `two_sided` (ADR 0024). 1F went from ΔE 26 to 1.5 in its worst view.
+- **Reflections are blurred by roughness.** Unity samples the reflection cubemap at mip `r · (1.7 − 0.7 r) · 6` of perceptual roughness `r`; the Builder samples a chain of halved maps the same way. Sharp reflections were worse on every Map (−0.7 on 1F, −0.4 on ground, −0.3 on park).
+- **The sun's soft shadow angle** (0.5° against 0°) changes no view by more than 0.13.

@@ -13,5 +13,5 @@ So each Variant Material computes the indirect terms itself, as Unity's Standard
 ## Consequences
 
 - A Map Variant keeps its light wherever it is dragged: the sun is in its collection and the ambient, lightmaps and reflections are in its materials. A World a user adds lights it further, as any other light does.
-- The reflection is sampled sharp, from the cubemap's top mip. How rough surfaces blur it is left to the look check (Phase 5).
+- The reflection is sampled at the mip Unity picks for the surface's roughness, from a chain of halved maps the Builder writes beside the Map Library's textures (settled by the look check, kk-spike.md).
 - Each Variant Material reads its object's lightmap tile, scale-offset and UV set from object properties, so one material serves every Placement of a Base Material in a Map Variant, lightmapped or not.

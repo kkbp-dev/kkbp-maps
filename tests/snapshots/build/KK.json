@@ -180,7 +180,7 @@
     }
    },
    "counts": {
-    "images": 37,
+    "images": 43,
     "materials": 20,
     "meshes": 30,
     "node_groups": 22,
@@ -188,7 +188,7 @@
    },
    "groups": {
     ".KKM Grade Lut_TimeNight1": "28e5b21a87942cf5",
-    ".KKM Light Park": "27b9b69e1bad1541"
+    ".KKM Light Park": "9ffd315054c0bb03"
    },
    "images": [
     {
@@ -344,6 +344,36 @@
     {
      "colorspace": "Non-Color",
      "name": "f260e22a423f155c267e7843f5d8497f",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "f260e22a423f155c267e7843f5d8497f.mip1",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "f260e22a423f155c267e7843f5d8497f.mip2",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "f260e22a423f155c267e7843f5d8497f.mip3",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "f260e22a423f155c267e7843f5d8497f.mip4",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "f260e22a423f155c267e7843f5d8497f.mip5",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "f260e22a423f155c267e7843f5d8497f.mip6",
      "relative": true
     },
     {
@@ -1867,7 +1897,7 @@
     }
    },
    "counts": {
-    "images": 250,
+    "images": 256,
     "materials": 388,
     "meshes": 179,
     "node_groups": 142,
@@ -1877,9 +1907,9 @@
     ".KKM Grade Lut_Amount": "5e2349814b900b4b",
     ".KKM Grade Lut_TimeNight1": "28e5b21a87942cf5",
     ".KKM Grade Lut_TimeSunset1": "638371d6b5b448ac",
-    ".KKM Light School 1F, Day": "e632546a4c999291",
-    ".KKM Light School 1F, Evening": "4100c91e3bfe8bdb",
-    ".KKM Light School 1F, Night": "35a34348891c229b"
+    ".KKM Light School 1F, Day": "d6956dab698af3b5",
+    ".KKM Light School 1F, Evening": "ef135ab9fbe2db8c",
+    ".KKM Light School 1F, Night": "e48aef164de63d95"
    },
    "images": [
     {
@@ -2155,6 +2185,36 @@
     {
      "colorspace": "Non-Color",
      "name": "33ed23376b067aa15aa18a2997f869e7",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "33ed23376b067aa15aa18a2997f869e7.mip1",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "33ed23376b067aa15aa18a2997f869e7.mip2",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "33ed23376b067aa15aa18a2997f869e7.mip3",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "33ed23376b067aa15aa18a2997f869e7.mip4",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "33ed23376b067aa15aa18a2997f869e7.mip5",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "33ed23376b067aa15aa18a2997f869e7.mip6",
      "relative": true
     },
     {
@@ -4965,8 +5025,8 @@
     }
    },
    "counts": {
-    "images": 204,
-    "materials": 319,
+    "images": 210,
+    "materials": 325,
     "meshes": 119,
     "node_groups": 119,
     "objects": 380
@@ -4975,9 +5035,9 @@
     ".KKM Grade Lut_Amount": "5e2349814b900b4b",
     ".KKM Grade Lut_TimeNight1": "28e5b21a87942cf5",
     ".KKM Grade Lut_TimeSunset1": "638371d6b5b448ac",
-    ".KKM Light Sports Ground, Day": "ab161a10b2a68a54",
-    ".KKM Light Sports Ground, Evening": "e26a03eb56e99f7d",
-    ".KKM Light Sports Ground, Night": "c554bbd0d472243c"
+    ".KKM Light Sports Ground, Day": "c7947820f72e1102",
+    ".KKM Light Sports Ground, Evening": "805a3eb0f273e9f6",
+    ".KKM Light Sports Ground, Night": "4f0c59bb042558ff"
    },
    "images": [
     {
@@ -5593,6 +5653,36 @@
     {
      "colorspace": "Non-Color",
      "name": "a367d5b0dc9d849fb683c99acdace7ce",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "a367d5b0dc9d849fb683c99acdace7ce.mip1",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "a367d5b0dc9d849fb683c99acdace7ce.mip2",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "a367d5b0dc9d849fb683c99acdace7ce.mip3",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "a367d5b0dc9d849fb683c99acdace7ce.mip4",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "a367d5b0dc9d849fb683c99acdace7ce.mip5",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "a367d5b0dc9d849fb683c99acdace7ce.mip6",
      "relative": true
     },
     {
@@ -6239,7 +6329,7 @@
     ],
     [
      "42a5432c99411c15789353aaea8287ac",
-     3
+     6
     ],
     [
      "47028167fc5ad71c96ecb204239aec0c",
@@ -6555,7 +6645,7 @@
     ],
     [
      "f917a16274aae9e084de50fba2cc4711",
-     3
+     6
     ],
     [
      "fc734ea96d4c3d6ddca9715b2846dce4",
@@ -11498,7 +11588,7 @@
    },
    "counts": {
     "images": 293,
-    "materials": 169,
+    "materials": 176,
     "meshes": 224,
     "node_groups": 170,
     "objects": 239
@@ -12981,7 +13071,7 @@
     ],
     [
      "027baa27593c84f473e3206d32eced8a",
-     1
+     2
     ],
     [
      "05de6e540db516325d12a1cf3a070339",
@@ -13141,7 +13231,7 @@
     ],
     [
      "42a5432c99411c15789353aaea8287ac",
-     1
+     2
     ],
     [
      "44519cc913e05cc93f772d97737065c6",
@@ -13221,7 +13311,7 @@
     ],
     [
      "596c433e962013d337f534bda666a281",
-     1
+     2
     ],
     [
      "5aecb04c1841cfdc8a379706a80a2b28",
@@ -13489,7 +13579,7 @@
     ],
     [
      "ccdc34693304d21d0ea8aec291666c95",
-     1
+     2
     ],
     [
      "ce18f144d286949d5ed6b4576645934e",
@@ -13521,7 +13611,7 @@
     ],
     [
      "d6d769e3c544c7a926af349caa67f887",
-     1
+     2
     ],
     [
      "d71406880af757970cc54c35616706d0",
@@ -13593,7 +13683,7 @@
     ],
     [
      "f308796ed1bca7f040b0a99efc264b76",
-     1
+     2
     ],
     [
      "f4883ad1db0d262c55c6e2baf6a90fa1",
@@ -13617,7 +13707,7 @@
     ],
     [
      "f917a16274aae9e084de50fba2cc4711",
-     1
+     2
     ],
     [
      "fa3231981c3a56470f106c24de602820",

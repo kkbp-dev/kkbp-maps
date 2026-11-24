@@ -34,6 +34,7 @@ PROP_HASH = "kkbp_maps_hash"
 
 UV0, UV1 = "UVMap", "Lightmap"
 COLOR_SPACE = {"srgb": "sRGB", "linear": "Non-Color"}
+SPECCUBE_LOD_STEPS = 6   # UnityStandardConfig: the mip a fully rough surface samples
 EXTENSION = {"repeat": "REPEAT", "clamp": "EXTEND", "mirror": "MIRROR", "mirror_once": "MIRROR"}
 INTERPOLATION = {"point": "Closest", "bilinear": "Linear", "trilinear": "Linear"}
 COLOR_SPACE_DOUBLE = 4.59479380  # unity_ColorSpaceDouble in a linear project
@@ -82,6 +83,33 @@ class Images:
             img[PROP_HASH] = texture_id
             self.loaded[texture_id] = img
         return img
+
+    def mips(self, bundle, texture_id: str, levels: int = SPECCUBE_LOD_STEPS) -> list[bpy.types.Image]:
+        """An environment map and its mip chain, each level half the size of the one before, written once
+        to textures/mips/<id>.mip<k>.exr. Level 0 is the map itself."""
+        chain = [self.get(bundle, texture_id)]
+        folder = self.library / "textures" / "mips"
+        for k in range(1, levels + 1):
+            key = f"mip:{texture_id}:{k}"
+            img = self.loaded.get(key)
+            if img is None:
+                path = folder / f"{texture_id}.mip{k}.exr"
+                if not path.is_file():
+                    folder.mkdir(parents=True, exist_ok=True)
+                    src = chain[0]
+                    tmp = src.copy()
+                    tmp.scale(max(src.size[0] >> k, 4), max(src.size[1] >> k, 2))
+                    tmp.filepath_raw = str(path)
+                    tmp.file_format = "OPEN_EXR"
+                    tmp.save()
+                    bpy.data.images.remove(tmp)
+                img = bpy.data.images.load(str(path), check_existing=False)
+                img.name = f"{chain[0].name} mip {k}"
+                img.colorspace_settings.name = chain[0].colorspace_settings.name
+                img[PROP_HASH] = f"{texture_id}.mip{k}"
+                self.loaded[key] = img
+            chain.append(img)
+        return chain
 
     def udim(self, bundle, name: str, tiles: dict[int, str]) -> bpy.types.Image:
         """A UDIM image whose tiles (UDIM number -> texture id) may differ in size. Its tile files are
@@ -408,8 +436,8 @@ def variant_light(bundle, variant: dict, name: str, images: Images, grade) -> bp
     diffuse = g.mix(1.0, diff_color, gi, blend_type="MULTIPLY")
     diffuse = g.vmath("SCALE", diffuse, scale=(i, "Occlusion"))
 
-    env = _reflection(g, bundle, variant, images, n, view, geo)
     perceptual = g.math("SUBTRACT", 1.0, smooth)
+    env = _reflection(g, bundle, variant, images, n, view, geo, perceptual)
     roughness = g.math("MULTIPLY", perceptual, perceptual)
     reduction = g.math("DIVIDE", 1.0, g.math("MULTIPLY_ADD", roughness, roughness, 1.0))
     grazing = g.math("ADD", smooth, g.math("SUBTRACT", 1.0, one_minus_refl), clamp=True)
@@ -436,7 +464,7 @@ def _lightmapped(g):
 
 def _ambient(g, ambient: dict, n):
     """The Map's ambient light at the normal: a flat colour, or the L2 probe as UnityCG's SHEval9."""
-    if ambient["mode"] == "flat" and not (look.get("flat_ambient") == "probe" and ambient.get("sh")):
+    if ambient["mode"] == "flat":   # 1F also holds a stale probe; the look check confirms the Flat colour
         c = linear_rgb(ambient["sky_color"])
         k = ambient["intensity"]
         return g.rgb(tuple(k * x for x in c))
@@ -496,20 +524,32 @@ def lm_set_name(bundle, lm_set: dict) -> str:
     return f"lightmap_{hashlib.sha256(ids.encode()).hexdigest()[:16]}"
 
 
-def _env_sample(g, bundle, images, texture_id, direction):
-    img = images.get(bundle, texture_id)
-    return (g.node("ShaderNodeTexEnvironment", image=img, interpolation="Linear", Vector=direction), "Color")
+def _env_sample(g, bundle, images, texture_id, direction, mip=None):
+    """The environment map along `direction`; given `mip` (a socket, 0 to SPECCUBE_LOD_STEPS), blended
+    between the two levels of its mip chain either side, as a trilinear cubemap lookup is."""
+    if mip is None:
+        img = images.get(bundle, texture_id)
+        return (g.node("ShaderNodeTexEnvironment", image=img, interpolation="Linear", Vector=direction), "Color")
+    chain = images.mips(bundle, texture_id)
+    out = (g.node("ShaderNodeTexEnvironment", image=chain[0], interpolation="Linear", Vector=direction), "Color")
+    for k, img in enumerate(chain[1:], start=1):
+        level = (g.node("ShaderNodeTexEnvironment", image=img, interpolation="Linear", Vector=direction), "Color")
+        out = g.mix(g.math("SUBTRACT", mip, float(k - 1), clamp=True), out, level)
+    return out
 
 
-def _reflection(g, bundle, variant, images, n, view, geo):
+def _reflection(g, bundle, variant, images, n, view, geo, perceptual):
     """The reflection along R = reflect(−V, N): the probe the object's property names (box-projected
-    where the probe says so), else the Map's reflection cubemap, else the ambient. Top mip only."""
+    where the probe says so), else the Map's reflection cubemap, else the ambient, at Unity's mip for the
+    surface's perceptual roughness, r · (1.7 − 0.7 r) · 6, from a chain of halved maps."""
     if look.get("reflection") == "off":
         return (g.rgb((0.0, 0.0, 0.0)), "Color")
+    mip = g.math("MULTIPLY", g.math("MULTIPLY", perceptual, g.math("MULTIPLY_ADD", perceptual, -0.7, 1.7)),
+                 float(SPECCUBE_LOD_STEPS))
     r = g.vmath("REFLECT", g.vmath("SCALE", view, scale=-1.0), n)
     refl = variant["reflection"]
     if refl["texture"] is not None:
-        env = g.vmath("SCALE", _env_sample(g, bundle, images, refl["texture"], r), scale=refl["intensity"])
+        env = g.vmath("SCALE", _env_sample(g, bundle, images, refl["texture"], r, mip), scale=refl["intensity"])
     else:
         env = (g.rgb((0.0, 0.0, 0.0)), "Color")
     probe_index = (_attribute(g, PROP_PROBE), "Fac")
@@ -517,7 +557,8 @@ def _reflection(g, bundle, variant, images, n, view, geo):
         direction = r
         if probe["box_projection"]:
             direction = _box_project(g, r, (geo, "Position"), probe)
-        sample = g.vmath("SCALE", _env_sample(g, bundle, images, probe["texture"], direction), scale=probe["intensity"])
+        sample = g.vmath("SCALE", _env_sample(g, bundle, images, probe["texture"], direction, mip),
+                         scale=probe["intensity"])
         chosen = g.math("COMPARE", probe_index, float(k), 0.25)
         env = g.mix(chosen, env, sample)
     return env
@@ -560,7 +601,7 @@ def _fog(g, fog: dict, lit, additive):
 def _finish(mat, m: dict, tier):
     mat.use_backface_culling = not (m["double_sided"] or tier.double_sided)
     # Unity's shadow pass culls as the material draws: a one-sided surface casts from its front only.
-    mat.use_backface_culling_shadow = mat.use_backface_culling and look.get("shadow_cull") == "front"
+    mat.use_backface_culling_shadow = mat.use_backface_culling
     mat.surface_render_method = "BLENDED" if m["blend_mode"] in ("alpha", "additive") else "DITHERED"
     mat[PROP_HASH] = m["id"]
 

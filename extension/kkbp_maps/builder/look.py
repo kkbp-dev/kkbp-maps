@@ -10,15 +10,13 @@ switch is removed and its answer becomes plain Builder code, recorded in kk-spik
 from __future__ import annotations
 
 SWITCHES: dict[str, tuple[object, str]] = {
-    # Whether a one-sided material casts shadows from its front faces only, as Unity's shadow pass culls.
-    "shadow_cull": (("front", "none"), "front"),
-    # 1F's ambient: the Flat colour its mode names, or the (stale) SH probe it also holds (kk-spike 6).
-    "flat_ambient": (("flat", "probe"), "flat"),
-    # The sun's soft shadow angle in degrees (EEVEE); Unity's soft shadows have no angle.
-    "sun_angle": (float, "0.5"),
-    # The reflection: sampled sharp from the top mip, or left out (to measure what it adds).
-    "reflection": (("sharp", "off"), "sharp"),
+    # The reflection term on or off, to measure what it adds to a view.
+    "reflection": (("on", "off"), "on"),
 }
+
+# Settled by the look check (kk-spike.md, "Settled by the look check"): shadow culling as Unity's
+# per-renderer mode (ADR 0024), 1F's Flat ambient over its stale probe, reflections blurred by roughness,
+# and the sun's soft angle, which changes no view.
 
 _current: dict[str, str] = {}
 

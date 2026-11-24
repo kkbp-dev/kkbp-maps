@@ -45,6 +45,7 @@ def build_report(plan: LibraryPlan, results: dict | None = None) -> dict:
             "placements": len(m.roots),
             "shader_tiers": tiers,
             "material_notes": [{"note": n, "materials": c} for n, c in sorted(m.notes.items())],
+            "renderer_notes": [{"note": n, "renderers": c} for n, c in sorted(m.renderer_notes.items())],
             "extractor_skipped": m.bundle.map["skipped"],
             "left_out_assets": [a.game_name for a in plan.left_out_assets.values() if a.source[0] == m.key],
             "overrides": sorted({a.game_name for a in plan.assets.values() if a.overridden and a.source[0] == m.key}),
@@ -78,6 +79,8 @@ def markdown(report: dict) -> str:
             lines.append(f"- `{t['shader']}` {what} ({t['reason']}): {t['materials']} materials, {t['draws']} draws")
         for n in m["material_notes"]:
             lines.append(f"- {n['note']}: {n['materials']} materials")
+        for n in m["renderer_notes"]:
+            lines.append(f"- {n['note']}: {n['renderers']} renderers")
         for s in m["extractor_skipped"]:
             lines.append(f"- Not in the Map Bundle ({s['reason']}): {s['count']}")
         if m["left_out_assets"]:

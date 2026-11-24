@@ -72,6 +72,7 @@ class MapPlan:
     shader_use: Counter = field(default_factory=Counter)   # (shader, tier) -> draws
     shader_materials: dict = field(default_factory=dict)   # (shader, tier) -> material ids
     notes: Counter = field(default_factory=Counter)        # (note) -> materials, for the Build Report
+    renderer_notes: Counter = field(default_factory=Counter)  # (note) -> renderers, for the Build Report
 
     @property
     def catalog(self) -> str:
@@ -184,10 +185,40 @@ def _plan_map(b: Bundle, tables: NameTables, used: set[str]) -> MapPlan:
             m.shader_use[(material["shader"], t)] += 1
             m.shader_materials.setdefault((material["shader"], t), set()).add(material["id"])
         m.draws[n["id"]] = tiers
+        for note in renderer_notes(b, n, tiers):
+            m.renderer_notes[note] += 1
     for mid, material in b.materials.items():
         for note in material_notes(material):
             m.notes[note] += 1
     return m
+
+
+def passes(draws, tiers) -> list[dict]:
+    """A renderer's draws as passes over its mesh: each pass draws a submesh at most once, so one Blender
+    object with a material slot per submesh holds it. The first pass takes each submesh's first draw; a
+    submesh drawn again (Unity draws a material slot past the last submesh over that submesh once more)
+    goes into a later pass, an extra object over the same mesh. A submesh no draw names isn't drawn.
+    Returns one {submesh: (draw, tier)} per pass."""
+    out: list[dict] = []
+    for draw, tier in zip(draws, tiers):
+        for p in out:
+            if draw["submesh"] not in p:
+                p[draw["submesh"]] = (draw, tier)
+                break
+        else:
+            out.append({draw["submesh"]: (draw, tier)})
+    return out
+
+
+def renderer_notes(b: Bundle, node: dict, tiers) -> list[str]:
+    """What a renderer's draws need beyond one object with a slot per submesh, for the Build Report."""
+    r = node["renderer"]
+    notes = []
+    if len(passes(r["draws"], tiers)) > 1:
+        notes.append("a submesh drawn twice: the second pass is an extra object over the same mesh")
+    if len({d["submesh"] for d in r["draws"]}) < len(b.meshes[r["mesh"]]["index_counts"]):
+        notes.append("submeshes the game doesn't draw: left out")
+    return notes
 
 
 def material_notes(material: dict) -> list[str]:

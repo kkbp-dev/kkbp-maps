@@ -18,7 +18,7 @@ from mathutils import Matrix, Quaternion, Vector
 
 from .. import shaders
 from ..games import light_convention
-from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes
+from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, passes
 from . import materials as mats
 from .meshes import Meshes
 from .nodes import Graph
@@ -64,8 +64,9 @@ class FileBuilder:
             self.grades[tid] = mats.grade_group(f".KKM Grade {bundle.textures[tid]['name']}", img)
         return self.grades[tid]
 
-    def make_object(self, bundle, node: dict, tiers, collection, parent, material_for) -> bpy.types.Object:
-        """An object for a node: a mesh object if it draws something, else an empty."""
+    def make_object(self, bundle, node: dict, tiers, collection, parent, material_for) -> list[bpy.types.Object]:
+        """The objects for a node: a mesh object if it draws something, else an empty; and one more for
+        each further pass over a submesh. The first object comes first."""
         r = node.get("renderer")
         drawn = r is not None and any(t.level != shaders.SKIPPED for t in tiers)
         mesh = self.mesh(bundle, r["mesh"]) if drawn else None
@@ -80,23 +81,24 @@ class FileBuilder:
         collection.objects.link(obj)
         if parent is not None:
             obj.parent = parent
-        if mesh is not None:
-            _check_draws(bundle, node)
-            for slot, (draw, tier) in zip(obj.material_slots, zip(r["draws"], tiers)):
+        if mesh is None:
+            return [obj]
+        out = [obj]
+        for k, assigned in enumerate(passes(r["draws"], tiers)):
+            target = obj
+            if k:
+                target = bpy.data.objects.new(f"{node['name']} pass {k + 1}", mesh)
+                collection.objects.link(target)
+                target.parent = obj
+                target["kkbp_maps_pass"] = k + 1
+                out.append(target)
+            for i, slot in enumerate(target.material_slots):
                 slot.link = "OBJECT"
-                slot.material = mats.left_out_material() if tier.level == shaders.SKIPPED else material_for(draw["material"])
-            obj.visible_shadow = r["cast_shadows"]
-        return obj
-
-
-def _check_draws(bundle, node):
-    """Each submesh drawn once, in order: what a Blender mesh's material slots can hold. KK's Golden Maps
-    are all like this; a Map that isn't stops the build rather than drawing wrongly."""
-    r = node["renderer"]
-    subs = [d["submesh"] for d in r["draws"]]
-    if subs != list(range(len(bundle.meshes[r["mesh"]]["index_counts"]))):
-        raise NotImplementedError(f"{bundle.key}: node {node['id']} ({node['name']}) draws submeshes {subs}; "
-                                  "the Builder needs each submesh drawn once, in order")
+                draw, tier = assigned.get(i, (None, None))
+                slot.material = material_for(draw["material"]) if draw and tier.level != shaders.SKIPPED \
+                    else mats.left_out_material()
+            target.visible_shadow = r["cast_shadows"] and k == 0
+        return out
 
 
 # --- Map Variants ------------------------------------------------------------------------------------
@@ -132,8 +134,8 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
             if i not in shown:
                 continue
             parent = objects.get(n["parent"]) if n["parent"] is not None else None
-            obj = fb.make_object(b, n, m.draws.get(i, ()), coll, parent, material_for)
-            objects[i] = obj
+            made = fb.make_object(b, n, m.draws.get(i, ()), coll, parent, material_for)
+            obj = objects[i] = made[0]
             if i in m.roots:
                 asset = plan.assets.get(m.roots[i]) or plan.left_out_assets.get(m.roots[i])
                 obj[PROP_ASSET] = m.roots[i]
@@ -141,10 +143,12 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
                 obj["kkbp_maps_asset_name"] = asset.name
             if obj.type == "MESH":
                 a = lm.get(i)
-                obj[mats.PROP_TILE] = mats.udim(a["lightmap"]) if a else 0
-                obj[mats.PROP_SCALE_OFFSET] = list(a["scale_offset"]) if a else [1.0, 1.0, 0.0, 0.0]
-                obj[mats.PROP_UV] = a["uv"] if a else 1
-                obj[mats.PROP_PROBE] = _probe_of(v, world[i], obj.data)
+                probe = _probe_of(v, world[i], obj.data)
+                for o in made:  # every pass is lit as the renderer is
+                    o[mats.PROP_TILE] = mats.udim(a["lightmap"]) if a else 0
+                    o[mats.PROP_SCALE_OFFSET] = list(a["scale_offset"]) if a else [1.0, 1.0, 0.0, 0.0]
+                    o[mats.PROP_UV] = a["uv"] if a else 1
+                    o[mats.PROP_PROBE] = probe
         for k, light_record in enumerate(v["lights"]):
             coll.objects.link(_light_object(plan.game, light_record, f"{vp.name} {light_record['type'].title()}"))
         w = build_world(b, v, vp, fb, grade)
@@ -246,7 +250,7 @@ def build_asset(plan: LibraryPlan, asset, fb: FileBuilder, base_cache: dict, gra
     for i in asset_nodes(b, root):
         n = b.nodes[i]
         parent = objects.get(n["parent"]) if i != root else None
-        obj = fb.make_object(b, n, m.draws.get(i, ()), coll, parent, material_for)
+        obj = fb.make_object(b, n, m.draws.get(i, ()), coll, parent, material_for)[0]
         if i == root:
             obj.location = (0.0, 0.0, 0.0)
             obj.rotation_quaternion = (1.0, 0.0, 0.0, 0.0)

@@ -9,7 +9,7 @@ from bundle_builder import MapBundleBuilder
 from kkbp_maps.bundle import read
 from kkbp_maps.builder.catalogs import catalog_file, catalog_uuid
 from kkbp_maps.builder.names import NameTables
-from kkbp_maps.builder.plan import asset_nodes, plan_library, safe_file_name
+from kkbp_maps.builder.plan import asset_nodes, passes, plan_library, safe_file_name
 from kkbp_maps.builder.report import build_report, markdown
 
 ROOT, ROOM, WALL, VASE, DESK, DESK_TOP, DESK_LEG, DESK2, DESK2_TOP, DESK2_LEG, CLOUDS, CLOUD_PLANE = range(12)
@@ -126,3 +126,18 @@ def test_one_game_per_library(tmp_path):
 def test_safe_file_names():
     assert safe_file_name('Staff Toilet (Men)') == "Staff Toilet (Men)"
     assert safe_file_name('a/b:c?') == "a_b_c_"
+
+
+def test_passes_split_a_submesh_drawn_twice():
+    draws = [{"submesh": s, "material": m} for s, m in ((0, "a"), (1, "b"), (1, "c"), (1, "d"))]
+    out = passes(draws, ["t"] * 4)
+    assert [{k: v[0]["material"] for k, v in p.items()} for p in out] == [{0: "a", 1: "b"}, {1: "c"}, {1: "d"}]
+
+
+def test_draw_notes_reach_the_report(tmp_path):
+    def odd_draws(b):
+        b.nodes[WALL]["renderer"]["draws"].append({"submesh": 0, "material": "desk"})  # a second pass
+        b.nodes[VASE]["renderer"]["draws"].pop()                                     # submesh 1 not drawn
+    m = build_report(plan_library([bundle(tmp_path, change=odd_draws)], TABLES))["maps"][0]
+    assert {n["note"][:20]: n["renderers"] for n in m["renderer_notes"]} == {
+        "a submesh drawn twic": 1, "submeshes the game d": 1}

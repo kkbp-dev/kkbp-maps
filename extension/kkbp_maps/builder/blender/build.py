@@ -185,9 +185,10 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--bundles", nargs="+", required=True, help="Map Bundle folders, in build order")
     parser.add_argument("--step", action="append", help="map:<key>, assets or finish; all of them by default")
     parser.add_argument("--no-previews", action="store_true")
+    parser.add_argument("--camera", help="show every Map through this Camera Profile (game or studio), for the look check")
     args = parser.parse_args(argv)
     bundles = [bundle_contract.read(p) for p in args.bundles]
-    plan = plan_library(bundles, NameTables.load(bundles[0].game))
+    plan = plan_library(bundles, NameTables.load(bundles[0].game), camera=args.camera)
     for s in args.step or steps(plan):
         build_step(plan, args.library, s, previews_on=not args.no_previews,
                    log=lambda text: print(f"  {text}", flush=True))

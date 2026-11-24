@@ -141,3 +141,16 @@ def test_draw_notes_reach_the_report(tmp_path):
     m = build_report(plan_library([bundle(tmp_path, change=odd_draws)], TABLES))["maps"][0]
     assert {n["note"][:20]: n["renderers"] for n in m["renderer_notes"]} == {
         "a submesh drawn twic": 1, "submeshes the game d": 1}
+
+
+def test_a_map_is_shown_through_its_own_camera_profile_unless_one_is_given(tmp_path):
+    from kkbp_maps.builder.games import camera_profile
+
+    b = bundle(tmp_path)
+    p = plan_library([b], TABLES)
+    m = p.maps[0]
+    assert p.camera_of(m) == b.map["camera"]
+    studio = plan_library([b], TABLES, camera="studio")
+    assert studio.camera_of(studio.maps[0]) == "studio"
+    profile = camera_profile(b.game, "studio")
+    assert not profile.map_fog and not profile.map_sun_shafts and not profile.assumed

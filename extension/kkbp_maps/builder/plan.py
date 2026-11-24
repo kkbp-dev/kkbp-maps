@@ -90,6 +90,11 @@ class LibraryPlan:
     assets: dict[str, AssetPlan]           # by Content Hash, in order of first appearance
     left_out_assets: dict[str, AssetPlan]  # Candidates with nothing drawn
     grades: list[tuple[str, str, str]]     # (LUT texture id, LUT name, Map key) of each distinct Grade
+    camera: str | None = None              # a Camera Profile for every Map instead of each Map's own
+
+    def camera_of(self, m: "MapPlan") -> str:
+        """The Camera Profile that shows Map m."""
+        return self.camera or m.bundle.map["camera"]
 
     def props(self) -> list[AssetPlan]:
         return [a for a in self.assets.values() if a.kind == "prop"]
@@ -119,8 +124,9 @@ class LibraryPlan:
                         "Outdoor" if m.outdoor else "Indoor"])
 
 
-def plan_library(bundles: list[Bundle], tables: NameTables) -> LibraryPlan:
-    """The plan for one Game's Map Library; `bundles` in build order, all of one Game."""
+def plan_library(bundles: list[Bundle], tables: NameTables, camera: str | None = None) -> LibraryPlan:
+    """The plan for one Game's Map Library; `bundles` in build order, all of one Game. `camera` shows
+    every Map through that Camera Profile instead of its own (the look check builds Studio's view)."""
     games = {b.game for b in bundles}
     if len(games) != 1:
         raise ValueError(f"a Map Library holds one Game's Maps; these are of {sorted(games)}")
@@ -152,7 +158,7 @@ def plan_library(bundles: list[Bundle], tables: NameTables) -> LibraryPlan:
             asset.outdoor.add(m.outdoor)
             for root in c["placements"]:
                 m.roots[root] = c["hash"]
-    return LibraryPlan(game, tables, maps, assets, left_out, list(grades.values()))
+    return LibraryPlan(game, tables, maps, assets, left_out, list(grades.values()), camera)
 
 
 def _plan_map(b: Bundle, tables: NameTables, used: set[str]) -> MapPlan:

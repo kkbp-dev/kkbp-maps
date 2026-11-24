@@ -46,7 +46,8 @@ OUT = REPO / "captures" / "KK"
 GOLDEN = REPO / "golden" / "KK"
 OFF = ".kkbp-maps-off"
 TIME_TYPE = {"day": 0, "evening": 1, "night": 2}   # SunLightInfo.Info.Type
-SEED_YAWS = (0, 90, 180, 270)
+SEED_YAWS = (0, 90, 180, 270)   # eye-level views about Studio's camera target
+SEED_EYE = 1.6
 
 
 def winpath(p: Path) -> str:
@@ -82,7 +83,8 @@ def request(look: dict, seed: bool) -> dict:
         vs = []
         for v in variants(key):
             if seed:
-                vv = [{"name": f"studio-{y}", "studio_default": y} for y in SEED_YAWS]
+                vv = [{"name": "studio", "studio_default": 0}] + [
+                    {"name": f"eye-{y}", "studio_default": y, "eye": SEED_EYE} for y in SEED_YAWS]
             else:
                 vv = [{"name": w["name"], "position": to_unity(w["position"]), "target": to_unity(w["target"]),
                        "fov": w["fov"]} for w in views if w["map"] == key and w["variant"] == v["id"]]
@@ -156,7 +158,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--seed", action="store_true", help="capture Studio's own cameras and keep them as the Capture Views")
     ap.add_argument("--deploy", action="store_true", help="copy the built plugin into the game, then stop")
     ap.add_argument("--undeploy", action="store_true", help="take the plugin out of the game, then stop")
-    ap.add_argument("--timeout", type=int, default=900)
+    ap.add_argument("--timeout", type=int, default=2400)
     args = ap.parse_args(argv)
 
     if running():

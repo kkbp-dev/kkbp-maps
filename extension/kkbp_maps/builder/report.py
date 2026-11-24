@@ -28,10 +28,10 @@ def build_report(plan: LibraryPlan, results: dict | None = None) -> dict:
                           "materials": len(m.shader_materials[(shader, t)]), "draws": draws})
         props = sum(1 for a in plan.assets.values() if a.kind == "prop" and a.source[0] == m.key)
         structures = sum(1 for a in plan.assets.values() if a.kind == "structure" and a.source[0] == m.key)
-        profile = camera_profile(plan.game, m.bundle.map["camera"])
+        profile = camera_profile(plan.game, plan.camera_of(m))
         assumptions = []
         if profile.assumed:
-            assumptions.append(f"Camera Profile '{m.bundle.map['camera']}' not captured yet: no tonemapper, "
+            assumptions.append(f"Camera Profile '{plan.camera_of(m)}' not captured yet: no tonemapper, "
                                "exposure 1, no sun shafts (ADR 0010)")
         maps.append({
             "key": m.key,

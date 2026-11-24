@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
 import look_compare as lc  # noqa: E402
 
 

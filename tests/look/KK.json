@@ -3,6 +3,9 @@
  "maps": ["map/scene/1f", "map/scene/ground", "map/scene/park"],
  "width": 1280,
  "height": 720,
+ "camera": "studio",
+ "samples": 32,
+ "tolerance": {"mean_de": 3.0, "p95_de": 10.0, "tile": 0.10, "grid": 8, "floor": 0.02},
  "disable_effects": ["DepthOfField", "BloomAndFlares", "VignetteAndChromaticAberration", "AmplifyOcclusionEffect", "Blur", "SepiaTone", "CrossFade"],
  "set_aside": ["GraphicsSettings.dll", "KK_BetterShadowQualitySettings.dll", "KK_ShadowColorSwapper.dll", "PostProcessingEffect.dll", "PostProcessingRuntime.dll"]
 }

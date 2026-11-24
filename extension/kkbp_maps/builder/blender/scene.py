@@ -17,7 +17,7 @@ import bpy
 from mathutils import Matrix, Quaternion, Vector
 
 from .. import shaders
-from ..games import light_convention
+from ..games import camera_profile, light_convention
 from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, passes
 from . import materials as mats
 from .meshes import Meshes
@@ -118,7 +118,7 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
     for v, vp in zip(b.variants, m.variants):
         coll = bpy.data.collections.new(vp.name)
         grade = fb.grade(b, v["grade"])
-        light = mats.variant_light(b, v, vp.name, fb.images, grade)
+        light = mats.variant_light(b, _as_shown(plan, m, v), vp.name, fb.images, grade)
         variant_mats: dict[str, bpy.types.Material] = {}
 
         def material_for(material_id, vname=vp.name, light=light, variant_mats=variant_mats):
@@ -158,6 +158,13 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
         coll["kkbp_maps_times_of_day"] = list(v["times_of_day"])
         out.append(coll)
     return out
+
+
+def _as_shown(plan: LibraryPlan, m: MapPlan, v: dict) -> dict:
+    """The Map Variant as its Camera Profile shows it: without the Map's fog where the camera replaces it."""
+    if camera_profile(plan.game, plan.camera_of(m)).map_fog:
+        return v
+    return {**v, "fog": {**v["fog"], "enabled": False}}
 
 
 def _shown_nodes(b, v) -> set[int]:

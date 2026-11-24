@@ -46,7 +46,7 @@ scene.eevee.taa_render_samples = look.get("samples", 32)
 cam = bpy.data.objects.new("look camera", bpy.data.cameras.new("look camera"))
 scene.collection.objects.link(cam)
 cam.data.sensor_fit = "VERTICAL"
-cam.data.clip_start = 0.3
+cam.data.clip_start = 0.06   # Studio camera's near and far planes
 cam.data.clip_end = 1000.0
 scene.camera = cam
 

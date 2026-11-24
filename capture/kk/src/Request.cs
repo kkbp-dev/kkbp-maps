@@ -18,7 +18,7 @@ namespace KKMaps.Capture
     ///   "maps": [ { "folder": "map/scene/1f", "bundle": "map/scene/1f.unity3d",
     ///     "variants": [ { "name": "day", "type": 0,
     ///       "views": [ { "name": "hall", "position": [x, y, z], "target": [x, y, z], "fov": 40 },
-    ///                  { "name": "studio-90", "studio_default": 90 } ] } ] } ] }
+    ///                  { "name": "studio-90", "studio_default": 90 }, { "name": "eye-90", "studio_default": 90, "eye": 1.6 } ] } ] } ] }
     /// </code>
     /// A view with "studio_default" starts from Studio's own camera for the Map (CameraControl.Reset)
     /// and turns it about its target by that yaw in degrees. The result lists every view as placed, in
@@ -137,15 +137,28 @@ namespace KKMaps.Capture
                     {
                         if (view.ContainsKey("studio_default"))
                         {
-                            // Studio's own camera for the Map, turned about its target by a yaw in degrees.
+                            // From Studio's own camera for the Map (CameraControl.Reset): with "eye", stand
+                            // that high above its target and look out level-ish along the camera's heading
+                            // turned by "studio_default" degrees; without, Studio's camera turned about its target.
                             studio.cameraCtrl.enabled = true;
                             studio.cameraCtrl.Reset(0);
                             yield return null;
                             yield return null;
                             studio.cameraCtrl.enabled = false;
                             Vector3 target = studio.cameraCtrl.targetPos;
-                            Vector3 offset = Quaternion.AngleAxis((float)(double)view["studio_default"], Vector3.up) * (cam.transform.position - target);
-                            frames.Place(target + offset, target, cam.fieldOfView);
+                            var yaw = Quaternion.AngleAxis((float)(double)view["studio_default"], Vector3.up);
+                            if (view.ContainsKey("eye"))
+                            {
+                                Vector3 heading = cam.transform.forward;
+                                heading.y = 0f;
+                                heading = yaw * heading.normalized;
+                                Vector3 eye = target + Vector3.up * (float)(double)view["eye"];
+                                frames.Place(eye, eye + heading * 10f + Vector3.down * 1f, cam.fieldOfView);
+                            }
+                            else
+                            {
+                                frames.Place(target + yaw * (cam.transform.position - target), target, cam.fieldOfView);
+                            }
                         }
                         else
                         {

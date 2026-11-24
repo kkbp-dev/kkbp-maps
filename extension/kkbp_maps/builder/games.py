@@ -1,8 +1,9 @@
 """What the Builder needs to know about each Game that no Map Bundle holds. Never imports bpy.
 
-- **Camera Profiles** (ADR 0010): the game camera's tonemapper, exposure and sun shaft strength, which
-  the capture plugin is to read once per Game (Phase 5). Until then they are the assumed defaults: no
-  tonemapper, exposure 1, no sun shafts, and marked as assumed so the Build Report says so.
+- **Camera Profiles** (ADR 0010): the settings of each game camera that no map file holds, read by the
+  capture plugin (tools/capture.py, camera-<profile>.json). `map_fog` and `map_sun_shafts` say whether
+  the camera shows the Map's own fog and sun shafts: Studio replaces both with the scene's settings, off
+  by default. A profile not captured yet is marked assumed, and the Build Report says so.
 - **The light convention** of the Game's Unity: with `lights_use_linear_intensity` false (KK's
   GraphicsSettings), a light's colour reaches the shader as linear(colour · intensity).
 """
@@ -17,6 +18,8 @@ class CameraProfile:
     tonemapper: str = "none"      # AmplifyColor's: "none", "photographic" or "aces"
     exposure: float = 1.0
     sun_shafts: float = 0.0
+    map_fog: bool = True          # the Map's fog is drawn (SunLightInfo's)
+    map_sun_shafts: bool = True   # the Map's sun shafts are drawn
     assumed: bool = True
 
 
@@ -26,7 +29,13 @@ class GameLight:
 
 
 CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
-    "KK": {"game": CameraProfile(), "studio": CameraProfile()},
+    "KK": {
+        "game": CameraProfile(),
+        # CharaStudio 5.6.2f1, captured 2026-11-24: AmplifyColor Tonemapper Disabled, Exposure 1,
+        # ApplyDithering false; GlobalFog and SunShafts follow the Studio scene, both off by default.
+        "studio": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=False,
+                                map_sun_shafts=False, assumed=False),
+    },
 }
 
 LIGHTS: dict[str, GameLight] = {

@@ -6,9 +6,10 @@ Reference Capture, and writes a side-by-side report.
     python3 tools/look.py --no-render        # compare the renders already there
 
 Needs numpy and Pillow (KKBP's dev venv): ../kkbp/importer/.venv/bin/python -I tools/look.py
-It reads the library tools/build_golden.py built (tests/.work/build/<blender>/KK Maps), the captures
-tools/capture.py took (captures/KK/), the Capture Views (tests/look/views/KK.json) and the tolerances
-(tests/look/KK.json). Renders and the report go to tests/.work/look/ (game content, ADR 0007). Each Map
+It builds the Golden Maps' Map files through the Camera Profile the captures were taken with
+(tests/look/KK.json, "camera"; Studio's for now), renders the Capture Views (tests/look/views/KK.json)
+and compares them with the captures tools/capture.py took (captures/KK/), within the tolerances in
+tests/look/KK.json. Renders and the report go to tests/.work/look/ (game content, ADR 0007). Each Map
 file renders in its own `blender -b` under the memory watchdog. Exits 1 if any view is out of tolerance.
 """
 
@@ -19,7 +20,7 @@ import base64
 import html
 import io
 import json
-import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -29,8 +30,8 @@ from PIL import Image
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
 import look_compare as lc  # noqa: E402
-from build_golden import BUILDS, WORK as BUILD_WORK, blender_path  # noqa: E402
-from memory_watch import Limits, run_watched  # noqa: E402
+from build_golden import BUILDS, GOLDEN, blender, blender_path, copy_golden  # noqa: E402
+from memory_watch import Limits  # noqa: E402
 
 WORK = REPO / "tests" / ".work" / "look"
 
@@ -39,24 +40,40 @@ def tolerance(look: dict) -> lc.Tolerance:
     return lc.Tolerance(**look.get("tolerance", {}))
 
 
-def render(blender: str, game: str, limits: Limits) -> bool:
-    library = BUILD_WORK / blender / f"{game} Maps" / "Maps"
-    out = WORK / blender / "renders"
-    ok = True
-    for blend in sorted(library.glob("*.blend")):
-        log = WORK / blender / f"render-{blend.stem}.log"
-        log.parent.mkdir(parents=True, exist_ok=True)
-        with open(log, "w") as f:
-            code, _, reason = run_watched(
-                [str(blender_path(blender)), "-b", "--factory-startup", str(blend), "--python",
-                 str(REPO / "tests" / "blender" / "render_views.py"), "--",
-                 str(REPO / "tests" / "look" / "views" / f"{game}.json"), str(REPO / "tests" / "look" / f"{game}.json"),
-                 str(out)], limits, env={**os.environ, "BLENDER_USER_RESOURCES": str(WORK / blender / "profile")},
-                stdout=f, stderr=f)
-        print(f"look: rendered {blend.stem} on {blender}: {'ok' if code == 0 else f'failed ({reason or code}), see {log}'}",
-              flush=True)
-        ok = ok and code == 0
-    return ok
+def build_and_render(name: str, game: str, look: dict, limits: Limits) -> bool:
+    """Each Golden Map's file, built through the captures' Camera Profile, then its views rendered."""
+    bundles = copy_golden(REPO / "golden" / game, GOLDEN[game])
+    if bundles is None:
+        return False
+    root = WORK / name
+    library = root / f"{game} Maps"
+    if library.exists():
+        shutil.rmtree(library)
+    profile = root / "profile"
+    profile.mkdir(parents=True, exist_ok=True)
+    log = root / "look.log"
+    log.write_text("")
+    exe = blender_path(name)
+    for key in GOLDEN[game]:
+        cmd = ["--python", str(REPO / "tools" / "blender_build.py"), "--", "--library", str(library),
+               "--bundles", *map(str, bundles), "--step", f"map:{key}", "--no-previews", "--camera", look["camera"]]
+        code, peak, reason = blender(exe, profile, cmd, limits, log)
+        print(f"look: built {key} on {name}: {'ok' if code == 0 else f'failed ({reason or code})'}, "
+              f"peak {peak / 2**30:.2f} GB", flush=True)
+        if code != 0:
+            print(f"  see {log}")
+            return False
+    for blend in sorted((library / "Maps").glob("*.blend")):
+        code, peak, reason = blender(exe, profile, [
+            str(blend), "--python", str(REPO / "tests" / "blender" / "render_views.py"), "--",
+            str(REPO / "tests" / "look" / "views" / f"{game}.json"), str(REPO / "tests" / "look" / f"{game}.json"),
+            str(root / "renders")], limits, log)
+        print(f"look: rendered {blend.stem} on {name}: {'ok' if code == 0 else f'failed ({reason or code})'}, "
+              f"peak {peak / 2**30:.2f} GB", flush=True)
+        if code != 0:
+            print(f"  see {log}")
+            return False
+    return True
 
 
 def _img(path: Path) -> np.ndarray:
@@ -128,8 +145,9 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--max-rss-gb", type=float, default=8.0)
     args = ap.parse_args(argv)
     look = json.loads((REPO / "tests" / "look" / f"{args.game}.json").read_text())
-    if not args.no_render and not render(args.blender, args.game,
-                                         Limits(max_rss_gb=args.max_rss_gb, min_available_gb=1.5, min_swap_free_gb=6.0)):
+    if not args.no_render and not build_and_render(args.blender, args.game, look,
+                                                   Limits(max_rss_gb=args.max_rss_gb, min_available_gb=1.5,
+                                                          min_swap_free_gb=6.0)):
         return 1
     rows = compare_all(args.blender, args.game, look)
     path = report(rows, args.blender, args.game)

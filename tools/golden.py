@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -27,11 +26,13 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "extension"))
 sys.path.insert(0, str(REPO / "extension" / "kkbp_maps"))
+sys.path.insert(0, str(REPO / "tools"))
+
+from memory_watch import Limits, run_watched  # noqa: E402
 
 GOLDEN = {"KK": ["map/scene/1f", "map/scene/park", "map/scene/ground"]}
 GAME_FOLDERS = {"KK": "Koikatsu", "KKS": "Koikatsu Sunshine", "SVS": "Summer Vacation Scramble"}
 SNAPSHOTS = REPO / "tests" / "snapshots" / "extract"
-POLL_SECONDS = 0.5
 
 
 def main(argv: list[str]) -> int:
@@ -65,7 +66,7 @@ def main(argv: list[str]) -> int:
         if args.max_texture_size:
             cmd += ["--max-texture-size", str(args.max_texture_size)]
         start = time.time()
-        code, peak, reason = run_watched(cmd, args)
+        code, peak, reason = run_watched(cmd, Limits(args.max_rss_gb, args.min_available_gb, args.min_swap_free_gb))
         took = time.time() - start
         peak_text = f", peak {peak / 2**30:.2f} GB" if peak else ""
         if code != 0:
@@ -103,54 +104,6 @@ def worker(args) -> int:
     extract_map(install, m, Path(args.out), Options(max_texture_size=args.max_texture_size), force=args.force,
                 log=lambda text: print(f"  {text}", flush=True))
     return 0
-
-
-# --- the watchdog ---------------------------------------------------------------------------------
-
-def run_watched(cmd: list[str], args) -> tuple[int, int, str]:
-    """Runs a command, stopping it if memory runs short. Returns (exit code, peak bytes, why stopped)."""
-    proc = subprocess.Popen(cmd)
-    watch = Path("/proc").is_dir()
-    if not watch:
-        print("  (no /proc here: running without the memory watchdog)")
-        return proc.wait(), 0, ""
-    peak, reason = 0, ""
-    while proc.poll() is None:
-        used = process_memory(proc.pid)
-        peak = max(peak, used)
-        info = meminfo()
-        if used > args.max_rss_gb * 2**30:
-            reason = f"it passed {args.max_rss_gb} GB"
-        elif info.get("MemAvailable", 1 << 62) < args.min_available_gb * 2**30:
-            reason = f"less than {args.min_available_gb} GB of memory was left"
-        elif info.get("SwapTotal") and info.get("SwapFree", 1 << 62) < args.min_swap_free_gb * 2**30:
-            reason = f"less than {args.min_swap_free_gb} GB of swap was left"
-        if reason:
-            proc.kill()
-            proc.wait()
-            return -9, peak, f"stopped: {reason}"
-        time.sleep(POLL_SECONDS)
-    return proc.returncode, peak, ""
-
-
-def process_memory(pid: int) -> int:
-    """VmRSS + VmSwap of a process, in bytes."""
-    total = 0
-    try:
-        for line in Path(f"/proc/{pid}/status").read_text().splitlines():
-            if line.startswith(("VmRSS:", "VmSwap:")):
-                total += int(line.split()[1]) * 1024
-    except OSError:
-        pass
-    return total
-
-
-def meminfo() -> dict[str, int]:
-    out = {}
-    for line in Path("/proc/meminfo").read_text().splitlines():
-        name, _, rest = line.partition(":")
-        out[name] = int(rest.split()[0]) * 1024
-    return out
 
 
 # --- the snapshot -----------------------------------------------------------------------------------

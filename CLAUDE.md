@@ -4,7 +4,7 @@ Instructions for an AI agent (or anyone) changing this repository. Read this fir
 
 kkbp-maps reads the maps of a user's own KK, KKS or SVS install and builds Blender asset libraries from them. It is one Blender extension in two stages: the **Extractor** writes **Map Bundles**, and the **Builder** turns them into a **Map Library**. It is a sister project of KKBP, whose repository sits beside this one at `../kkbp` on the development machine.
 
-Status: Phases 1 and 2 of [docs/design/roadmap.md](docs/design/roadmap.md) are done: the KK spike ([docs/design/kk-spike.md](docs/design/kk-spike.md)) and the Map Bundle contract ([docs/design/map-bundle.md](docs/design/map-bundle.md)), with its checker and tests. Phase 3, the KK Extractor (`extension/kkbp_maps/extractor/`), writes Golden Maps that pass the deep check. There is no Builder code yet.
+Status: Phases 1 and 2 of [docs/design/roadmap.md](docs/design/roadmap.md) are done: the KK spike ([docs/design/kk-spike.md](docs/design/kk-spike.md)) and the Map Bundle contract ([docs/design/map-bundle.md](docs/design/map-bundle.md)), with its checker and tests. Phase 3, the KK Extractor (`extension/kkbp_maps/extractor/`), writes Golden Maps that pass the deep check. Phase 4, the KK Builder (`extension/kkbp_maps/builder/`), builds them into a Map Library on both Blender builds, checked against committed snapshots.
 
 ## Read before changing anything
 
@@ -27,7 +27,7 @@ Status: Phases 1 and 2 of [docs/design/roadmap.md](docs/design/roadmap.md) are d
 
 - **No game content in the repository** (ADR 0007): no bundles, Map Bundles, textures, meshes, built libraries, Golden Maps or Reference Captures. Snapshots hold counts, names, hashes and tags only.
 - **Files only** (ADR 0001): the Extractor never starts or talks to a game. Only the developer capture plugin runs inside a game.
-- **Layers:** `extractor/` and `bundle/` never import `bpy`. Blender version checks (`bpy.app.version`) live only in `compat/`. In the Extractor only `unity.py` imports UnityPy; the rest works on its Store of plain data, which the host tests fake (`tests/fake_scene.py`).
+- **Layers:** `extractor/` and `bundle/` never import `bpy`, and neither does the Builder's plan (everything in `builder/` outside `builder/blender/`), which decides what a build makes and is host-tested. Blender version checks (`bpy.app.version`) live only in `compat/`. In the Extractor only `unity.py` imports UnityPy; the rest works on its Store of plain data, which the host tests fake (`tests/fake_scene.py`).
 - **Three platforms:** Windows, macOS arm64 and Linux x64. Use `pathlib`, never hard-coded separators, drive letters or Wine paths; no shell-only tooling (D23). A wheel must match the running Python and platform; never hard-code a tag.
 - **Game differences** are data about each Game, not checks of the Game's id scattered through the code.
 - **Find things by meaning**, such as Texture Roles and Prop hashes, not by object or node names, except where a name is the only marker the game gives (the `p_`, `mo_`, `o_` prefixes, the room containers of ADR 0019, the helper names in [games.md](docs/design/games.md)); those are listed in one place, `extractor/games.py`.
@@ -42,8 +42,11 @@ Status: Phases 1 and 2 of [docs/design/roadmap.md](docs/design/roadmap.md) are d
 | Make the Golden Maps (stale ones only; `--force` for all), check them and compare the snapshot, in the background | `../kkbp/importer/.venv/bin/python -I tools/golden.py` |
 | Record the extraction snapshot after an intended change (review the diff) | `../kkbp/importer/.venv/bin/python -I tools/golden.py --update-snapshot` |
 | Check Map Bundles, deep (any Python 3.11 or later) | `python3 tools/check_bundle.py <bundle>...` |
+| Build copies of the Golden Maps on `min` then `latest`, summarize the files and compare the build snapshot, in the background (about 30 s of building per Blender build, plus a summary per file) | `python3 tools/build_golden.py` |
+| Record the build snapshot after an intended change (review the diff) | `python3 tools/build_golden.py --update-snapshot` |
+| Build a Map Library from Map Bundles | `<blender> -b --factory-startup --python tools/blender_build.py -- --library "<out>/KK Maps" --bundles <bundle>...` |
 
-The tests need `pytest` and `jsonschema`, and the Extractor UnityPy, numpy and Pillow, all in KKBP's dev venv; `bundle/` itself needs only the standard library. `golden.py` extracts each Map in a process it watches, and stops it before memory runs short (Linux only). A Golden Map takes 15 to 40 s and under 1 GB.
+The tests need `pytest` and `jsonschema`, and the Extractor UnityPy, numpy and Pillow, all in KKBP's dev venv; `bundle/` itself needs only the standard library. `golden.py` extracts each Map in a process it watches, and stops it before memory runs short (Linux only). A Golden Map takes 15 to 40 s and under 1 GB. `build_golden.py` runs each build step in its own `blender -b` process under the same watchdog (`tools/memory_watch.py`), one Blender build at a time, with its own profile and `extension/` on the path, so nothing is installed into Blender. Its work folder, `tests/.work/`, is under home because the snap can't see `/tmp`.
 
 ## Running the games safely
 

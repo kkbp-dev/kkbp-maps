@@ -157,9 +157,18 @@ def test_the_bundle_passes_the_deep_check(bundle):
 
 def test_helpers_are_left_out(bundle):
     n = names(bundle)
-    for helper in ("o_kage00", "o_off00", "Cube (1)", "o_gone00", "Icon", "smoke", "n_empty", "nav_map00"):
+    for helper in ("o_off00", "Cube (1)", "o_gone00", "Icon", "smoke", "n_empty", "nav_map00"):
         assert helper not in n
     assert {"p_desk00", "p_desk00 (1)", "mo_wall00", "o_floor00", "p_vase00", "hana_01"} <= set(n)
+
+
+def test_a_shadows_only_caster_is_the_map_variants_own(bundle):
+    """o_kage00 only casts shadows: it is carried, but no Candidate's Placement holds it (ADR 0024)."""
+    nodes = load(bundle, "scene")["nodes"]
+    kage = node_id(bundle, "o_kage00")
+    assert nodes[kage]["renderer"]["shadows"] == "shadows_only"
+    roots = {r for c in load(bundle, "assets")["candidates"] for r in c["placements"]}
+    assert kage not in roots
 
 
 def test_what_isnt_carried_is_counted(bundle):

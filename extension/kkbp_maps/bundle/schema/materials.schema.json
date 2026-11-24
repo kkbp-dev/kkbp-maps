@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.2/materials.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.3/materials.schema.json",
   "title": "materials.json",
   "description": "One record per unique material: the game shader's values keyed by Raw Property, and its textures.",
   "type": "object",

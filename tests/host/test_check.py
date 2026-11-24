@@ -68,7 +68,7 @@ def test_without_manifest_it_is_unfinished(bundle):
 
 def test_another_schema_version_is_refused(bundle):
     edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.1"))
-    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.2 "
+    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.3 "
                                    "(ADR 0014), so extract the Map again"]
 
 
@@ -562,3 +562,20 @@ def test_check_bundle_tool(bundle, capsys):
     edit_json(bundle, "map", lambda m: m.update(geometry_hash="0" * 32))
     assert tool.main([str(bundle)]) == 1
     assert "geometry_hash should be" in capsys.readouterr().out
+
+
+def test_a_shadows_only_renderer_may_belong_to_no_placement(bundle):
+    def hide(d):
+        for n in d["nodes"]:
+            if n["id"] in (DESK_TOP, DESK_LEG, DESK2_TOP, DESK2_LEG):
+                n["renderer"]["shadows"] = "shadows_only"
+    edit_json(bundle, "scene", hide)
+    edit_json(bundle, "assets", lambda d: d["candidates"].pop(2))
+    assert not [p for p in problems_of(bundle) if "belongs to no Placement" in p]
+
+
+def test_shadow_modes_are_a_closed_set(bundle):
+    def odd(d):
+        next(n for n in d["nodes"] if "renderer" in n)["renderer"]["shadows"] = "sometimes"
+    edit_json(bundle, "scene", odd)
+    assert any("sometimes" in p for p in problems_of(bundle))

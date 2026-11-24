@@ -98,11 +98,14 @@ def tree_hashes(nodes: list[dict], cut=lambda node: False) -> tuple[list[str], l
     for node in reversed(nodes):
         i = node["id"]
         renderer = node.get("renderer")
-        shape[i] = json_hash({
+        record = {
             "mesh": renderer["mesh"] if renderer else None,
             "draws": [[int(d["submesh"]), d["material"]] for d in renderer["draws"]] if renderer else [],
             "parts": sorted(parts[i]),
-        })
+        }
+        if renderer and renderer["shadows"] == "shadows_only":
+            record["shadows_only"] = True
+        shape[i] = json_hash(record)
         placed[i] = json_hash({"shape": shape[i], "translation": _fs(node["translation"]),
                                "rotation": _fs(node["rotation"]), "scale": _fs(node["scale"])})
         if node["parent"] is not None and not cut(node):

@@ -327,7 +327,8 @@ class _Context:
                 if outer == "prop" or (outer == "structure" and kind == "structure"):
                     self.add("assets", f"the {kind} Placement at node {root} lies inside the {outer} Placement at node {a}")
         for n in self.nodes_:
-            if "renderer" in n and not n.get("sky") and not any(a in kind_of_root for a in self._ancestry(n["id"])):
+            if "renderer" in n and not n.get("sky") and n["renderer"]["shadows"] != "shadows_only" \
+                    and not any(a in kind_of_root for a in self._ancestry(n["id"])):
                 self.add("assets", f"node {n['id']} has a renderer but belongs to no Placement")
         shapes = hashing.candidate_shapes(self.nodes_, set(kind_of_root))
         for c in candidates:

@@ -31,7 +31,7 @@ The sky a Game shows around a Map at one Time of Day, as geometry: KK's cubemap-
 _Avoid_: skybox, sky sphere, background
 
 **Helper**:
-An object in a Scene Bundle that the player never sees, such as a collision box, a shadow-only caster or a navigation mesh. The Extractor leaves it out.
+An object in a Scene Bundle that the player never sees and that doesn't change what they see, such as a collision box or a navigation mesh. The Extractor leaves it out. A Shadow Caster isn't one.
 _Avoid_: dummy, hidden object, collider
 
 **Room Container**:
@@ -71,6 +71,10 @@ _Avoid_: path id, checksum, fingerprint
 **Candidate**:
 A part of a Map that the Extractor proposes as a Prop or a Structure, with its Content Hash and the rule that picked it. The Builder makes the final call.
 _Avoid_: asset, prefab
+
+**Shadow Caster**:
+A renderer the game never draws but that casts shadows, such as the hidden shell that keeps the sun out of a room. Outside any Placement it belongs to the Map Variant alone.
+_Avoid_: kage, shadow proxy
 
 **Camera Profile**:
 The settings of one game camera that no map file holds, such as its tonemapper, exposure and sun shaft strength, kept in the repository as Game data. A Map names the one that shows it.
@@ -143,5 +147,9 @@ The Map Bundle of one fixed Map, made on each developer's own machine from their
 _Avoid_: sample map, test map, fixture
 
 **Reference Capture**:
-A frame the running game renders of a Map Variant from a fixed camera, made only by developers, that a Blender render of the same Map Variant is compared with.
+A frame the running game renders of a Map Variant from a Capture View, made only by developers, that a Blender render of the same Map Variant is compared with.
 _Avoid_: screenshot, ground truth
+
+**Capture View**:
+A fixed camera for one Map Variant, its position, target and field of view in Blender's space, kept in the repository as data, from which a Reference Capture is taken and the Blender render made.
+_Avoid_: camera preset, shot

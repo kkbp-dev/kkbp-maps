@@ -19,13 +19,13 @@
    "candidates": 57,
    "lightmap_sets": 1,
    "materials": 136,
-   "meshes": 175,
-   "nodes": 332,
+   "meshes": 179,
+   "nodes": 336,
    "placements": 109,
    "textures": 265,
    "variants": 3
   },
-  "geometry_hash": "bf1835552956d6aa01f85473d0e17c78",
+  "geometry_hash": "866c04c03127f71ccf456aef4cb6d76b",
   "lightmaps": [
    {
     "assignments": 68,

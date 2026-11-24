@@ -143,7 +143,7 @@ class MapBundleBuilder:
                 "rotation": list(rotation), "scale": list(scale)}
         if mesh:
             node["renderer"] = {"mesh": mesh, "draws": [{"submesh": s, "material": m} for s, m in draws],
-                                "cast_shadows": True, "receive_shadows": True}
+                                "shadows": "on", "receive_shadows": True}
         if sky:
             node["sky"] = True
         self.nodes.append(node)

@@ -19,7 +19,7 @@ from .games import Game
 from .unity import Ref, Store
 
 NO_LIGHTMAP = 65534          # a lightmap index at or above this means none
-SHADOWS_ONLY = 3             # m_CastShadows
+SHADOW_MODES = {0: "off", 1: "on", 2: "two_sided", 3: "shadows_only"}   # m_CastShadows
 RENDERERS = ("MeshRenderer", "SkinnedMeshRenderer", "ParticleSystemRenderer", "SpriteRenderer",
              "LineRenderer", "TrailRenderer", "BillboardRenderer")
 
@@ -49,7 +49,7 @@ class Renderer:
     ref: Ref
     mesh: Ref
     materials: list[Ref | None]
-    cast_shadows: bool
+    shadows: str                # SHADOW_MODES
     receive_shadows: bool
     lightmap_index: int
     lightmap_scale_offset: tuple[float, float, float, float]
@@ -207,15 +207,15 @@ class Census:
 
 def mesh_renderer(graph: Graph, obj: Obj) -> Renderer | None:
     """The object's MeshRenderer as the game draws it, or None for none or a Helper: a disabled
-    renderer, a shadow-only caster, or one without a mesh or without any material (1F's navigation
-    meshes)."""
+    renderer, or one without a mesh or without any material (1F's navigation meshes). A shadows-only
+    caster is kept: it shapes the Map's light (ADR 0024)."""
     store = graph.store
     ref = obj.component("MeshRenderer")
     mf = obj.component("MeshFilter")
     if ref is None or mf is None:
         return None
     r = store.tree(ref)
-    if not r.get("m_Enabled", True) or r.get("m_CastShadows") == SHADOWS_ONLY:
+    if not r.get("m_Enabled", True):
         return None
     mesh = store.resolve(mf, store.tree(mf).get("m_Mesh"))
     if mesh is None:
@@ -229,7 +229,7 @@ def mesh_renderer(graph: Graph, obj: Obj) -> Renderer | None:
     st = r.get("m_LightmapTilingOffset", {"x": 1.0, "y": 1.0, "z": 0.0, "w": 0.0})
     return Renderer(
         ref=ref, mesh=mesh, materials=materials,
-        cast_shadows=r.get("m_CastShadows", 1) != 0, receive_shadows=bool(r.get("m_ReceiveShadows", 1)),
+        shadows=SHADOW_MODES.get(r.get("m_CastShadows", 1), "on"), receive_shadows=bool(r.get("m_ReceiveShadows", 1)),
         lightmap_index=r.get("m_LightmapIndex", 0xFFFF),
         lightmap_scale_offset=(st["x"], st["y"], st["z"], st["w"]),
         realtime_gi=r.get("m_LightmapIndexDynamic", 0xFFFF) < NO_LIGHTMAP)
@@ -348,7 +348,7 @@ def node_records(walk_: Walk, graph: Graph, mesh_id, draws_of) -> list[dict]:
         }
         if n.renderer is not None:
             r = n.renderer
-            rec["renderer"] = {"mesh": mesh_id(r.mesh), "draws": draws_of(n), "cast_shadows": r.cast_shadows,
+            rec["renderer"] = {"mesh": mesh_id(r.mesh), "draws": draws_of(n), "shadows": r.shadows,
                                "receive_shadows": r.receive_shadows}
         if n.sky:
             rec["sky"] = True

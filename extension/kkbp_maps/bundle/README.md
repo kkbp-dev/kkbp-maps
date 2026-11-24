@@ -14,11 +14,11 @@ The contract between the Extractor and the Builder: the JSON Schemas in `schema/
 | `variants.json` | `variants.schema.json` |
 | `assets.json` | `assets.schema.json` |
 
-Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.2/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
+Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.3/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
 
 ## Schema Version
 
-`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.2`.
+`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.3`.
 
 ## Conventions
 
@@ -37,7 +37,7 @@ Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.2/`. The ho
 - **Mesh:** `H(file bytes)` of `meshes/<id>.bin`.
 - **Texture:** `H(header + pixels)` of the full-size image, before any size limit (D21): `header` is `b"kkbp-maps texture\0"` followed by width, height and channel count as little-endian uint32, and `pixels` are the channel values the file holds, rows top first, interleaved per pixel in the order grey, alpha or R, G, B, A (one byte each for PNG, little-endian float16 for EXR). The checker doesn't re-hash textures.
 - **Material:** `H(C({"shader", "keywords", "render_queue", "colors", "floats", "vectors", "textures"}))`, each as in `materials.json` but with `textures` holding only `raw`, `texture`, `offset` and `scale`, sorted by `raw`. Name, Blend Mode and double-sidedness are left out: the Extractor derives them from the rest.
-- **Shape** of a node: `H(C({"mesh": m, "draws": d, "parts": p}))`. `m` is its renderer's mesh or null, `d` its renderer's draws as `[submesh, material]` pairs in order (or `[]`), and `p` the sorted placed hashes of its children, leaving out every child that is a sky node or the root of another Placement.
+- **Shape** of a node: `H(C({"mesh": m, "draws": d, "parts": p}))`, with `"shadows_only": true` added when its renderer only casts shadows. `m` is its renderer's mesh or null, `d` its renderer's draws as `[submesh, material]` pairs in order (or `[]`), and `p` the sorted placed hashes of its children, leaving out every child that is a sky node or the root of another Placement.
 - **Placed** hash of a node: `H(C({"shape": s, "translation": t, "rotation": r, "scale": k}))`, its shape with its local transform.
 - **Candidate:** the shape of each of its Placement roots. So a Candidate's hash depends on its meshes, materials and the transforms of its parts relative to its root, not on where it stands (D3).
 - **Geometry hash** of the Map: `H(C({"roots": p}))`, `p` being the sorted placed hashes of the root nodes, this time leaving nothing out: sky nodes and nested Placements are part of the geometry.
@@ -128,5 +128,5 @@ Every other slot is known by its Raw Property only. Illusion's own shaders (KK's
 - A Candidate's `hash` appears once, and its `kind` follows its `rule`: `p_prefix` is a `prop`, every other rule a `structure`.
 - A Placement root is a node that isn't a sky node and roots one Placement only.
 - No Placement root lies inside a Prop's Placement, and no Structure's Placement root lies inside another Structure's Placement. So a Prop may stand inside a Structure, and nothing else nests.
-- Every renderer that isn't on a sky node belongs to a Placement: it is a Placement root or lies under one.
+- Every renderer that isn't on a sky node belongs to a Placement: it is a Placement root or lies under one. A `shadows_only` renderer may instead belong to none: it is then drawn only in the Map's Variants, as the hidden caster that keeps the sun out of a room (ADR 0024).
 - Every Placement root's shape is its Candidate's `hash`.

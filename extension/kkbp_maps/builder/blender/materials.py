@@ -557,6 +557,8 @@ def _fog(g, fog: dict, lit, additive):
 
 def _finish(mat, m: dict, tier):
     mat.use_backface_culling = not (m["double_sided"] or tier.double_sided)
+    # Unity's shadow pass culls as the material draws: a one-sided surface casts from its front only.
+    mat.use_backface_culling_shadow = mat.use_backface_culling
     mat.surface_render_method = "BLENDED" if m["blend_mode"] in ("alpha", "additive") else "DITHERED"
     mat[PROP_HASH] = m["id"]
 

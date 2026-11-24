@@ -4,7 +4,9 @@ One walk from the roots: sky nodes are passed over; a room container (a node wit
 name marks it as a whole room, ADR 0019) is walked into like a group; a `p_` node starts a Prop, and
 nothing inside it is a root of its own; a `mo_` or `o_` node starts a Structure, inside which only `p_`
 starts a new root; any other node with a renderer starts an `unprefixed` Structure; a group without a
-renderer is walked into. The prefixes and container names are Game data (games.Game).
+renderer is walked into. A subtree outside any Placement whose renderers only cast shadows starts
+nothing: it is the Map Variant's own (ADR 0024). The prefixes and container names are Game data
+(games.Game).
 
 Placements with the same shape are one Candidate, which takes the rule of the first of them in walk
 order. An unprefixed Placement with a Prop's shape is another Placement of that Prop (ADR 0023): KK
@@ -36,10 +38,23 @@ def candidates(nodes: list[dict], prefixes: tuple[tuple[str, str], ...], contain
                 return rule
         return None
 
+    def casts_only(i: int) -> bool:
+        """Whether every renderer in the subtree only casts shadows (and there is one)."""
+        modes = []
+        stack = [i]
+        while stack:
+            n = nodes[stack.pop()]
+            if "renderer" in n:
+                modes.append(n["renderer"]["shadows"])
+            stack.extend(children[n["id"]])
+        return bool(modes) and all(m == "shadows_only" for m in modes)
+
     def visit(i: int, inside: str | None):
         node = nodes[i]
         if node.get("sky"):
             return
+        if inside is None and casts_only(i):
+            return  # hidden shadow casters outside any Placement: the Map Variant's own (ADR 0024)
         rule = rule_of(node)
         if inside == "prop":
             pass

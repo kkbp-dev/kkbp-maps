@@ -97,7 +97,11 @@ class FileBuilder:
                 draw, tier = assigned.get(i, (None, None))
                 slot.material = material_for(draw["material"]) if draw and tier.level != shaders.SKIPPED \
                     else mats.left_out_material()
-            target.visible_shadow = r["cast_shadows"] and k == 0
+            target.visible_shadow = r["shadows"] != "off" and k == 0
+            if r["shadows"] == "shadows_only":   # a hidden caster (ADR 0024)
+                target.visible_camera = target.visible_diffuse = target.visible_glossy = False
+                target.visible_transmission = target.visible_volume_scatter = False
+                target.hide_select = True
         return out
 
 

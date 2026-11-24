@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.2/variants.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.3/variants.schema.json",
   "title": "variants.json",
   "description": "The Map Variants: one per distinct lighting state, each covering the Times of Day that light the Map the same (ADR 0009).",
   "type": "object",

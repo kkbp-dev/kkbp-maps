@@ -73,3 +73,4 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0021 Fog is applied in the material, before the Grade](../adr/0021-fog-is-applied-in-the-material-before-the-grade.md)
 - [0022 A Map Library is one file per Map, plus one for the Props and one for the Structures, with data copied between them](../adr/0022-a-map-library-is-one-file-per-map-with-data-copied.md)
 - [0023 Unprefixed copies of a Prop are its Placements, and unbaked reflection probes are left out](../adr/0023-unprefixed-copies-of-a-prop-are-its-placements.md)
+- [0024 Shadow Casters are carried, and renderers keep Unity's shadow mode](../adr/0024-shadow-casters-are-carried.md)

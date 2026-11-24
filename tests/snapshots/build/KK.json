@@ -1303,7 +1303,7 @@
    ],
    "collections": {
     "School 1F, Day": {
-     "in_probe": 275,
+     "in_probe": 278,
      "lightmapped": 68,
      "meshes": [
       "011e25f95a80de70870c493840d027c3",
@@ -1349,7 +1349,9 @@
       "3df943b8b51e8964cb669fb8ac93d9a6",
       "3f044ee85c681365911820609aeaec3b",
       "4014155969d7027ada9a0869b5fbc4da",
+      "417c1655e08cde976a2a5b7b38cf3622",
       "4465a372982f02bba2e72f248fd3e4ad",
+      "44a0366e95a016e53a378b24a33f49e7",
       "46f0b769f39913f275139972dca49f55",
       "47652606aa7c88d54335195e11c7c2b9",
       "47e6d584ec4c710573aaf8396891ae0f",
@@ -1447,6 +1449,7 @@
       "d6a4c950747198fe185585da73661aba",
       "d6c53c5e9a8cc7860e04a113d51b7b85",
       "d73d0340207526fc51fd31b17d2eb704",
+      "d80ec344be1ef62bbb6ab21b4780c677",
       "d85e9b99347f3336a34d36380aac6550",
       "d8d1f905685eee7d112b3d4dc05677eb",
       "db61218a7633a1558895aa406a44c7cc",
@@ -1472,6 +1475,7 @@
       "f3ef19a0fff605070a767e88a0e2a08c",
       "f5e470e8edec174c8fcaa6e9f577b5c0",
       "f941b010c4d7a06fa129bc32fca33155",
+      "f9bb9bf994c8c72168c85e57edb90b25",
       "fa4ec2d2667cff44ecb8c04507b2f80c",
       "fadb2d7b2b5ae8582f12983ff12085a9",
       "fb0ddd50ffe5140f33a49b88c3b74cc6",
@@ -1481,15 +1485,15 @@
      "objects": {
       "EMPTY": 13,
       "LIGHT": 1,
-      "MESH": 312
+      "MESH": 316
      },
      "placements": 109,
      "slots": {
-      "material": 487
+      "material": 491
      }
     },
     "School 1F, Evening": {
-     "in_probe": 275,
+     "in_probe": 278,
      "lightmapped": 68,
      "meshes": [
       "011e25f95a80de70870c493840d027c3",
@@ -1534,7 +1538,9 @@
       "3df9b0e2bfe09d4e01b6e9c2ab37d6c9",
       "3f044ee85c681365911820609aeaec3b",
       "4014155969d7027ada9a0869b5fbc4da",
+      "417c1655e08cde976a2a5b7b38cf3622",
       "4465a372982f02bba2e72f248fd3e4ad",
+      "44a0366e95a016e53a378b24a33f49e7",
       "46f0b769f39913f275139972dca49f55",
       "47652606aa7c88d54335195e11c7c2b9",
       "47e6d584ec4c710573aaf8396891ae0f",
@@ -1630,6 +1636,7 @@
       "d6a4c950747198fe185585da73661aba",
       "d6c53c5e9a8cc7860e04a113d51b7b85",
       "d73d0340207526fc51fd31b17d2eb704",
+      "d80ec344be1ef62bbb6ab21b4780c677",
       "d85e9b99347f3336a34d36380aac6550",
       "d8d1f905685eee7d112b3d4dc05677eb",
       "db61218a7633a1558895aa406a44c7cc",
@@ -1656,6 +1663,7 @@
       "f3ef19a0fff605070a767e88a0e2a08c",
       "f5e470e8edec174c8fcaa6e9f577b5c0",
       "f941b010c4d7a06fa129bc32fca33155",
+      "f9bb9bf994c8c72168c85e57edb90b25",
       "fa4ec2d2667cff44ecb8c04507b2f80c",
       "fadb2d7b2b5ae8582f12983ff12085a9",
       "fb0ddd50ffe5140f33a49b88c3b74cc6",
@@ -1665,15 +1673,15 @@
      "objects": {
       "EMPTY": 13,
       "LIGHT": 1,
-      "MESH": 310
+      "MESH": 314
      },
      "placements": 109,
      "slots": {
-      "material": 485
+      "material": 489
      }
     },
     "School 1F, Night": {
-     "in_probe": 275,
+     "in_probe": 278,
      "lightmapped": 68,
      "meshes": [
       "011e25f95a80de70870c493840d027c3",
@@ -1717,7 +1725,9 @@
       "3df943b8b51e8964cb669fb8ac93d9a6",
       "3f044ee85c681365911820609aeaec3b",
       "4014155969d7027ada9a0869b5fbc4da",
+      "417c1655e08cde976a2a5b7b38cf3622",
       "4465a372982f02bba2e72f248fd3e4ad",
+      "44a0366e95a016e53a378b24a33f49e7",
       "46f0b769f39913f275139972dca49f55",
       "47652606aa7c88d54335195e11c7c2b9",
       "47e6d584ec4c710573aaf8396891ae0f",
@@ -1811,6 +1821,7 @@
       "d6a4c950747198fe185585da73661aba",
       "d6c53c5e9a8cc7860e04a113d51b7b85",
       "d73d0340207526fc51fd31b17d2eb704",
+      "d80ec344be1ef62bbb6ab21b4780c677",
       "d85e9b99347f3336a34d36380aac6550",
       "d8d1f905685eee7d112b3d4dc05677eb",
       "db61218a7633a1558895aa406a44c7cc",
@@ -1837,6 +1848,7 @@
       "f3ef19a0fff605070a767e88a0e2a08c",
       "f5e470e8edec174c8fcaa6e9f577b5c0",
       "f941b010c4d7a06fa129bc32fca33155",
+      "f9bb9bf994c8c72168c85e57edb90b25",
       "fa4ec2d2667cff44ecb8c04507b2f80c",
       "fadb2d7b2b5ae8582f12983ff12085a9",
       "fb0ddd50ffe5140f33a49b88c3b74cc6",
@@ -1846,20 +1858,20 @@
      "objects": {
       "EMPTY": 13,
       "LIGHT": 1,
-      "MESH": 307
+      "MESH": 311
      },
      "placements": 109,
      "slots": {
-      "material": 482
+      "material": 486
      }
     }
    },
    "counts": {
     "images": 250,
     "materials": 388,
-    "meshes": 175,
+    "meshes": 179,
     "node_groups": 142,
-    "objects": 971
+    "objects": 983
    },
    "groups": {
     ".KKM Grade Lut_Amount": "5e2349814b900b4b",
@@ -3775,7 +3787,9 @@
     "3df9b0e2bfe09d4e01b6e9c2ab37d6c9",
     "3f044ee85c681365911820609aeaec3b",
     "4014155969d7027ada9a0869b5fbc4da",
+    "417c1655e08cde976a2a5b7b38cf3622",
     "4465a372982f02bba2e72f248fd3e4ad",
+    "44a0366e95a016e53a378b24a33f49e7",
     "46f0b769f39913f275139972dca49f55",
     "47652606aa7c88d54335195e11c7c2b9",
     "47e6d584ec4c710573aaf8396891ae0f",
@@ -3875,6 +3889,7 @@
     "d6a4c950747198fe185585da73661aba",
     "d6c53c5e9a8cc7860e04a113d51b7b85",
     "d73d0340207526fc51fd31b17d2eb704",
+    "d80ec344be1ef62bbb6ab21b4780c677",
     "d85e9b99347f3336a34d36380aac6550",
     "d8d1f905685eee7d112b3d4dc05677eb",
     "db61218a7633a1558895aa406a44c7cc",
@@ -3902,6 +3917,7 @@
     "f3ef19a0fff605070a767e88a0e2a08c",
     "f5e470e8edec174c8fcaa6e9f577b5c0",
     "f941b010c4d7a06fa129bc32fca33155",
+    "f9bb9bf994c8c72168c85e57edb90b25",
     "fa4ec2d2667cff44ecb8c04507b2f80c",
     "fadb2d7b2b5ae8582f12983ff12085a9",
     "fb0ddd50ffe5140f33a49b88c3b74cc6",

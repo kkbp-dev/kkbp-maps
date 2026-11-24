@@ -26,7 +26,7 @@ def _node(i, parent, mesh=None, translation=(0.0, 0.0, 0.0), rotation=(1.0, 0.0,
          "rotation": list(rotation), "scale": [1.0, 1.0, 1.0]}
     if mesh:
         n["renderer"] = {"mesh": mesh, "draws": [{"submesh": 0, "material": "m" * 32}],
-                         "cast_shadows": True, "receive_shadows": True}
+                         "shadows": "on", "receive_shadows": True}
     if sky:
         n["sky"] = True
     return n
@@ -98,3 +98,15 @@ def test_the_definitions_stay_put():
                                        + shape[0].encode() + b'","translation":[0.0,0.0,0.0]}')
     assert hashing.geometry_hash([_node(0, None, mesh="a" * 32)]) == hashing.digest(
         b'{"roots":["' + placed[0].encode() + b'"]}')
+
+
+def test_a_shadows_only_renderer_changes_the_shape():
+    nodes = [_node(0, None, mesh="a" * 32)]
+    shape, _ = hashing.tree_hashes(nodes, lambda n: False)
+    hidden = copy.deepcopy(nodes)
+    hidden[0]["renderer"]["shadows"] = "shadows_only"
+    shape2, _ = hashing.tree_hashes(hidden, lambda n: False)
+    assert shape != shape2
+    off = copy.deepcopy(nodes)
+    off[0]["renderer"]["shadows"] = "off"
+    assert hashing.tree_hashes(off, lambda n: False)[0] == shape   # other modes don't touch the shape

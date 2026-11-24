@@ -2,7 +2,7 @@
 
 How kkbp-maps is meant to work. Terms are defined in [CONTEXT.md](../../CONTEXT.md). Decisions that would be surprising without context are in [docs/adr/](../adr/). What each Game's map data looks like is in [games.md](games.md), and the order of work is in [roadmap.md](roadmap.md).
 
-Status: the KK spike's findings are in [kk-spike.md](kk-spike.md), the Map Bundle contract is in [map-bundle.md](map-bundle.md), and the KK Extractor is in `extension/kkbp_maps/extractor/` (Phase 3).
+Status: the KK spike's findings are in [kk-spike.md](kk-spike.md), the Map Bundle contract is in [map-bundle.md](map-bundle.md), the KK Extractor is in `extension/kkbp_maps/extractor/` (Phase 3), and the KK Builder in `extension/kkbp_maps/builder/` (Phase 4): its plan (no bpy) in `builder/`, the Blender side in `builder/blender/`, and the Name Tables in `names/`.
 
 ## Shape
 

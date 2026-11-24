@@ -63,7 +63,7 @@ problems = check(path)             # schemas and rules; [] when the bundle is va
 problems = check(path, deep=True)  # also re-hashes every mesh file
 ```
 
-It validates the JSON Schemas with its own validator for the keywords they use (ADR 0013). `tools/check_bundle.py <bundle>...` runs a deep check from the command line. A reader that hands the Builder typed sections comes with the Builder (Phase 4).
+It validates the JSON Schemas with its own validator for the keywords they use (ADR 0013). `tools/check_bundle.py <bundle>...` runs a deep check from the command line. `bundle.read(path)` checks a bundle and hands the Builder its sections, indexed by id, and its mesh buffers.
 
 ## Testing
 

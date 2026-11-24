@@ -65,6 +65,17 @@ def _mesh_box(mesh):
     return [Vector((x, y, z)) for x in (a[0], b[0]) for y in (a[1], b[1]) for z in (a[2], b[2])]
 
 
+def _free_images():
+    """Drops the pixels every render loaded, in memory and on the GPU. Without this a whole Game's
+    previews keep every texture they ever drew (KK: 6.5 GB for 1,353 previews); the next render that
+    needs one loads it again from its file."""
+    for img in bpy.data.images:
+        if img.has_data:
+            img.buffers_free()
+        if hasattr(img, "gl_free"):
+            img.gl_free()
+
+
 def render(collections: list) -> int:
     """Renders a preview for each collection. Returns how many got one."""
     scene = bpy.data.scenes.new(".KKM preview")
@@ -113,6 +124,7 @@ def render(collections: list) -> int:
                 scene.collection.children.unlink(coll)
             if from_image_file(coll, out):
                 done += 1
+            _free_images()
     for obj in (sun, cam):
         data = obj.data
         bpy.data.objects.remove(obj)

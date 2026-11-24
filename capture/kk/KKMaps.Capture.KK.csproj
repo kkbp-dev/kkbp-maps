@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The developer-only capture plugin for KK (ADR 0006, 0010): never shipped, and never in a release.
+       Built against the local game install (ADR 0007): set KKBP_GAMES_DIR, or keep the installs in
+       ../games beside this repository. Nothing from the install is copied into the build output. -->
+  <PropertyGroup>
+    <TargetFramework>net35</TargetFramework>
+    <AssemblyName>KKMaps.Capture.KK</AssemblyName>
+    <RootNamespace>KKMaps.Capture</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <DebugType>embedded</DebugType>
+    <Optimize>true</Optimize>
+    <GamesDir Condition="'$(GamesDir)' == '' And '$(KKBP_GAMES_DIR)' != ''">$(KKBP_GAMES_DIR)</GamesDir>
+    <GamesDir Condition="'$(GamesDir)' == ''">$(MSBuildThisFileDirectory)../../../games</GamesDir>
+    <GamesDir>$([MSBuild]::EnsureTrailingSlash('$(GamesDir)'))</GamesDir>
+    <Managed>Koikatsu/CharaStudio_Data/Managed</Managed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <GameAssembly Include="Koikatsu/BepinEx/core/BepInEx.dll" />
+    <GameAssembly Include="Koikatsu/BepinEx/plugins/KKAPI.dll" />
+    <GameAssembly Include="$(Managed)/Assembly-CSharp.dll" />
+    <GameAssembly Include="$(Managed)/Assembly-CSharp-firstpass.dll" />
+    <GameAssembly Include="$(Managed)/UnityEngine.dll" />
+  </ItemGroup>
+
+  <Target Name="ReferenceGameAssemblies" BeforeTargets="ResolveAssemblyReferences;CoreCompile">
+    <Error Condition="!Exists('$(GamesDir)%(GameAssembly.Identity)')"
+           Text="Missing game assembly $(GamesDir)%(GameAssembly.Identity). Set KKBP_GAMES_DIR to the folder holding the installs (ADR 0007)." />
+    <ItemGroup>
+      <Reference Include="@(GameAssembly->'%(Filename)')">
+        <HintPath>$(GamesDir)%(GameAssembly.Identity)</HintPath>
+        <Private>false</Private>
+      </Reference>
+    </ItemGroup>
+  </Target>
+</Project>

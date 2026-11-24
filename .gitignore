@@ -24,3 +24,7 @@ __pycache__/
 ._*
 __MACOSX/
 /.claude/
+
+# The capture plugin's build state.
+/capture/kk/obj/
+/capture/kk/bin/

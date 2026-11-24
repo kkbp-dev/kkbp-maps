@@ -3,9 +3,15 @@ the Extractor's Candidates. The tables are names/<Game>.toml; this module only r
 bpy.
 
 A game name becomes English word by word: its " (N)" or " N" copy suffix and the prefixes in
-[naming] strip are cut, the rest is split at underscores and between letters and digits, each word of
-letters is looked up in [words], and numbers stay as they are: "mo_koi_map02_wall06_kaidan03" is
-"Wall 06 Stairs 03". A word the tables don't know keeps its romaji, title-cased, and is reported.
+[naming] strip are cut, the rest is split at underscores and between letters and digits, and each word
+of letters is looked up: "mo_koi_map02_wall06_kaidan03" is "Wall 06 Stairs 03".
+
+- A word in [words] is translated; one in [naming] english is English already and title-cased; one in
+  [naming] drop (a 3D tool's leftover such as "geo") is left out.
+- A single letter is a label, kept as a capital: "Shelf 12 B".
+- An unknown word that is a known one plus a letter is that word and a label: "boxa" is "Box A".
+- Numbers stay as they are.
+- Any other word keeps its romaji, title-cased, and is reported.
 """
 
 from __future__ import annotations
@@ -43,6 +49,9 @@ class NameTables:
         self.default_category: str = naming.get("default_category", "Other")
         self.maps: dict[str, dict] = data.get("maps", {})
         self.words: dict[str, str] = {k.lower(): v for k, v in data.get("words", {}).items()}
+        for w in naming.get("english", []):
+            self.words.setdefault(w.lower(), w.title())
+        self.drop: set[str] = {w.lower() for w in naming.get("drop", [])}
         self.categories = [(c["category"], {w.lower() for w in c["words"]}) for c in data.get("categories", [])]
         self.overrides = []
         for o in data.get("overrides", []):
@@ -87,15 +96,26 @@ class NameTables:
                 out.append(part)
                 continue
             word = part.lower()
+            if word in self.drop:
+                continue
             words.append(word)
-            if word in self.words:
-                out.append(self.words[word])
-            else:
+            english = self._word(word)
+            if english is None:
                 unknown.append(word)
-                out.append(word.title())
+                english = word.title()
+            out.append(english)
         if not out:
             return Name(game_name, (), ())
         return Name(" ".join(out), tuple(words), tuple(unknown))
+
+    def _word(self, word: str) -> str | None:
+        if word in self.words:
+            return self.words[word]
+        if len(word) == 1:
+            return word.upper()
+        if len(word) > 3 and word[-1] in "abcdefghij" and word[:-1] in self.words:
+            return f"{self.words[word[:-1]]} {word[-1].upper()}"
+        return None
 
     def category(self, name: Name) -> str:
         for category, words in self.categories:

@@ -3,7 +3,8 @@
 from kkbp_maps.builder.names import NameTables
 
 TABLES = NameTables({
-    "naming": {"strip": ["^p_", "^mo_", "^o_", "^koi_", r"^map\d+_"], "default_category": "Other"},
+    "naming": {"strip": ["^p_", "^mo_", "^o_", "^koi_", r"^map\d+_"], "default_category": "Other",
+               "english": ["box", "table"], "drop": ["geo"]},
     "words": {"wall": "Wall", "kaidan": "Stairs", "desk": "Desk", "isu": "Chair"},
     "categories": [{"category": "Furniture", "words": ["desk", "isu"]}],
     "overrides": [{"match": "^o_kouen_isu_", "kind": "prop"}, {"hash": "ab" * 16, "name": "Odd One"}],
@@ -53,3 +54,12 @@ def test_kk_tables_load_and_name_every_map_with_an_area():
     assert all(m.get("name") and m.get("area") for m in kk.maps.values())
     assert kk.override("o_kouen_gaitou_01", "00" * 16).kind == "prop"
     assert kk.override("o_kouen_kakiwari_ki_00", "00" * 16) is None
+
+
+def test_english_words_labels_letter_variants_and_dropped_words():
+    assert TABLES.name("o_table_00").english == "Table 00"
+    assert TABLES.name("p_o_koi_desk01_b").english == "Desk 01 B"
+    n = TABLES.name("boxa_geo")
+    assert n.english == "Box A" and n.unknown == ()
+    assert TABLES.name("walla").english == "Wall A"
+    assert TABLES.name("zzza").unknown == ("zzza",)

@@ -28,7 +28,8 @@ namespace KKMaps.Capture
     /// It writes &lt;output&gt;/camera-studio.json (the Camera Profile's raw settings, Dump), and for each view
     /// &lt;output&gt;/&lt;folder&gt;/&lt;variant&gt;/&lt;view&gt;.png (the Reference Capture) and .pregrade.exr. The result goes
     /// to kkbp-maps-capture.result.json next to the request:
-    /// { "state": "succeeded" | "failed", "error": …, "files": […], "warnings": […], "views": […] }, then the game quits.
+    /// { "state": "running" | "succeeded" | "failed", "error": …, "files": […], "warnings": […], "views": […] },
+    /// rewritten after each view while "running", then the game quits.
     /// </summary>
     internal sealed class Request
     {
@@ -122,6 +123,8 @@ namespace KKMaps.Capture
                     var type = (SunLightInfo.Info.Type)Int(variant, "type", 0);
                     Singleton<Studio.Map>.Instance.sunType = type;
                     yield return new WaitForSecondsRealtime(1f);
+                    Resources.UnloadUnusedAssets();
+                    System.GC.Collect();
 
                     if (!files.Any(f => ((string)f).EndsWith("camera-studio.json")))
                     {
@@ -175,6 +178,7 @@ namespace KKMaps.Capture
                             { "target", Triple(cam.transform.position + cam.transform.forward * frames.Distance) },
                             { "fov", (double)cam.fieldOfView },
                         });
+                        Write("running", null);
                     }
                     studio.cameraCtrl.enabled = true;
                     warnings.AddRange(frames.TakeWarnings().Cast<object>());
@@ -201,9 +205,16 @@ namespace KKMaps.Capture
 
         private void Finish(string error)
         {
+            Write(error == null ? "succeeded" : "failed", error);
+            Application.Quit();
+        }
+
+        /// <summary>The result so far: "running" after each view, so a crash keeps what was captured.</summary>
+        private void Write(string state, string error)
+        {
             var result = new Dictionary<string, object>
             {
-                { "state", error == null ? "succeeded" : "failed" },
+                { "state", state },
                 { "files", files },
                 { "warnings", warnings },
                 { "views", placed },
@@ -213,8 +224,10 @@ namespace KKMaps.Capture
                 result["error"] = error;
                 Plugin.Log.LogError(error);
             }
-            File.WriteAllText(ResultPath, Json.Write(result));
-            Application.Quit();
+            string partial = ResultPath + ".part";
+            File.WriteAllText(partial, Json.Write(result));
+            if (File.Exists(ResultPath)) File.Delete(ResultPath);
+            File.Move(partial, ResultPath);
         }
 
         private static List<object> List(Dictionary<string, object> o, string key)

@@ -8,7 +8,7 @@ namespace KKMaps.Capture
     /// Renders the game camera into textures of a fixed size and writes them. The camera's effects named
     /// in "disable" are off for every frame (the look check matches fog, the Grade and the sun shafts only).
     /// Two files per view: the Reference Capture as the game shows it (PNG, sRGB), and the same frame
-    /// before AmplifyColor (EXR, linear), so lighting can be told apart from grading.
+    /// before AmplifyColor (EXR, linear half floats, as the HDR camera renders; 32-bit floats crashed park under DXVK), so lighting can be told apart from grading.
     /// </summary>
     internal sealed class Frames
     {
@@ -58,7 +58,7 @@ namespace KKMaps.Capture
             }
 
             string png = stem + ".png";
-            File.WriteAllBytes(png, Render(RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB, TextureFormat.RGB24).EncodeToPNG());
+            Save(png, Render(RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB, TextureFormat.RGB24), false);
             written.Add(png);
 
             if (grade != null && grade.enabled)
@@ -67,11 +67,23 @@ namespace KKMaps.Capture
                 restore.Add(grade);
             }
             string exr = stem + ".pregrade.exr";
-            File.WriteAllBytes(exr, Render(RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear, TextureFormat.RGBAFloat).EncodeToEXR());
+            Save(exr, Render(RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear, TextureFormat.RGBAHalf), true);
             written.Add(exr);
 
             foreach (var c in restore) c.enabled = true;
             return written;
+        }
+
+        private static void Save(string path, Texture2D tex, bool exr)
+        {
+            try
+            {
+                File.WriteAllBytes(path, exr ? tex.EncodeToEXR() : tex.EncodeToPNG());
+            }
+            finally
+            {
+                Object.Destroy(tex);
+            }
         }
 
         private Texture2D Render(RenderTextureFormat format, RenderTextureReadWrite space, TextureFormat read)

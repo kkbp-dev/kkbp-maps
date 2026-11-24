@@ -74,10 +74,12 @@ def variants(map_key: str) -> list[dict]:
     return data["variants"]
 
 
-def request(look: dict, seed: bool) -> dict:
+def request(look: dict, seed: bool, only: list[str] | None = None) -> dict:
     views = {} if seed else json.loads(VIEWS.read_text(encoding="utf-8"))["views"]
     maps = []
     for key in look["maps"]:
+        if only and key not in only:
+            continue
         bundle = next(s["path"] for s in json.loads((GOLDEN / key / "manifest.json").read_text())["sources"]
                       if s["path"].startswith("abdata/map/scene/")).removeprefix("abdata/")
         vs = []
@@ -112,6 +114,13 @@ def put_back(moved: list[Path]):
             off.rename(p)
 
 
+def _state(result: Path) -> str | None:
+    try:
+        return json.loads(result.read_text(encoding="utf-8"))["state"]
+    except (OSError, ValueError, KeyError):
+        return None
+
+
 def run(req: dict, look: dict, timeout: int) -> dict | None:
     result = CONFIG / "kkbp-maps-capture.result.json"
     req_path = CONFIG / "kkbp-maps-capture.json"
@@ -123,10 +132,13 @@ def run(req: dict, look: dict, timeout: int) -> dict | None:
     try:
         log = open(REPO / "tests" / ".work" / "capture" / "play.log", "w")
         subprocess.Popen([str(GAMES / "play.sh"), "koikatsu", "CharaStudio.exe"], stdout=log, stderr=log)
-        deadline = time.monotonic() + timeout
-        while not result.exists():
-            if time.monotonic() > deadline:
-                print(f"capture: no result after {timeout}s; stopping the game", file=sys.stderr)
+        start = time.monotonic()
+        while _state(result) in (None, "running"):
+            if time.monotonic() > start + timeout:
+                print(f"capture: not done after {timeout}s; stopping the game", file=sys.stderr)
+                break
+            if time.monotonic() > start + 120 and not running():
+                print("capture: the game exited before it finished", file=sys.stderr)
                 break
             time.sleep(2)
         time.sleep(3)
@@ -143,14 +155,18 @@ def run(req: dict, look: dict, timeout: int) -> dict | None:
 
 
 def keep_views(placed: list[dict]):
-    """The views the plugin placed, in Blender space, as Capture Views. One set per Map Variant; a
-    Variant's Time of Day doesn't move Studio's camera, so the views are the same for each."""
-    views = [{"map": v["map"], "variant": v["variant"], "name": v["name"],
+    """The views the plugin placed, in Blender space, as Capture Views, replacing those of the same Map
+    Variants and keeping the others."""
+    old = json.loads(VIEWS.read_text(encoding="utf-8"))["views"] if VIEWS.exists() else []
+    new = [{"map": v["map"], "variant": v["variant"], "name": v["name"],
               "position": [round(x, 4) for x in to_blender(v["position"])],
               "target": [round(x, 4) for x in to_blender(v["target"])], "fov": round(v["fov"], 4)} for v in placed]
+    redone = {(v["map"], v["variant"]) for v in new}
+    views = [v for v in old if (v["map"], v["variant"]) not in redone] + new
+    views.sort(key=lambda v: (v["map"], v["variant"], v["name"]))
     VIEWS.parent.mkdir(parents=True, exist_ok=True)
     VIEWS.write_text(json.dumps({"game": "KK", "space": "blender", "views": views}, indent=1) + "\n", encoding="utf-8")
-    print(f"capture: kept {len(views)} Capture Views in {VIEWS.relative_to(REPO)}")
+    print(f"capture: kept {len(new)} new Capture Views, {len(views)} in all, in {VIEWS.relative_to(REPO)}")
 
 
 def main(argv: list[str]) -> int:
@@ -159,6 +175,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--deploy", action="store_true", help="copy the built plugin into the game, then stop")
     ap.add_argument("--undeploy", action="store_true", help="take the plugin out of the game, then stop")
     ap.add_argument("--timeout", type=int, default=2400)
+    ap.add_argument("--map", action="append", help="only this Map, such as map/scene/park; all by default")
     args = ap.parse_args(argv)
 
     if running():
@@ -177,13 +194,14 @@ def main(argv: list[str]) -> int:
         return 2
 
     look = json.loads(LOOK.read_text(encoding="utf-8"))
-    res = run(request(look, args.seed), look, args.timeout)
+    res = run(request(look, args.seed, args.map), look, args.timeout)
     if res is None:
         print("capture: no result", file=sys.stderr)
         return 1
-    print(json.dumps({k: v for k, v in res.items() if k != "views"}, indent=1))
-    if res["state"] == "succeeded" and args.seed:
-        keep_views(res["views"])
+    print(json.dumps({k: v for k, v in res.items() if k not in ("views", "files")}, indent=1))
+    print(f"capture: {len(res['files'])} files, state {res['state']}")
+    if args.seed and res["views"]:
+        keep_views(res["views"])   # also after a crash: the views captured so far
     return 0 if res["state"] == "succeeded" else 1
 
 

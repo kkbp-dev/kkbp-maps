@@ -117,7 +117,7 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
 
     for v, vp in zip(b.variants, m.variants):
         coll = bpy.data.collections.new(vp.name)
-        grade = fb.grade(b, v["grade"])
+        grade = fb.grade(*plan.grade_of(m, v))
         light = mats.variant_light(b, _as_shown(plan, m, v), vp.name, fb.images, grade)
         variant_mats: dict[str, bpy.types.Material] = {}
 

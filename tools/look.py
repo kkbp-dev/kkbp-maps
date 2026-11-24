@@ -67,7 +67,7 @@ def build_and_render(name: str, game: str, look: dict, limits: Limits) -> bool:
         code, peak, reason = blender(exe, profile, [
             str(blend), "--python", str(REPO / "tests" / "blender" / "render_views.py"), "--",
             str(REPO / "tests" / "look" / "views" / f"{game}.json"), str(REPO / "tests" / "look" / f"{game}.json"),
-            str(root / "renders")], limits, log)
+            str(root / "renders"), str(REPO / "captures" / game)], limits, log)
         print(f"look: rendered {blend.stem} on {name}: {'ok' if code == 0 else f'failed ({reason or code})'}, "
               f"peak {peak / 2**30:.2f} GB", flush=True)
         if code != 0:
@@ -93,14 +93,19 @@ def _heat(r: lc.Result) -> np.ndarray:
     return (np.stack([x, np.clip(1.5 - 3 * np.abs(x - 0.5), 0, 1), 1 - x], -1) * 255).astype(np.uint8)
 
 
-def compare_all(blender: str, game: str, look: dict) -> list[dict]:
+def compare_all(blender: str, game: str, look: dict, pregrade: bool = False) -> list[dict]:
+    """Each Capture View's render against its capture; with `pregrade`, both before the Grade."""
     views = json.loads((REPO / "tests" / "look" / "views" / f"{game}.json").read_text())["views"]
     t = tolerance(look)
     rows = []
+    renders = WORK / blender / "renders"
     for v in views:
-        rel = Path(v["map"]) / v["variant"] / f"{v['name']}.png"
-        cap, ren = REPO / "captures" / game / rel, WORK / blender / "renders" / rel
-        row = {"view": str(rel.with_suffix("")), "capture": cap, "render": ren}
+        rel = Path(v["map"]) / v["variant"] / v["name"]
+        if pregrade:
+            cap, ren = renders / f"{rel}.capture-pregrade.png", renders / f"{rel}.pregrade.png"
+        else:
+            cap, ren = REPO / "captures" / game / f"{rel}.png", renders / f"{rel}.png"
+        row = {"view": str(rel), "capture": cap, "render": ren}
         if not cap.exists() or not ren.exists():
             row["missing"] = "capture" if not cap.exists() else "render"
         else:
@@ -109,7 +114,7 @@ def compare_all(blender: str, game: str, look: dict) -> list[dict]:
     return rows
 
 
-def report(rows: list[dict], blender: str, game: str) -> Path:
+def report(rows: list[dict], blender: str, game: str, name: str = "report") -> Path:
     parts = [f"<!doctype html><meta charset=utf-8><title>Look check {game} {blender}</title><style>"
              "body{font:14px system-ui;margin:16px;background:#1b1b1b;color:#ddd}img{width:32%;margin-right:1%}"
              "h2{font-size:15px;margin:24px 0 4px}.fail{color:#f77}.pass{color:#7d7}td,th{padding:2px 10px;text-align:right}"
@@ -132,7 +137,7 @@ def report(rows: list[dict], blender: str, game: str) -> Path:
         parts.append(f"<h2 id='{html.escape(r['view'])}'>{html.escape(r['view'])}: {res.summary()}</h2>"
                      f"<img src='{_data_uri(_img(r['capture']))}'><img src='{_data_uri(_img(r['render']))}'>"
                      f"<img src='{_data_uri(_heat(res))}'>")
-    path = WORK / blender / "report.html"
+    path = WORK / blender / f"{name}.html"
     path.write_text("".join(parts), encoding="utf-8")
     return path
 
@@ -149,6 +154,12 @@ def main(argv: list[str]) -> int:
                                                    Limits(max_rss_gb=args.max_rss_gb, min_available_gb=1.5,
                                                           min_swap_free_gb=6.0)):
         return 1
+    pre = compare_all(args.blender, args.game, look, pregrade=True)
+    pre_path = report(pre, args.blender, args.game, "report-pregrade")
+    for r in pre:
+        print(f"  pre-Grade {r['view']}: {r.get('missing') and 'no ' + r['missing'] or r['result'].summary()}")
+    print(f"look: before the Grade, {sum(1 for r in pre if 'result' in r and r['result'].passed)} of {len(pre)} "
+          f"views within tolerance; report {pre_path}")
     rows = compare_all(args.blender, args.game, look)
     path = report(rows, args.blender, args.game)
     failed = [r for r in rows if "missing" in r or not r["result"].passed]

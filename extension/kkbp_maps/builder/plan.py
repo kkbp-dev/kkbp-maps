@@ -19,6 +19,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
+from .games import camera_profile
 from ..bundle import Bundle
 from . import shaders
 from .catalogs import catalog_uuid
@@ -95,6 +96,18 @@ class LibraryPlan:
     def camera_of(self, m: "MapPlan") -> str:
         """The Camera Profile that shows Map m."""
         return self.camera or m.bundle.map["camera"]
+
+    def grade_of(self, m: "MapPlan", variant: dict) -> tuple[Bundle, dict | None]:
+        """The Grade a Map Variant is shown with, and the Map Bundle that holds its LUT: the Map's own,
+        unless its Camera Profile grades every Map with a LUT of its own (found by name in any Map)."""
+        name = camera_profile(self.game, self.camera_of(m)).grade_lut
+        if name is None:
+            return m.bundle, variant["grade"]
+        for b in [m.bundle] + [x.bundle for x in self.maps]:
+            for tid, t in b.textures.items():
+                if t["name"] == name:
+                    return b, {"kind": "amplify_color", "lut": tid, "layout": "amplify_32x32"}
+        raise ValueError(f"Camera Profile '{self.camera_of(m)}' grades with {name}, which no Map holds")
 
     def props(self) -> list[AssetPlan]:
         return [a for a in self.assets.values() if a.kind == "prop"]

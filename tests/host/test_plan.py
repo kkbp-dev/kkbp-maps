@@ -154,3 +154,14 @@ def test_a_map_is_shown_through_its_own_camera_profile_unless_one_is_given(tmp_p
     assert studio.camera_of(studio.maps[0]) == "studio"
     profile = camera_profile(b.game, "studio")
     assert not profile.map_fog and not profile.map_sun_shafts and not profile.assumed
+
+
+def test_studio_grades_every_time_of_day_with_its_own_lut(tmp_path):
+    b = bundle(tmp_path)
+    own = plan_library([b], TABLES)
+    studio = plan_library([b], TABLES, camera="studio")
+    m, ms = own.maps[0], studio.maps[0]
+    names = [b.textures[own.grade_of(m, v)[1]["lut"]]["name"] for v in b.variants]
+    assert names == ["Lut_Amount", "Lut_TimeNight1"]
+    names = [b.textures[studio.grade_of(ms, v)[1]["lut"]]["name"] for v in b.variants]
+    assert names == ["Lut_Amount", "Lut_Amount"]

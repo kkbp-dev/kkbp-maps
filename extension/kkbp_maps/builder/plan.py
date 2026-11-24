@@ -53,7 +53,7 @@ class VariantPlan:
     id: str
     name: str
     times_of_day: list[str]
-    thumbnail: str | None         # the texture id of the game's thumbnail for its first Time of Day
+    thumbnail: str | None         # the game's thumbnail for the first of its Times of Day that has one
 
 
 @dataclass
@@ -165,7 +165,8 @@ def _plan_map(b: Bundle, tables: NameTables, used: set[str]) -> MapPlan:
     for v in b.variants:
         covers_all = v["times_of_day"] == b.map["times_of_day"]
         vname = name if covers_all else f"{name}, {', '.join(tables.time_of_day(t) for t in v['times_of_day'])}"
-        thumb = next((t["texture"] for t in b.map["thumbnails"] if v["times_of_day"][0] in t["times_of_day"]), None)
+        thumb = next((t["texture"] for tod in v["times_of_day"] for t in b.map["thumbnails"]
+                      if tod in t["times_of_day"]), None)
         variants.append(VariantPlan(v["id"], vname, list(v["times_of_day"]), thumb))
     m = MapPlan(key=b.key, bundle=b, name=name, named=named, area=area, outdoor=b.map["outdoor"],
                 file=str(PurePosixPath("Maps") / f"{safe_file_name(name)}.blend"),

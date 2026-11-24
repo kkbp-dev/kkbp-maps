@@ -46,6 +46,13 @@ def test_one_map(tmp_path):
                        DESK: desk.hash, DESK2: desk.hash}
 
 
+def test_a_thumbnail_for_any_time_of_day_is_used(tmp_path):
+    def night_only(b):
+        b.map["thumbnails"][0]["times_of_day"] = ["night"]
+    p = plan_library([bundle(tmp_path, change=night_only)], TABLES)
+    assert [v.thumbnail is not None for v in p.maps[0].variants] == [False, True]
+
+
 def test_assets_are_kept_once_across_maps_and_tagged_with_each(tmp_path):
     a = bundle(tmp_path)
     b = bundle(tmp_path, key="map/scene/b", name="b", change=lambda x: x.map.update(outdoor=True))

@@ -26,6 +26,7 @@ from ... import compat
 from .. import NAME, VERSION
 from ..catalogs import FILE_NAME as CATALOG_FILE, catalog_file
 from ..names import NameTables
+from .. import look
 from ..plan import LibraryPlan, plan_library
 from ..report import build_report, markdown
 from . import materials as mats
@@ -185,8 +186,11 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--bundles", nargs="+", required=True, help="Map Bundle folders, in build order")
     parser.add_argument("--step", action="append", help="map:<key>, assets or finish; all of them by default")
     parser.add_argument("--no-previews", action="store_true")
+    parser.add_argument("--look", action="append", metavar="NAME=VALUE",
+                        help="a look switch (builder/look.py), for the look check; developers only")
     parser.add_argument("--camera", help="show every Map through this Camera Profile (game or studio), for the look check")
     args = parser.parse_args(argv)
+    look.set_switches(args.look)
     bundles = [bundle_contract.read(p) for p in args.bundles]
     plan = plan_library(bundles, NameTables.load(bundles[0].game), camera=args.camera)
     for s in args.step or steps(plan):

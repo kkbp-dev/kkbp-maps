@@ -40,12 +40,11 @@ def tolerance(look: dict) -> lc.Tolerance:
     return lc.Tolerance(**look.get("tolerance", {}))
 
 
-def build_and_render(name: str, game: str, look: dict, limits: Limits) -> bool:
+def build_and_render(name: str, game: str, look: dict, limits: Limits, switches: list[str], root: Path) -> bool:
     """Each Golden Map's file, built through the captures' Camera Profile, then its views rendered."""
     bundles = copy_golden(REPO / "golden" / game, GOLDEN[game])
     if bundles is None:
         return False
-    root = WORK / name
     library = root / f"{game} Maps"
     if library.exists():
         shutil.rmtree(library)
@@ -56,7 +55,8 @@ def build_and_render(name: str, game: str, look: dict, limits: Limits) -> bool:
     exe = blender_path(name)
     for key in GOLDEN[game]:
         cmd = ["--python", str(REPO / "tools" / "blender_build.py"), "--", "--library", str(library),
-               "--bundles", *map(str, bundles), "--step", f"map:{key}", "--no-previews", "--camera", look["camera"]]
+               "--bundles", *map(str, bundles), "--step", f"map:{key}", "--no-previews", "--camera", look["camera"],
+               *[a for sw in switches for a in ("--look", sw)]]
         code, peak, reason = blender(exe, profile, cmd, limits, log)
         print(f"look: built {key} on {name}: {'ok' if code == 0 else f'failed ({reason or code})'}, "
               f"peak {peak / 2**30:.2f} GB", flush=True)
@@ -93,12 +93,12 @@ def _heat(r: lc.Result) -> np.ndarray:
     return (np.stack([x, np.clip(1.5 - 3 * np.abs(x - 0.5), 0, 1), 1 - x], -1) * 255).astype(np.uint8)
 
 
-def compare_all(blender: str, game: str, look: dict, pregrade: bool = False) -> list[dict]:
+def compare_all(root: Path, game: str, look: dict, pregrade: bool = False) -> list[dict]:
     """Each Capture View's render against its capture; with `pregrade`, both before the Grade."""
     views = json.loads((REPO / "tests" / "look" / "views" / f"{game}.json").read_text())["views"]
     t = tolerance(look)
     rows = []
-    renders = WORK / blender / "renders"
+    renders = root / "renders"
     for v in views:
         rel = Path(v["map"]) / v["variant"] / v["name"]
         if pregrade:
@@ -114,11 +114,11 @@ def compare_all(blender: str, game: str, look: dict, pregrade: bool = False) -> 
     return rows
 
 
-def report(rows: list[dict], blender: str, game: str, name: str = "report") -> Path:
-    parts = [f"<!doctype html><meta charset=utf-8><title>Look check {game} {blender}</title><style>"
+def report(rows: list[dict], root: Path, game: str, name: str = "report") -> Path:
+    parts = [f"<!doctype html><meta charset=utf-8><title>Look check {game} {root.name}</title><style>"
              "body{font:14px system-ui;margin:16px;background:#1b1b1b;color:#ddd}img{width:32%;margin-right:1%}"
              "h2{font-size:15px;margin:24px 0 4px}.fail{color:#f77}.pass{color:#7d7}td,th{padding:2px 10px;text-align:right}"
-             "</style>", f"<h1>Look check: {game} on {blender}</h1><p>Left: Reference Capture. Middle: Blender. "
+             "</style>", f"<h1>Look check: {game}, {html.escape(root.name)}</h1><p>Left: Reference Capture. Middle: Blender. "
              "Right: ΔE2000 (blue 0, red ≥ twice the p95 tolerance).</p><table><tr><th>view<th>mean ΔE<th>p95 ΔE"
              "<th>worst tile<th>"]
     for r in rows:
@@ -137,7 +137,7 @@ def report(rows: list[dict], blender: str, game: str, name: str = "report") -> P
         parts.append(f"<h2 id='{html.escape(r['view'])}'>{html.escape(r['view'])}: {res.summary()}</h2>"
                      f"<img src='{_data_uri(_img(r['capture']))}'><img src='{_data_uri(_img(r['render']))}'>"
                      f"<img src='{_data_uri(_heat(res))}'>")
-    path = WORK / blender / f"{name}.html"
+    path = root / f"{name}.html"
     path.write_text("".join(parts), encoding="utf-8")
     return path
 
@@ -147,21 +147,27 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--game", default="KK")
     ap.add_argument("--blender", default="min", choices=sorted(BUILDS))
     ap.add_argument("--no-render", action="store_true")
+    ap.add_argument("--look", action="append", default=[], metavar="NAME=VALUE",
+                    help="a look switch for the build (extension/kkbp_maps/builder/look.py)")
     ap.add_argument("--max-rss-gb", type=float, default=8.0)
     args = ap.parse_args(argv)
     look = json.loads((REPO / "tests" / "look" / f"{args.game}.json").read_text())
+    root = WORK / (args.blender + "".join(f"+{sw}" for sw in sorted(args.look)))
     if not args.no_render and not build_and_render(args.blender, args.game, look,
                                                    Limits(max_rss_gb=args.max_rss_gb, min_available_gb=1.5,
-                                                          min_swap_free_gb=6.0)):
+                                                          min_swap_free_gb=6.0), args.look, root):
         return 1
-    pre = compare_all(args.blender, args.game, look, pregrade=True)
-    pre_path = report(pre, args.blender, args.game, "report-pregrade")
+    pre = compare_all(root, args.game, look, pregrade=True)
+    pre_path = report(pre, root, args.game, "report-pregrade")
     for r in pre:
         print(f"  pre-Grade {r['view']}: {r.get('missing') and 'no ' + r['missing'] or r['result'].summary()}")
     print(f"look: before the Grade, {sum(1 for r in pre if 'result' in r and r['result'].passed)} of {len(pre)} "
           f"views within tolerance; report {pre_path}")
-    rows = compare_all(args.blender, args.game, look)
-    path = report(rows, args.blender, args.game)
+    rows = compare_all(root, args.game, look)
+    path = report(rows, root, args.game)
+    summary = {r["view"]: r["result"].summary() for r in rows if "result" in r}
+    summary.update({"pre-Grade " + r["view"]: r["result"].summary() for r in pre if "result" in r})
+    (root / "summary.json").write_text(json.dumps(summary, indent=1))
     failed = [r for r in rows if "missing" in r or not r["result"].passed]
     for r in rows:
         print(f"  {r['view']}: {r.get('missing') and 'no ' + r['missing'] or r['result'].summary()}")

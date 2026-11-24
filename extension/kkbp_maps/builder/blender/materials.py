@@ -23,7 +23,7 @@ from pathlib import Path
 
 import bpy
 
-from .. import shaders
+from .. import look, shaders
 from .nodes import Graph, io, new_group
 
 PROP_TILE = "kkbp_maps_lightmap_tile"
@@ -436,7 +436,7 @@ def _lightmapped(g):
 
 def _ambient(g, ambient: dict, n):
     """The Map's ambient light at the normal: a flat colour, or the L2 probe as UnityCG's SHEval9."""
-    if ambient["mode"] == "flat":
+    if ambient["mode"] == "flat" and not (look.get("flat_ambient") == "probe" and ambient.get("sh")):
         c = linear_rgb(ambient["sky_color"])
         k = ambient["intensity"]
         return g.rgb(tuple(k * x for x in c))
@@ -504,6 +504,8 @@ def _env_sample(g, bundle, images, texture_id, direction):
 def _reflection(g, bundle, variant, images, n, view, geo):
     """The reflection along R = reflect(−V, N): the probe the object's property names (box-projected
     where the probe says so), else the Map's reflection cubemap, else the ambient. Top mip only."""
+    if look.get("reflection") == "off":
+        return (g.rgb((0.0, 0.0, 0.0)), "Color")
     r = g.vmath("REFLECT", g.vmath("SCALE", view, scale=-1.0), n)
     refl = variant["reflection"]
     if refl["texture"] is not None:
@@ -558,7 +560,7 @@ def _fog(g, fog: dict, lit, additive):
 def _finish(mat, m: dict, tier):
     mat.use_backface_culling = not (m["double_sided"] or tier.double_sided)
     # Unity's shadow pass culls as the material draws: a one-sided surface casts from its front only.
-    mat.use_backface_culling_shadow = mat.use_backface_culling
+    mat.use_backface_culling_shadow = mat.use_backface_culling and look.get("shadow_cull") == "front"
     mat.surface_render_method = "BLENDED" if m["blend_mode"] in ("alpha", "additive") else "DITHERED"
     mat[PROP_HASH] = m["id"]
 

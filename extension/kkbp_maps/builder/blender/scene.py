@@ -16,14 +16,13 @@ import math
 import bpy
 from mathutils import Matrix, Quaternion, Vector
 
-from .. import shaders
+from .. import look, shaders
 from ..games import camera_profile, light_convention
 from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, passes
 from . import materials as mats
 from .meshes import Meshes
 from .nodes import Graph
 
-SOFT_SHADOW_ANGLE = math.radians(0.5)
 PROP_ASSET, PROP_KIND = "kkbp_maps_asset", "kkbp_maps_kind"
 
 
@@ -206,7 +205,7 @@ def _light_object(game: str, light: dict, name: str) -> bpy.types.Object:
     data.color = color
     data.energy = strength
     data.use_shadow = light["shadows"] != "none"
-    data.angle = SOFT_SHADOW_ANGLE if light["shadows"] == "soft" else 0.0
+    data.angle = math.radians(look.number("sun_angle")) if light["shadows"] == "soft" else 0.0
     obj = bpy.data.objects.new(name, data)
     obj.rotation_mode = "QUATERNION"
     obj.rotation_quaternion = light["rotation"]

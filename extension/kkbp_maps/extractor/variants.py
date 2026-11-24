@@ -150,6 +150,8 @@ def _reflection(graph: Graph, rs_ref, rs, tod: str, textures: Textures) -> dict:
         if obj is None or not t.get("m_Enabled", 1) or not graph.world_active(obj, tod):
             continue
         baked = store.resolve(ref, t.get("m_CustomBakedTexture" if t.get("m_Mode") == PROBE_CUSTOM else "m_BakedTexture"))
+        if t.get("m_Mode") == PROBE_BAKED and baked is None:
+            continue  # never baked: Unity draws nothing from it, and its renderers take the Map's reflection (ADR 0023)
         if t.get("m_Mode") == PROBE_REALTIME or baked is None:
             raise Unsupported(f"reflection probe {obj.name} has no baked cubemap")
         m = graph.world_matrix(obj)

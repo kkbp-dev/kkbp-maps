@@ -24,7 +24,7 @@ Numbered so code and reviews can point at them. Each says what holds now.
 
 - **D1 Files only.** The Extractor reads the game's files and never starts the game (ADR 0001).
 - **D2 Order.** KK first, then KKS, then SVS. Vanilla and DLC Maps first; Sideloader map mods (KK and KKS) later.
-- **D3 Props.** A Prop is a `p_` subtree, kept once per Map Library by a hash of its meshes, materials and relative transforms, and tagged with every Map it appears in. Shell pieces are Structures (ADR 0004). A room container such as `p_koi_map71_park` is walked into, not made one Candidate (ADR 0019).
+- **D3 Props.** A Prop is a `p_` subtree, kept once per Map Library by a hash of its meshes, materials and relative transforms, and tagged with every Map it appears in. Shell pieces are Structures (ADR 0004). A room container such as `p_koi_map71_park` is walked into, not made one Candidate (ADR 0019), and an unprefixed copy with a Prop's shape is a Placement of that Prop (ADR 0023).
 - **D4 EEVEE first.** The look is matched in EEVEE with the Standard view transform. Cycles renders sensibly but isn't matched.
 - **D5 Two stages, one extension.** See "Shape".
 - **D6 Separate repository.** kkbp-maps adapts KKBP's patterns rather than sharing code with it, and stays compatible with KKBP Characters: the same scale, axes, units and colour space.
@@ -72,3 +72,4 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0020 Indirect light is computed in Variant Materials, and the World draws only the sky](../adr/0020-indirect-light-is-computed-in-variant-materials.md)
 - [0021 Fog is applied in the material, before the Grade](../adr/0021-fog-is-applied-in-the-material-before-the-grade.md)
 - [0022 A Map Library is one file per Map, plus one for the Props and one for the Structures, with data copied between them](../adr/0022-a-map-library-is-one-file-per-map-with-data-copied.md)
+- [0023 Unprefixed copies of a Prop are its Placements, and unbaked reflection probes are left out](../adr/0023-unprefixed-copies-of-a-prop-are-its-placements.md)

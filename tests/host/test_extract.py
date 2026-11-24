@@ -336,3 +336,55 @@ def test_room_containers_are_walked_into(install, tmp_path):
     benches = [c for c in load(out, "assets")["candidates"] if n[c["placements"][0]] == "o_kouen_isu_00"]
     assert len(benches[0]["placements"]) == 2
     assert check(out, deep=True) == []
+
+
+def test_unprefixed_copies_of_a_prop_are_its_placements(install, tmp_path):
+    """ADR 0023: KK places plain copies of a p_ Prop (2f's isu00) without the prefix."""
+    scene, _ = build_scene()
+    root = next(pid for pid, (t, tr) in scene.objects.items() if t == "GameObject" and tr["m_Name"] == "Map")
+    group = scene.object("MapObjectGroup", root)
+    mat = scene.material("chair")
+    chair = scene.mesh("isu", offset=(0.0, 0.0, 2.5))
+    scene.mesh_renderer(scene.object("isu00", group, position=(4.0, 0.0, 0.0)), chair, [mat])
+    scene.mesh_renderer(scene.object("p_o_koi_isu00", group, position=(5.0, 0.0, 0.0)), chair, [mat])
+    out = extract(install, tmp_path, scene)
+    n = names(out)
+    chairs = [c for c in load(out, "assets")["candidates"] if "p_o_koi_isu00" in [n[p] for p in c["placements"]]]
+    assert len(chairs) == 1
+    assert sorted(n[p] for p in chairs[0]["placements"]) == ["isu00", "p_o_koi_isu00"]
+    assert (chairs[0]["kind"], chairs[0]["rule"]) == ("prop", "p_prefix")
+    assert check(out, deep=True) == []
+
+
+def test_a_structure_with_a_props_shape_still_stops(install, tmp_path):
+    scene, _ = build_scene()
+    root = next(pid for pid, (t, tr) in scene.objects.items() if t == "GameObject" and tr["m_Name"] == "Map")
+    mat = scene.material("chair")
+    chair = scene.mesh("isu", offset=(0.0, 0.0, 2.5))
+    scene.mesh_renderer(scene.object("o_isu00", root, position=(4.0, 0.0, 0.0)), chair, [mat])
+    scene.mesh_renderer(scene.object("p_isu00", root, position=(5.0, 0.0, 0.0)), chair, [mat])
+    with pytest.raises(ValueError, match="shape of a"):
+        extract(install, tmp_path, scene)
+
+
+def _probe(scene, mode, baked):
+    root = next(pid for pid, (t, tr) in scene.objects.items() if t == "GameObject" and tr["m_Name"] == "Map")
+    scene.component(scene.object("Reflection Probe", root), "ReflectionProbe", {
+        "m_Enabled": 1, "m_Mode": mode, "m_BakedTexture": ptr(baked), "m_CustomBakedTexture": ptr(0),
+        "m_BoxOffset": {"x": 0.0, "y": 0.0, "z": 0.0}, "m_BoxSize": {"x": 10.0, "y": 10.0, "z": 10.0},
+        "m_BoxProjection": 0, "m_IntensityMultiplier": 1.0})
+
+
+def test_a_probe_that_was_never_baked_is_left_out(install, tmp_path):
+    """ADR 0023: akikyoushitu's Reflection Probe2-99 is baked-mode with no bake."""
+    scene, _ = build_scene()
+    _probe(scene, 0, 0)
+    out = extract(install, tmp_path, scene)
+    assert all(v["reflection"]["probes"] == [] for v in load(out, "variants")["variants"])
+
+
+def test_a_realtime_probe_still_stops(install, tmp_path):
+    scene, _ = build_scene()
+    _probe(scene, 1, 0)
+    with pytest.raises(Unsupported, match="no baked cubemap"):
+        extract(install, tmp_path, scene)

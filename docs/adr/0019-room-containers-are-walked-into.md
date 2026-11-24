@@ -20,4 +20,4 @@ So a node without a renderer of its own whose name matches `^(p_|o_|mo_)(o_)?koi
 
 - A node matching the pattern that has a renderer of its own, such as pool's `p_koi_map37_water00`, is an ordinary piece under its prefix.
 - park's benches, lamps and trees are named `o_` by the game, so they come out as Structures; the Name Tables' overrides make them Props in the Builder (ADR 0004).
-- Placements with the same shape are one Candidate with the first Placement's rule; a Prop and a Structure of the same shape stop the extraction.
+- Placements with the same shape are one Candidate with the first Placement's rule; a Prop and a Structure of the same shape stop the extraction. *Amended by ADR 0023: an unprefixed Placement with a Prop's shape is a Placement of that Prop.*

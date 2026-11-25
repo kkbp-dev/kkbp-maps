@@ -240,7 +240,8 @@ def grade_group(name: str, lut_image) -> bpy.types.ShaderNodeTree:
 
 BASE_OUTPUTS = [("BSDF", "NodeSocketShader"), ("Alpha", "NodeSocketFloat"), ("Albedo", "NodeSocketColor"),
                 ("Metallic", "NodeSocketFloat"), ("Smoothness", "NodeSocketFloat"),
-                ("Occlusion", "NodeSocketFloat"), ("Normal", "NodeSocketVector"), ("Reflections", "NodeSocketFloat")]
+                ("Occlusion", "NodeSocketFloat"), ("Normal", "NodeSocketVector"), ("Reflections", "NodeSocketFloat"),
+                ("Emission", "NodeSocketColor"), ("Shaded", "NodeSocketFloat"), ("Highlights", "NodeSocketFloat")]
 
 
 def base_material(bundle, material_id: str, images: Images) -> bpy.types.ShaderNodeTree:
@@ -361,7 +362,9 @@ def _standard(g: Graph, out, bundle, m, images):
     g.link(bsdf, (out, "BSDF"))
     for key, value in (("Alpha", alpha), ("Albedo", albedo), ("Metallic", metallic), ("Smoothness", smoothness),
                        ("Occlusion", occlusion), ("Normal", normal),
-                       ("Reflections", 0.0 if "_GLOSSYREFLECTIONS_OFF" in kw else 1.0)):
+                       ("Reflections", 0.0 if "_GLOSSYREFLECTIONS_OFF" in kw else 1.0),
+                       ("Emission", emission), ("Shaded", 1.0),
+                       ("Highlights", 0.0 if "_SPECULARHIGHLIGHTS_OFF" in kw else 1.0)):
         g.set(out, key, value)
 
 
@@ -405,19 +408,26 @@ def _unlit(g: Graph, out, bundle, m, tier, images):
     g.set(out, "Occlusion", 1.0)
     g.link((g.node("ShaderNodeNewGeometry"), "Normal"), (out, "Normal"))
     g.set(out, "Reflections", 0.0)
+    g.set(out, "Emission", color)
+    g.set(out, "Shaded", 0.0)
+    g.set(out, "Highlights", 0.0)
 
 
 # --- a Map Variant's light ----------------------------------------------------------------------------
 
-LIGHT_INPUTS = [("Direct", "NodeSocketColor", (0.0, 0.0, 0.0, 1.0)), ("Albedo", "NodeSocketColor", (0.0, 0.0, 0.0, 1.0)),
+LIGHT_INPUTS = [("Irradiance", "NodeSocketColor", (0.0, 0.0, 0.0, 1.0)), ("Emission", "NodeSocketColor", (0.0, 0.0, 0.0, 1.0)),
+                ("Shaded", "NodeSocketFloat", 1.0), ("Highlights", "NodeSocketFloat", 1.0),
+                ("Albedo", "NodeSocketColor", (0.0, 0.0, 0.0, 1.0)),
                 ("Metallic", "NodeSocketFloat", 0.0), ("Smoothness", "NodeSocketFloat", 0.0),
                 ("Occlusion", "NodeSocketFloat", 1.0), ("Normal", "NodeSocketVector", (0.0, 0.0, 1.0)),
                 ("Reflections", "NodeSocketFloat", 1.0), ("Additive", "NodeSocketFloat", 0.0)]
 
 
 def variant_light(bundle, variant: dict, name: str, images: Images, grade) -> bpy.types.ShaderNodeTree:
-    """`.KKM Light <Map Variant>`: Unity Standard's indirect light added to the direct light, then the
-    linear fog and the Grade (ADR 0020, 0021). Outputs the graded colour and the ungraded one."""
+    """`.KKM Light <Map Variant>`: Unity Standard's light (BRDF1_Unity_PBS), the direct and the indirect,
+    then the linear fog and the Grade (ADR 0020, 0021, 0028). Outputs the graded colour and the ungraded
+    one. The direct light is the irradiance EEVEE gives a white diffuse surface (its lights and shadows,
+    N·L included) times Unity's BRDF for the Map Variant's sun direction, plus the emission."""
     tree = new_group(f".KKM Light {name}", inputs=LIGHT_INPUTS,
                      outputs=[("Color", "NodeSocketColor"), ("Ungraded", "NodeSocketColor")])
     g, i, o = io(tree)
@@ -454,11 +464,60 @@ def variant_light(bundle, variant: dict, name: str, images: Images, grade) -> bp
     spec_k = g.math("MULTIPLY", g.math("MULTIPLY", reduction, (i, "Occlusion")), (i, "Reflections"))
     spec = g.vmath("SCALE", spec, scale=spec_k)
 
-    lit = g.vmath("ADD", g.vmath("ADD", (i, "Direct"), diffuse), spec)
+    direct = _direct(g, variant, i, n, view, diff_color, spec_color, perceptual)
+    lit = g.vmath("ADD", g.vmath("ADD", direct, diffuse), spec)
     lit = _fog(g, variant["fog"], lit, (i, "Additive"))
     g.link(lit, (o, "Ungraded"))
     g.link(g.group(grade, Color=lit) if grade is not None else lit, (o, "Color"))
     return tree
+
+
+def _sun_direction(variant: dict):
+    """The direction towards the Map Variant's first directional light, in Blender's space."""
+    light = next((l for l in variant["lights"] if l["type"] == "directional"), None)
+    if light is None:
+        return None
+    from mathutils import Quaternion, Vector
+    return tuple((Quaternion(light["rotation"]) @ Vector((0.0, 0.0, 1.0))).normalized())
+
+
+def _pow5(g, x):
+    x2 = g.math("MULTIPLY", x, x)
+    return g.math("MULTIPLY", g.math("MULTIPLY", x2, x2), x)
+
+
+def _direct(g, variant, i, n, view, diff_color, spec_color, perceptual):
+    """Unity's BRDF1 direct term over N·L: diffColor · DisneyDiffuse + V · D · π · F(specColor, l·h),
+    times the irradiance (which carries N·L and the shadows), plus the emission (ADR 0028)."""
+    emission = (i, "Emission")
+    lsun = _sun_direction(variant)
+    if lsun is None or look.get("direct") == "principled":
+        return g.vmath("ADD", emission, g.vmath("SCALE", (i, "Irradiance"), scale=(i, "Shaded")))
+    L = g.vector(lsun)
+    h = g.vmath("NORMALIZE", g.vmath("ADD", L, view))
+    nv = g.math("ABSOLUTE", g.vmath("DOT_PRODUCT", n, view))
+    nl = g.math("MAXIMUM", g.vmath("DOT_PRODUCT", n, L), 0.0)
+    nh = g.math("MAXIMUM", g.vmath("DOT_PRODUCT", n, h), 0.0)
+    lh = g.math("MAXIMUM", g.vmath("DOT_PRODUCT", L, h), 0.0)
+    # DisneyDiffuse(nv, nl, lh, perceptualRoughness)
+    fd90m1 = g.math("MULTIPLY_ADD", g.math("MULTIPLY", g.math("MULTIPLY", lh, lh), perceptual), 2.0, -0.5)
+    light_scatter = g.math("MULTIPLY_ADD", fd90m1, _pow5(g, g.math("SUBTRACT", 1.0, nl)), 1.0)
+    view_scatter = g.math("MULTIPLY_ADD", fd90m1, _pow5(g, g.math("SUBTRACT", 1.0, nv)), 1.0)
+    disney = g.math("MULTIPLY", light_scatter, view_scatter)
+    # SmithJointGGXVisibilityTerm and GGXTerm · π, roughness = max(perceptual², 0.002)
+    a = g.math("MAXIMUM", g.math("MULTIPLY", perceptual, perceptual), 0.002)
+    one_minus_a = g.math("SUBTRACT", 1.0, a)
+    lambda_v = g.math("MULTIPLY", nl, g.math("MULTIPLY_ADD", nv, one_minus_a, a))
+    lambda_l = g.math("MULTIPLY", nv, g.math("MULTIPLY_ADD", nl, one_minus_a, a))
+    vis = g.math("DIVIDE", 0.5, g.math("ADD", g.math("ADD", lambda_v, lambda_l), 1e-5))
+    a2 = g.math("MULTIPLY", a, a)
+    d = g.math("MULTIPLY_ADD", g.math("MULTIPLY", g.math("SUBTRACT", g.math("MULTIPLY", nh, a2), nh), nh), 1.0, 1.0)
+    d_pi = g.math("DIVIDE", a2, g.math("MULTIPLY_ADD", d, d, 1e-7))
+    spec = g.math("MULTIPLY", g.math("MULTIPLY", vis, d_pi), (i, "Highlights"))
+    fresnel = g.mix(_pow5(g, g.math("SUBTRACT", 1.0, lh)), spec_color, (1.0, 1.0, 1.0, 1.0))
+    brdf = g.vmath("ADD", g.vmath("SCALE", diff_color, scale=disney), g.vmath("SCALE", fresnel, scale=spec))
+    lit = g.vmath("MULTIPLY", (i, "Irradiance"), brdf)
+    return g.vmath("ADD", emission, g.vmath("SCALE", lit, scale=(i, "Shaded")))
 
 
 def _attribute(g, name):
@@ -622,9 +681,15 @@ def variant_material(bundle, material_id: str, variant_name: str, base, light) -
     mat.node_tree.nodes.clear()
     g = Graph(mat.node_tree)
     b = g.group(base)
-    rgb = g.node("ShaderNodeShaderToRGB", Shader=(b, "BSDF"))
     additive = 1.0 if m["blend_mode"] == "additive" else 0.0
-    lit = g.group(light, Direct=(rgb, "Color"), Albedo=(b, "Albedo"), Metallic=(b, "Metallic"),
+    if look.get("direct") == "principled":   # the Principled BSDF's own direct light, emission included
+        principled = g.node("ShaderNodeShaderToRGB", Shader=(b, "BSDF"))
+        direct = dict(Irradiance=(principled, "Color"), Emission=(0.0, 0.0, 0.0, 1.0), Shaded=1.0)
+    else:   # what EEVEE's lights and shadows give a white diffuse surface: light · N·L · shadow
+        white = g.node("ShaderNodeBsdfDiffuse", Color=(1.0, 1.0, 1.0, 1.0), Normal=(b, "Normal"))
+        irradiance = g.node("ShaderNodeShaderToRGB", Shader=white)
+        direct = dict(Irradiance=(irradiance, "Color"), Emission=(b, "Emission"), Shaded=(b, "Shaded"))
+    lit = g.group(light, **direct, Highlights=(b, "Highlights"), Albedo=(b, "Albedo"), Metallic=(b, "Metallic"),
                   Smoothness=(b, "Smoothness"), Occlusion=(b, "Occlusion"), Normal=(b, "Normal"),
                   Reflections=(b, "Reflections"), Additive=additive)
     _outputs(g, m, (lit, "Color"), (b, "BSDF"), (b, "Alpha"))

@@ -77,3 +77,4 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0025 Real-time GI is approximated from the ambient light](../adr/0025-real-time-gi-is-approximated-from-the-ambient.md)
 - [0026 A renderer can refuse reflection probes](../adr/0026-a-renderer-can-refuse-reflection-probes.md)
 - [0027 Blended surfaces are sorted by their bounds' centre](../adr/0027-blended-surfaces-are-sorted-by-their-bounds-centre.md)
+- [0028 The sun's direct light is Unity's BRDF, not the Principled BSDF's](../adr/0028-the-suns-direct-light-is-unitys-brdf.md)

@@ -12,7 +12,6 @@
  "regression": {"mean_de": 0.1, "p95_de": 0.3, "worst_tile": 0.02},
  "accepted": {
   "map/scene/ground/day/eye-90": "the gravel strip in front of the wall is a little noisier and brighter; judged fine by eye",
-  "map/scene/ground/evening/eye-0": "just over the pre-Grade mean; indistinguishable by eye",
   "map/scene/ground/evening/eye-270": "the Sky Dome is drawn at infinity (kk-spike.md, Known discrepancies)",
   "map/scene/ground/evening/studio": "the Sky Dome is drawn at infinity (kk-spike.md, Known discrepancies); a fainter tree shadow",
   "map/scene/park/day/eye-0": "park's real-time GI is approximated (ADR 0025); judged fine by eye",

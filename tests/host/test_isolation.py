@@ -89,3 +89,22 @@ def test_only_compat_checks_blenders_version():
         if "compat" in path.relative_to(PACKAGE_PARENT).parts:
             continue
         assert "app.version" not in path.read_text(encoding="utf-8"), f"{path} checks Blender's version"
+
+
+def test_unitypy_imports_without_the_fmod_packages():
+    """ADR 0029: the zips leave out fmod_toolkit and pyfmodex; unity.unitypy() stands in for them."""
+    pytest = __import__("pytest")
+    pytest.importorskip("UnityPy")
+    probe = (
+        "import sys, importlib.abc\n"
+        "class Block(importlib.abc.MetaPathFinder):\n"
+        "    def find_spec(self, name, path, target=None):\n"
+        "        if name.split('.')[0] in ('fmod_toolkit', 'pyfmodex'): raise ImportError(name)\n"
+        "sys.meta_path.insert(0, Block())\n"
+        f"sys.path.insert(0, {str(PACKAGE_PARENT.parent)!r})\n"
+        "from kkbp_maps.extractor.unity import unitypy\n"
+        "UnityPy = unitypy(); import UnityPy.export.Texture2DConverter\n"
+        "print('ok')\n"
+    )
+    out = subprocess.run([sys.executable, "-I", "-c", probe], capture_output=True, text=True)
+    assert out.stdout.strip() == "ok", out.stderr

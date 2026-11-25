@@ -66,9 +66,34 @@ class Store:
     def pixels(self, ref: Ref, face: int = 0) -> np.ndarray: ...
 
 
+def unitypy():
+    """UnityPy, imported. Its export module imports fmod_toolkit, which only AudioClips use and which
+    the extension doesn't ship (ADR 0029): where it isn't installed, an empty module stands in."""
+    import importlib.util
+    import sys
+
+    try:
+        present = "fmod_toolkit" in sys.modules or importlib.util.find_spec("fmod_toolkit") is not None
+    except (ImportError, ValueError):
+        present = False
+    if not present:
+        import types
+
+        stub = types.ModuleType("fmod_toolkit", "Stands in for fmod_toolkit, which kkbp-maps doesn't ship (ADR 0029).")
+
+        def missing(name):
+            raise AttributeError(f"fmod_toolkit.{name}: audio isn't read, and FMOD isn't shipped (ADR 0029)")
+
+        stub.__getattr__ = missing
+        sys.modules["fmod_toolkit"] = stub
+    import UnityPy
+
+    return UnityPy
+
+
 class UnityStore(Store):
     def __init__(self, path: Path):
-        import UnityPy  # here, so the rest of the Extractor imports without it
+        UnityPy = unitypy()  # here, so the rest of the Extractor imports without it
 
         self.path = Path(path)
         self.env = UnityPy.load(str(self.path))
@@ -214,7 +239,7 @@ def _serialized_files(env) -> Iterator:
 
 def list_records(path: Path) -> list[tuple[str, dict]]:
     """(name, typetree) of every MonoBehaviour in a small list bundle."""
-    import UnityPy
+    UnityPy = unitypy()
 
     env = UnityPy.load(str(path))
     out = []
@@ -228,7 +253,7 @@ def list_records(path: Path) -> list[tuple[str, dict]]:
 def sprite_textures(path: Path, names: set[str]) -> dict[str, tuple[np.ndarray, int]]:
     """The pixels (RGB, rows top first) and m_ColorSpace of the named sprites of a thumbnail bundle,
     each cut to its rectangle in its texture."""
-    import UnityPy
+    UnityPy = unitypy()
 
     env = UnityPy.load(str(path))
     out = {}

@@ -6,6 +6,7 @@ So the wheels ship inside the extension, listed in `blender_manifest.toml`, and 
 
 - **The wheels are made at packaging time, never committed.** `tools/package.py` downloads the pinned wheels for every platform, each checked against the hash lock (`extension/kkbp_maps/deps/requirements.lock`), into the ignored `extension/kkbp_maps/wheels/`. A pinned version is raised only on purpose, and a wheel tag is never written into the code: the lock lists every wheel of a pinned version, and Blender's builder sorts them by platform.
 - **`tpk_ar` has no wheel on PyPI**, only its source. It is pure Python, so the packaging tool builds its wheel from the hash-checked source.
+- **The audio packages are left out.** `fmod_toolkit`'s wheel carries Firelight's FMOD library, whose licence doesn't let us pass it on, and `pyfmodex` only wraps it. UnityPy's export module imports `fmod_toolkit` but only calls it for AudioClips, which no Map is read for, so `extractor/unity.py` puts an empty module in its place before importing UnityPy. A Map Bundle extracted that way is the same as one extracted with FMOD installed (park, checked byte for byte).
 - **numpy is Blender's own.** Every Blender build ships numpy; a numpy wheel in the shared site-packages would replace it for Blender and every other extension. The extension checks that Blender's numpy is recent enough.
 - **UnityPy is never imported in Blender's own process.** Only the Extractor's subprocess imports it; Blender's process finds where the wheels went without loading them and passes that folder on.
 

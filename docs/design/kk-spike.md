@@ -219,3 +219,9 @@ Tiles are measured on an 8 × 8 grid, against a floor of 0.05 linear luminance. 
 - **ground's window glass reflects nothing.** The school building's renderer has reflection probes Off (`m_ReflectionProbeUsage 0`), so it takes ground's default reflection, a custom cubemap with an empty slot. Without its reflection, Blender's glass matches the capture to within 0.01 linear (ADR 0026).
 - **Blended foliage is sorted by its renderers' bounds.** Unity draws transparent renderers back to front by the centre of their bounds; EEVEE sorts by object origin, which in ground is often the Map's centre. Drawing through an object at the bounds' centre fixes overlapping trees (ADR 0027).
 - **Anti-aliasing order doesn't matter:** one EEVEE sample instead of 32 makes every Map slightly worse.
+
+## Known discrepancies
+
+What the look check measured and the Builder deliberately doesn't match.
+
+- **The Sky Dome is drawn at infinity.** KK's dome is Unity's built-in Sphere (radius 0.5, scaled to about 448 m on ground) whose `Skybox/Cubemap` samples by its own surface position, and ground's dome is centred about 169 m from the Capture Views. So in the game the sky shifts with the camera's position, most below the horizon: where ground's evening views see the dome through a gap at the ground's edge, the game shows plain pink and Blender the sunset glow painted below the horizon. A sphere at the dome's node, sampling by its own position, matched better on every ground view (evening eye-270 mean |Δ| 0.0257 → 0.0148, evening studio 0.0851 → 0.0772, before the Grade). The Builder keeps the World at infinity anyway (ADR 0016): it never clips against a camera's clip end and doesn't depend on where the camera stands.

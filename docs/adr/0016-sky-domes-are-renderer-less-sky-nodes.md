@@ -13,4 +13,4 @@ So a renderer that draws a built-in mesh with a skybox shader is a Sky Dome. Its
 ## Consequences
 
 - The sky's rotation combines the dome's world rotation with the material's `_Rotation`. A dome that tilts stops the extraction; none in KK does.
-- A dome's radius (448 to 613 m) isn't carried: the World background is at infinity.
+- A dome's radius (448 to 613 m) isn't carried: the World background is at infinity. The look check measured what this costs where a dome is centred far from the camera, and it was kept (kk-spike.md, "Known discrepancies").

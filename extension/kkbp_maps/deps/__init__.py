@@ -2,8 +2,8 @@
 
 PINS is what the extension is tested with. tools/lock_deps.py writes lock.json from it: for every
 pin, the one file of that version each platform gets, with its URL, size and SHA-256, so packaging
-downloads exactly those files and nothing else. numpy is Blender's own and isn't pinned; the FMOD
-packages UnityPy declares are left out (extractor/unity.py stands in for them).
+downloads exactly those files and nothing else. numpy and attrs are Blender's own and aren't pinned
+(FROM_BLENDER); the FMOD packages UnityPy declares are left out (extractor/unity.py stands in for them).
 
 Imports only the standard library, and never imports a dependency: Blender's process finds where
 they are installed from their metadata alone, and only the Extractor's subprocess loads them.
@@ -24,12 +24,13 @@ PINS = {  # distribution name -> version; raised only on purpose
     "etcpak": "0.9.15",
     "astc-encoder-py": "0.1.12",
     "archspec": "0.2.7",
-    "attrs": "26.1.0",
     "fsspec": "2026.9.0",
     "tpk_ar": "0.2.4",   # source only on PyPI: packaging builds its wheel (pure Python)
 }
 LEFT_OUT = ("fmod_toolkit", "pyfmodex")   # FMOD's licence doesn't let us pass it on (ADR 0029)
-NUMPY_MINIMUM = (2, 3)
+# Packages Blender ships in its own Python, which a wheel of ours would replace for Blender and every
+# other extension: they are used as Blender has them, at least at these versions (Blender 5.2's).
+FROM_BLENDER = {"numpy": (2, 3), "attrs": (25, 3)}
 LOCK = Path(__file__).with_name("lock.json")
 
 
@@ -55,12 +56,13 @@ def problems() -> list[str]:
     if wrong:
         out.append(f"Missing dependencies: {', '.join(wrong)}. Install the kkbp-maps zip made for this "
                    f"platform again; Blender installs its wheels with it.")
-    numpy = _version("numpy")
-    if numpy is None:
-        out.append("This Blender has no numpy.")
-    elif tuple(int(p) for p in numpy.split(".")[:2] if p.isdigit()) < NUMPY_MINIMUM:
-        out.append(f"This Blender's numpy is {numpy}; kkbp-maps needs {'.'.join(map(str, NUMPY_MINIMUM))} or "
-                   f"later, as Blender 5.2 ships.")
+    for name, minimum in FROM_BLENDER.items():
+        found = _version(name)
+        if found is None:
+            out.append(f"This Blender has no {name}; kkbp-maps uses the one Blender 5.2 and later ship.")
+        elif tuple(int(p) for p in found.split(".")[:2] if p.isdigit()) < minimum:
+            out.append(f"This Blender's {name} is {found}; kkbp-maps needs {'.'.join(map(str, minimum))} or "
+                       f"later, as Blender 5.2 ships.")
     return out
 
 

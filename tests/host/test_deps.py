@@ -28,9 +28,9 @@ def test_the_tests_run_the_pinned_versions():
         assert metadata.version(name) == version, f"the dev venv has {name} {metadata.version(name)}, not {version}"
 
 
-def test_numpy_isnt_pinned_and_fmod_is_left_out():
+def test_blenders_own_packages_arent_pinned_and_fmod_is_left_out():
     names = {n.lower() for n in deps.PINS}
-    assert "numpy" not in names
+    assert not names & set(deps.FROM_BLENDER)
     assert not names & set(deps.LEFT_OUT)
 
 

@@ -187,18 +187,6 @@
    }
   },
   {
-   "name": "attrs",
-   "version": "26.1.0",
-   "files": {
-    "any": {
-     "filename": "attrs-26.1.0-py3-none-any.whl",
-     "url": "https://files.pythonhosted.org/packages/64/b4/17d4b0b2a2dc85a6df63d1157e028ed19f90d4cd97c36717afef2bc2f395/attrs-26.1.0-py3-none-any.whl",
-     "size": 67548,
-     "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"
-    }
-   }
-  },
-  {
    "name": "fsspec",
    "version": "2026.9.0",
    "files": {

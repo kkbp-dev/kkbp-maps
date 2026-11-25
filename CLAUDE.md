@@ -20,7 +20,7 @@ Status: Phases 1 and 2 of [docs/design/roadmap.md](docs/design/roadmap.md) are d
 - Record a surprising decision as a new ADR (next number in `docs/adr/`), list it in `docs/design/README.md`, and add new terms to `CONTEXT.md` (a glossary only, never implementation detail).
 - Work in small commits. Stage files by path; never `git add -A`. End every commit message with the `Co-Authored-By:` trailer of the model that wrote it.
 - The git author is a placeholder from the global `~/.gitconfig`; leave it alone.
-- Nothing gets installed into Blender's own Python or the user's Blender profile without their OK, and each OK covers that one install.
+- Nothing gets installed into Blender's own Python or the user's Blender profile without their OK, and each OK covers that one install. To install the extension into a real profile, follow "Installing the extension into a real Blender profile" below, step by step.
 - Long runs (extracting or building many Maps, the full test suite) run in the background.
 
 ## Rules the code follows
@@ -53,6 +53,22 @@ Status: Phases 1 and 2 of [docs/design/roadmap.md](docs/design/roadmap.md) are d
 | Build a Map Library from Map Bundles | `<blender> -b --factory-startup --python tools/blender_build.py -- --library "<out>/KK Maps" --bundles <bundle>...` |
 
 The tests need `pytest` and `jsonschema`, and the Extractor UnityPy, numpy and Pillow, all in KKBP's dev venv; `bundle/` itself needs only the standard library. `golden.py` extracts each Map in a process it watches, and stops it before memory runs short. A Golden Map takes 15 to 40 s and under 1 GB. `build_golden.py` runs each build step in its own `blender -b` process under the same watchdog (`extension/kkbp_maps/jobs/memory.py`, which reads each platform's own counters), one Blender build at a time, with its own profile and `extension/` on the path, so nothing is installed into Blender. Its work folder, `tests/.work/`, is under home because the snap can't see `/tmp`.
+
+## Installing the extension into a real Blender profile
+
+Only with the user's OK, for that one profile. A throwaway profile (`BLENDER_USER_RESOURCES` pointing under `tests/.work/`, as `tools/product_check.py` does) needs none of this; the user's own does.
+
+**Never pass `--factory-startup` to `extension install-file --enable` on a real profile.** Enabling the extension saves the preferences, and with that flag Blender saves its factory defaults plus the new extension over the user's `userpref.blend`: every other add-on and extension is disabled, and every setting they changed is lost. Blender keeps no backup of the old file. This happened once, to a 5.3 profile, while installing v0.1.0.
+
+1. **Ask which profile.** Each Blender minor version has its own: `~/.config/blender/<5.x>/` on Linux, `%APPDATA%\Blender Foundation\Blender\<5.x>\` on Windows, `~/Library/Application Support/Blender/<5.x>/` on macOS. Its preferences are `config/userpref.blend`.
+2. **Check that Blender isn't running**, by its exact process name, not a pattern that also matches the Blender MCP server. A running Blender saves its own preferences on exit, over whatever the install wrote.
+3. **Back up the preferences:** copy `config/userpref.blend` to `config/userpref.blend.before-kkbp-maps` (with `shutil.copy2`, keeping its time).
+4. **Write down what is enabled**, to compare afterwards: `<blender> -b --python-expr "import bpy; print(sorted(bpy.context.preferences.addons.keys()))"`. This loads the user's preferences and doesn't save them.
+5. **Make the zip** if it is older than the code: `python3 tools/package.py --offline` (or without `--offline` the first time; it downloads the locked wheels).
+6. **Install, without `--factory-startup`:** `<blender> --command extension install-file --repo user_default --enable dist/kkbp_maps-<version>-<platform>.zip`. The snap's binary is `/snap/blender/current/blender`.
+7. **Check:** run step 4 again. The list must be the one from before plus `bl_ext.user_default.kkbp_maps`. Then check that `bl_ext.user_default.kkbp_maps.deps.problems()` is empty, and that another extension's wheels it shares (KKBP's Pillow) are still the same version. If anything else changed, copy the backup back over `userpref.blend` and tell the user.
+
+To remove it: `<blender> --command extension remove kkbp_maps`, with Blender closed, then check step 4's list the same way. Installing a newer zip over an older one is step 6 again, after steps 2 to 4.
 
 ## Running the games safely
 

@@ -89,6 +89,9 @@ def check(name: str, exe: Path, zip_path: Path, game_folder: Path, game: str) ->
             print(f"  {reason}")
         return code
 
+    # --factory-startup is safe here only because the profile is a throwaway one: on a real profile it
+    # saves factory preferences over the user's (CLAUDE.md, "Installing the extension into a real
+    # Blender profile").
     if blender(["--factory-startup", "--command", "extension", "install-file", "--repo", "user_default", "--enable",
                 str(zip_path)]) != 0:
         print(f"{name}: installing the zip failed; see {log}")

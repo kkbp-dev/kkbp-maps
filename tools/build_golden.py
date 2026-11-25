@@ -126,10 +126,16 @@ def build(name: str, exe: Path, game: str, bundles: list[Path], limits: Limits, 
         if code != 0:
             print(f"  see {log}")
             return None
+    return summarize(exe, profile, library, root / "summaries", limits, log)
+
+
+def summarize(exe: Path, profile: Path, library: Path, out_dir: Path, limits: Limits, log: Path) -> dict | None:
+    """What the build snapshot holds of a Map Library: each file's summary, the Build Report without
+    what changes between runs, and the library's top-level files."""
     summaries = {}
     for blend in sorted(library.rglob("*.blend")):
         rel = blend.relative_to(library).as_posix()
-        out = root / "summaries" / (rel.replace("/", "__") + ".json")
+        out = out_dir / (rel.replace("/", "__") + ".json")
         out.parent.mkdir(parents=True, exist_ok=True)
         code, _, reason = blender(exe, profile, [str(blend), "--python", str(REPO / "tests" / "blender" / "summary.py"),
                                                  "--", str(out), str(library / "blender_assets.cats.txt")], limits, log)

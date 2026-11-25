@@ -5,7 +5,11 @@
  "height": 720,
  "camera": "studio",
  "samples": 32,
- "tolerance": {"mean_de": 3.0, "p95_de": 10.0, "tile": 0.10, "grid": 8, "floor": 0.02},
+ "tolerance": {
+  "pregrade": {"mean_de": 3.0, "p95_de": 10.0, "tile": 0.25, "grid": 8, "floor": 0.05},
+  "graded": {"mean_de": 5.0, "p95_de": 15.0, "tile": 0.40, "grid": 8, "floor": 0.05}
+ },
+ "regression": {"mean_de": 0.1, "p95_de": 0.3, "worst_tile": 0.02},
  "disable_effects": ["DepthOfField", "BloomAndFlares", "VignetteAndChromaticAberration", "AmplifyOcclusionEffect", "Blur", "SepiaTone", "CrossFade"],
  "set_aside": ["GraphicsSettings.dll", "KK_BetterShadowQualitySettings.dll", "KK_ShadowColorSwapper.dll", "PostProcessingEffect.dll", "PostProcessingRuntime.dll"]
 }

@@ -1,0 +1,714 @@
+{
+ "latest": {
+  "graded": {
+   "map/scene/1f/day/eye-0": {
+    "mean_de": 3.643,
+    "p95_de": 11.329,
+    "worst_tile": 0.2128
+   },
+   "map/scene/1f/day/eye-180": {
+    "mean_de": 1.13,
+    "p95_de": 3.113,
+    "worst_tile": 0.107
+   },
+   "map/scene/1f/day/eye-270": {
+    "mean_de": 2.066,
+    "p95_de": 6.3,
+    "worst_tile": 0.1538
+   },
+   "map/scene/1f/day/eye-90": {
+    "mean_de": 2.032,
+    "p95_de": 7.163,
+    "worst_tile": 0.2058
+   },
+   "map/scene/1f/day/studio": {
+    "mean_de": 3.33,
+    "p95_de": 10.629,
+    "worst_tile": 0.1744
+   },
+   "map/scene/1f/evening/eye-0": {
+    "mean_de": 3.355,
+    "p95_de": 10.446,
+    "worst_tile": 0.2128
+   },
+   "map/scene/1f/evening/eye-180": {
+    "mean_de": 1.13,
+    "p95_de": 3.113,
+    "worst_tile": 0.107
+   },
+   "map/scene/1f/evening/eye-270": {
+    "mean_de": 1.922,
+    "p95_de": 5.619,
+    "worst_tile": 0.2988
+   },
+   "map/scene/1f/evening/eye-90": {
+    "mean_de": 2.409,
+    "p95_de": 9.16,
+    "worst_tile": 0.2013
+   },
+   "map/scene/1f/evening/studio": {
+    "mean_de": 3.466,
+    "p95_de": 10.739,
+    "worst_tile": 0.1616
+   },
+   "map/scene/1f/night/eye-0": {
+    "mean_de": 3.058,
+    "p95_de": 8.175,
+    "worst_tile": 0.2128
+   },
+   "map/scene/1f/night/eye-180": {
+    "mean_de": 1.13,
+    "p95_de": 3.113,
+    "worst_tile": 0.107
+   },
+   "map/scene/1f/night/eye-270": {
+    "mean_de": 1.947,
+    "p95_de": 5.592,
+    "worst_tile": 0.2988
+   },
+   "map/scene/1f/night/eye-90": {
+    "mean_de": 2.048,
+    "p95_de": 7.106,
+    "worst_tile": 0.207
+   },
+   "map/scene/1f/night/studio": {
+    "mean_de": 2.974,
+    "p95_de": 8.084,
+    "worst_tile": 0.1616
+   },
+   "map/scene/ground/day/eye-0": {
+    "mean_de": 5.038,
+    "p95_de": 12.28,
+    "worst_tile": 0.6622
+   },
+   "map/scene/ground/day/eye-180": {
+    "mean_de": 3.063,
+    "p95_de": 8.467,
+    "worst_tile": 0.0774
+   },
+   "map/scene/ground/day/eye-270": {
+    "mean_de": 4.431,
+    "p95_de": 13.672,
+    "worst_tile": 0.2036
+   },
+   "map/scene/ground/day/eye-90": {
+    "mean_de": 5.737,
+    "p95_de": 23.514,
+    "worst_tile": 1.189
+   },
+   "map/scene/ground/day/studio": {
+    "mean_de": 5.045,
+    "p95_de": 11.887,
+    "worst_tile": 0.2821
+   },
+   "map/scene/ground/evening/eye-0": {
+    "mean_de": 4.234,
+    "p95_de": 11.008,
+    "worst_tile": 0.4641
+   },
+   "map/scene/ground/evening/eye-180": {
+    "mean_de": 2.99,
+    "p95_de": 8.147,
+    "worst_tile": 0.0774
+   },
+   "map/scene/ground/evening/eye-270": {
+    "mean_de": 6.186,
+    "p95_de": 17.857,
+    "worst_tile": 0.3512
+   },
+   "map/scene/ground/evening/eye-90": {
+    "mean_de": 4.658,
+    "p95_de": 15.222,
+    "worst_tile": 1.049
+   },
+   "map/scene/ground/evening/studio": {
+    "mean_de": 5.815,
+    "p95_de": 13.744,
+    "worst_tile": 0.4211
+   },
+   "map/scene/ground/night/eye-0": {
+    "mean_de": 3.857,
+    "p95_de": 9.395,
+    "worst_tile": 0.906
+   },
+   "map/scene/ground/night/eye-180": {
+    "mean_de": 3.019,
+    "p95_de": 8.009,
+    "worst_tile": 0.0774
+   },
+   "map/scene/ground/night/eye-270": {
+    "mean_de": 3.897,
+    "p95_de": 11.949,
+    "worst_tile": 0.1986
+   },
+   "map/scene/ground/night/eye-90": {
+    "mean_de": 5.106,
+    "p95_de": 12.953,
+    "worst_tile": 1.1868
+   },
+   "map/scene/ground/night/studio": {
+    "mean_de": 4.082,
+    "p95_de": 8.248,
+    "worst_tile": 0.1947
+   },
+   "map/scene/park/day/eye-0": {
+    "mean_de": 4.898,
+    "p95_de": 17.082,
+    "worst_tile": 0.8303
+   },
+   "map/scene/park/day/eye-180": {
+    "mean_de": 4.459,
+    "p95_de": 17.311,
+    "worst_tile": 1.0129
+   },
+   "map/scene/park/day/eye-270": {
+    "mean_de": 4.57,
+    "p95_de": 22.247,
+    "worst_tile": 0.3228
+   },
+   "map/scene/park/day/eye-90": {
+    "mean_de": 4.257,
+    "p95_de": 17.311,
+    "worst_tile": 0.4034
+   },
+   "map/scene/park/day/studio": {
+    "mean_de": 6.017,
+    "p95_de": 13.936,
+    "worst_tile": 1.0568
+   }
+  },
+  "pregrade": {
+   "map/scene/1f/day/eye-0": {
+    "mean_de": 2.246,
+    "p95_de": 6.233,
+    "worst_tile": 0.1876
+   },
+   "map/scene/1f/day/eye-180": {
+    "mean_de": 0.724,
+    "p95_de": 1.973,
+    "worst_tile": 0.071
+   },
+   "map/scene/1f/day/eye-270": {
+    "mean_de": 1.396,
+    "p95_de": 4.122,
+    "worst_tile": 0.1021
+   },
+   "map/scene/1f/day/eye-90": {
+    "mean_de": 1.341,
+    "p95_de": 4.292,
+    "worst_tile": 0.1327
+   },
+   "map/scene/1f/day/studio": {
+    "mean_de": 2.102,
+    "p95_de": 5.726,
+    "worst_tile": 0.1706
+   },
+   "map/scene/1f/evening/eye-0": {
+    "mean_de": 2.099,
+    "p95_de": 6.913,
+    "worst_tile": 0.1241
+   },
+   "map/scene/1f/evening/eye-180": {
+    "mean_de": 0.724,
+    "p95_de": 1.973,
+    "worst_tile": 0.071
+   },
+   "map/scene/1f/evening/eye-270": {
+    "mean_de": 1.254,
+    "p95_de": 3.1,
+    "worst_tile": 0.2083
+   },
+   "map/scene/1f/evening/eye-90": {
+    "mean_de": 1.653,
+    "p95_de": 6.346,
+    "worst_tile": 0.112
+   },
+   "map/scene/1f/evening/studio": {
+    "mean_de": 2.273,
+    "p95_de": 6.826,
+    "worst_tile": 0.0844
+   },
+   "map/scene/1f/night/eye-0": {
+    "mean_de": 2.038,
+    "p95_de": 5.732,
+    "worst_tile": 0.1241
+   },
+   "map/scene/1f/night/eye-180": {
+    "mean_de": 0.724,
+    "p95_de": 1.973,
+    "worst_tile": 0.071
+   },
+   "map/scene/1f/night/eye-270": {
+    "mean_de": 1.263,
+    "p95_de": 3.092,
+    "worst_tile": 0.2083
+   },
+   "map/scene/1f/night/eye-90": {
+    "mean_de": 1.347,
+    "p95_de": 4.242,
+    "worst_tile": 0.1332
+   },
+   "map/scene/1f/night/studio": {
+    "mean_de": 1.953,
+    "p95_de": 5.035,
+    "worst_tile": 0.0844
+   },
+   "map/scene/ground/day/eye-0": {
+    "mean_de": 4.128,
+    "p95_de": 9.38,
+    "worst_tile": 0.3094
+   },
+   "map/scene/ground/day/eye-180": {
+    "mean_de": 1.871,
+    "p95_de": 4.289,
+    "worst_tile": 0.0518
+   },
+   "map/scene/ground/day/eye-270": {
+    "mean_de": 2.891,
+    "p95_de": 8.828,
+    "worst_tile": 0.147
+   },
+   "map/scene/ground/day/eye-90": {
+    "mean_de": 3.484,
+    "p95_de": 13.005,
+    "worst_tile": 0.6372
+   },
+   "map/scene/ground/day/studio": {
+    "mean_de": 4.154,
+    "p95_de": 9.042,
+    "worst_tile": 0.2299
+   },
+   "map/scene/ground/evening/eye-0": {
+    "mean_de": 3.312,
+    "p95_de": 8.327,
+    "worst_tile": 0.2009
+   },
+   "map/scene/ground/evening/eye-180": {
+    "mean_de": 1.825,
+    "p95_de": 4.037,
+    "worst_tile": 0.0518
+   },
+   "map/scene/ground/evening/eye-270": {
+    "mean_de": 4.106,
+    "p95_de": 12.927,
+    "worst_tile": 0.2263
+   },
+   "map/scene/ground/evening/eye-90": {
+    "mean_de": 2.937,
+    "p95_de": 9.678,
+    "worst_tile": 0.6049
+   },
+   "map/scene/ground/evening/studio": {
+    "mean_de": 4.59,
+    "p95_de": 9.224,
+    "worst_tile": 0.2358
+   },
+   "map/scene/ground/night/eye-0": {
+    "mean_de": 2.703,
+    "p95_de": 5.329,
+    "worst_tile": 0.3351
+   },
+   "map/scene/ground/night/eye-180": {
+    "mean_de": 1.865,
+    "p95_de": 3.983,
+    "worst_tile": 0.0526
+   },
+   "map/scene/ground/night/eye-270": {
+    "mean_de": 2.352,
+    "p95_de": 7.622,
+    "worst_tile": 0.097
+   },
+   "map/scene/ground/night/eye-90": {
+    "mean_de": 2.671,
+    "p95_de": 7.358,
+    "worst_tile": 0.6362
+   },
+   "map/scene/ground/night/studio": {
+    "mean_de": 2.909,
+    "p95_de": 5.23,
+    "worst_tile": 0.1019
+   },
+   "map/scene/park/day/eye-0": {
+    "mean_de": 3.431,
+    "p95_de": 8.185,
+    "worst_tile": 0.3542
+   },
+   "map/scene/park/day/eye-180": {
+    "mean_de": 3.002,
+    "p95_de": 8.203,
+    "worst_tile": 0.3245
+   },
+   "map/scene/park/day/eye-270": {
+    "mean_de": 2.727,
+    "p95_de": 8.514,
+    "worst_tile": 0.2988
+   },
+   "map/scene/park/day/eye-90": {
+    "mean_de": 3.224,
+    "p95_de": 10.169,
+    "worst_tile": 0.2285
+   },
+   "map/scene/park/day/studio": {
+    "mean_de": 4.589,
+    "p95_de": 8.302,
+    "worst_tile": 0.3783
+   }
+  }
+ },
+ "min": {
+  "graded": {
+   "map/scene/1f/day/eye-0": {
+    "mean_de": 3.642,
+    "p95_de": 11.363,
+    "worst_tile": 0.2135
+   },
+   "map/scene/1f/day/eye-180": {
+    "mean_de": 1.131,
+    "p95_de": 3.115,
+    "worst_tile": 0.1058
+   },
+   "map/scene/1f/day/eye-270": {
+    "mean_de": 2.055,
+    "p95_de": 6.257,
+    "worst_tile": 0.1529
+   },
+   "map/scene/1f/day/eye-90": {
+    "mean_de": 2.034,
+    "p95_de": 7.216,
+    "worst_tile": 0.2064
+   },
+   "map/scene/1f/day/studio": {
+    "mean_de": 3.337,
+    "p95_de": 10.666,
+    "worst_tile": 0.174
+   },
+   "map/scene/1f/evening/eye-0": {
+    "mean_de": 3.364,
+    "p95_de": 10.443,
+    "worst_tile": 0.2135
+   },
+   "map/scene/1f/evening/eye-180": {
+    "mean_de": 1.131,
+    "p95_de": 3.115,
+    "worst_tile": 0.1058
+   },
+   "map/scene/1f/evening/eye-270": {
+    "mean_de": 1.921,
+    "p95_de": 5.623,
+    "worst_tile": 0.2981
+   },
+   "map/scene/1f/evening/eye-90": {
+    "mean_de": 2.403,
+    "p95_de": 9.127,
+    "worst_tile": 0.2029
+   },
+   "map/scene/1f/evening/studio": {
+    "mean_de": 3.491,
+    "p95_de": 10.884,
+    "worst_tile": 0.1615
+   },
+   "map/scene/1f/night/eye-0": {
+    "mean_de": 3.067,
+    "p95_de": 8.19,
+    "worst_tile": 0.2135
+   },
+   "map/scene/1f/night/eye-180": {
+    "mean_de": 1.131,
+    "p95_de": 3.115,
+    "worst_tile": 0.1058
+   },
+   "map/scene/1f/night/eye-270": {
+    "mean_de": 1.946,
+    "p95_de": 5.592,
+    "worst_tile": 0.2981
+   },
+   "map/scene/1f/night/eye-90": {
+    "mean_de": 2.051,
+    "p95_de": 7.164,
+    "worst_tile": 0.2076
+   },
+   "map/scene/1f/night/studio": {
+    "mean_de": 2.98,
+    "p95_de": 8.117,
+    "worst_tile": 0.1615
+   },
+   "map/scene/ground/day/eye-0": {
+    "mean_de": 5.066,
+    "p95_de": 12.423,
+    "worst_tile": 0.6874
+   },
+   "map/scene/ground/day/eye-180": {
+    "mean_de": 3.136,
+    "p95_de": 8.752,
+    "worst_tile": 0.0808
+   },
+   "map/scene/ground/day/eye-270": {
+    "mean_de": 4.585,
+    "p95_de": 14.341,
+    "worst_tile": 0.2056
+   },
+   "map/scene/ground/day/eye-90": {
+    "mean_de": 5.916,
+    "p95_de": 23.859,
+    "worst_tile": 1.1918
+   },
+   "map/scene/ground/day/studio": {
+    "mean_de": 5.075,
+    "p95_de": 11.98,
+    "worst_tile": 0.2788
+   },
+   "map/scene/ground/evening/eye-0": {
+    "mean_de": 4.314,
+    "p95_de": 11.25,
+    "worst_tile": 0.4864
+   },
+   "map/scene/ground/evening/eye-180": {
+    "mean_de": 3.062,
+    "p95_de": 8.437,
+    "worst_tile": 0.0808
+   },
+   "map/scene/ground/evening/eye-270": {
+    "mean_de": 6.342,
+    "p95_de": 17.918,
+    "worst_tile": 0.3513
+   },
+   "map/scene/ground/evening/eye-90": {
+    "mean_de": 4.8,
+    "p95_de": 15.86,
+    "worst_tile": 1.0507
+   },
+   "map/scene/ground/evening/studio": {
+    "mean_de": 5.889,
+    "p95_de": 13.821,
+    "worst_tile": 0.4212
+   },
+   "map/scene/ground/night/eye-0": {
+    "mean_de": 3.93,
+    "p95_de": 9.809,
+    "worst_tile": 0.94
+   },
+   "map/scene/ground/night/eye-180": {
+    "mean_de": 3.087,
+    "p95_de": 8.288,
+    "worst_tile": 0.0808
+   },
+   "map/scene/ground/night/eye-270": {
+    "mean_de": 4.035,
+    "p95_de": 12.699,
+    "worst_tile": 0.2131
+   },
+   "map/scene/ground/night/eye-90": {
+    "mean_de": 5.238,
+    "p95_de": 13.203,
+    "worst_tile": 1.1895
+   },
+   "map/scene/ground/night/studio": {
+    "mean_de": 4.158,
+    "p95_de": 8.624,
+    "worst_tile": 0.1945
+   },
+   "map/scene/park/day/eye-0": {
+    "mean_de": 4.936,
+    "p95_de": 17.286,
+    "worst_tile": 0.83
+   },
+   "map/scene/park/day/eye-180": {
+    "mean_de": 4.48,
+    "p95_de": 17.423,
+    "worst_tile": 1.0137
+   },
+   "map/scene/park/day/eye-270": {
+    "mean_de": 4.606,
+    "p95_de": 22.247,
+    "worst_tile": 0.3226
+   },
+   "map/scene/park/day/eye-90": {
+    "mean_de": 4.339,
+    "p95_de": 17.795,
+    "worst_tile": 0.4024
+   },
+   "map/scene/park/day/studio": {
+    "mean_de": 6.04,
+    "p95_de": 14.0,
+    "worst_tile": 1.058
+   }
+  },
+  "pregrade": {
+   "map/scene/1f/day/eye-0": {
+    "mean_de": 2.26,
+    "p95_de": 6.291,
+    "worst_tile": 0.1868
+   },
+   "map/scene/1f/day/eye-180": {
+    "mean_de": 0.725,
+    "p95_de": 1.985,
+    "worst_tile": 0.0705
+   },
+   "map/scene/1f/day/eye-270": {
+    "mean_de": 1.389,
+    "p95_de": 4.076,
+    "worst_tile": 0.1014
+   },
+   "map/scene/1f/day/eye-90": {
+    "mean_de": 1.342,
+    "p95_de": 4.314,
+    "worst_tile": 0.1317
+   },
+   "map/scene/1f/day/studio": {
+    "mean_de": 2.109,
+    "p95_de": 5.771,
+    "worst_tile": 0.1698
+   },
+   "map/scene/1f/evening/eye-0": {
+    "mean_de": 2.108,
+    "p95_de": 6.937,
+    "worst_tile": 0.1246
+   },
+   "map/scene/1f/evening/eye-180": {
+    "mean_de": 0.725,
+    "p95_de": 1.985,
+    "worst_tile": 0.0705
+   },
+   "map/scene/1f/evening/eye-270": {
+    "mean_de": 1.253,
+    "p95_de": 3.089,
+    "worst_tile": 0.2078
+   },
+   "map/scene/1f/evening/eye-90": {
+    "mean_de": 1.648,
+    "p95_de": 6.309,
+    "worst_tile": 0.1131
+   },
+   "map/scene/1f/evening/studio": {
+    "mean_de": 2.288,
+    "p95_de": 6.893,
+    "worst_tile": 0.0843
+   },
+   "map/scene/1f/night/eye-0": {
+    "mean_de": 2.047,
+    "p95_de": 5.766,
+    "worst_tile": 0.1246
+   },
+   "map/scene/1f/night/eye-180": {
+    "mean_de": 0.725,
+    "p95_de": 1.985,
+    "worst_tile": 0.0705
+   },
+   "map/scene/1f/night/eye-270": {
+    "mean_de": 1.261,
+    "p95_de": 3.084,
+    "worst_tile": 0.2077
+   },
+   "map/scene/1f/night/eye-90": {
+    "mean_de": 1.347,
+    "p95_de": 4.267,
+    "worst_tile": 0.1321
+   },
+   "map/scene/1f/night/studio": {
+    "mean_de": 1.957,
+    "p95_de": 5.065,
+    "worst_tile": 0.0843
+   },
+   "map/scene/ground/day/eye-0": {
+    "mean_de": 4.155,
+    "p95_de": 9.451,
+    "worst_tile": 0.3094
+   },
+   "map/scene/ground/day/eye-180": {
+    "mean_de": 1.916,
+    "p95_de": 4.53,
+    "worst_tile": 0.0541
+   },
+   "map/scene/ground/day/eye-270": {
+    "mean_de": 3.002,
+    "p95_de": 9.35,
+    "worst_tile": 0.1481
+   },
+   "map/scene/ground/day/eye-90": {
+    "mean_de": 3.594,
+    "p95_de": 13.216,
+    "worst_tile": 0.6387
+   },
+   "map/scene/ground/day/studio": {
+    "mean_de": 4.175,
+    "p95_de": 9.071,
+    "worst_tile": 0.2276
+   },
+   "map/scene/ground/evening/eye-0": {
+    "mean_de": 3.386,
+    "p95_de": 8.571,
+    "worst_tile": 0.2109
+   },
+   "map/scene/ground/evening/eye-180": {
+    "mean_de": 1.87,
+    "p95_de": 4.254,
+    "worst_tile": 0.0541
+   },
+   "map/scene/ground/evening/eye-270": {
+    "mean_de": 4.209,
+    "p95_de": 12.933,
+    "worst_tile": 0.2264
+   },
+   "map/scene/ground/evening/eye-90": {
+    "mean_de": 3.031,
+    "p95_de": 10.148,
+    "worst_tile": 0.6059
+   },
+   "map/scene/ground/evening/studio": {
+    "mean_de": 4.654,
+    "p95_de": 9.342,
+    "worst_tile": 0.2359
+   },
+   "map/scene/ground/night/eye-0": {
+    "mean_de": 2.755,
+    "p95_de": 5.551,
+    "worst_tile": 0.3469
+   },
+   "map/scene/ground/night/eye-180": {
+    "mean_de": 1.908,
+    "p95_de": 4.194,
+    "worst_tile": 0.0544
+   },
+   "map/scene/ground/night/eye-270": {
+    "mean_de": 2.445,
+    "p95_de": 8.083,
+    "worst_tile": 0.0969
+   },
+   "map/scene/ground/night/eye-90": {
+    "mean_de": 2.749,
+    "p95_de": 7.565,
+    "worst_tile": 0.6377
+   },
+   "map/scene/ground/night/studio": {
+    "mean_de": 2.95,
+    "p95_de": 5.354,
+    "worst_tile": 0.1026
+   },
+   "map/scene/park/day/eye-0": {
+    "mean_de": 3.495,
+    "p95_de": 8.513,
+    "worst_tile": 0.3545
+   },
+   "map/scene/park/day/eye-180": {
+    "mean_de": 3.034,
+    "p95_de": 8.405,
+    "worst_tile": 0.3228
+   },
+   "map/scene/park/day/eye-270": {
+    "mean_de": 2.774,
+    "p95_de": 8.64,
+    "worst_tile": 0.2983
+   },
+   "map/scene/park/day/eye-90": {
+    "mean_de": 3.309,
+    "p95_de": 10.497,
+    "worst_tile": 0.2282
+   },
+   "map/scene/park/day/studio": {
+    "mean_de": 4.618,
+    "p95_de": 8.329,
+    "worst_tile": 0.378
+   }
+  }
+ }
+}

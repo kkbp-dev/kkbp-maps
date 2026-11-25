@@ -4,13 +4,19 @@ Reference Capture, and writes a side-by-side report.
     python3 tools/look.py                    # render on min, compare, report
     python3 tools/look.py --blender latest
     python3 tools/look.py --no-render        # compare the renders already there
+    python3 tools/look.py --update-snapshot  # record this Blender build's numbers in the look snapshot
 
 Needs numpy and Pillow (KKBP's dev venv): ../kkbp/importer/.venv/bin/python -I tools/look.py
 It builds the Golden Maps' Map files through the Camera Profile the captures were taken with
 (tests/look/KK.json, "camera"; Studio's for now), renders the Capture Views (tests/look/views/KK.json)
 and compares them with the captures tools/capture.py took (captures/KK/), within the tolerances in
-tests/look/KK.json. Renders and the report go to tests/.work/look/ (game content, ADR 0007). Each Map
-file renders in its own `blender -b` under the memory watchdog. Exits 1 if any view is out of tolerance.
+tests/look/KK.json: one before the Grade and one after it, and a view must pass both. Renders and the
+report go to tests/.work/look/ (game content, ADR 0007). Each Map file renders in its own `blender -b`
+under the memory watchdog.
+
+The numbers are then compared with the look snapshot, tests/snapshots/look/<Game>.json (numbers only), per
+Blender build: a view worse than its recorded numbers by more than the look file's "regression" margins is
+a regression even if it passes. Exits 1 if any view is out of tolerance or regressed.
 """
 
 from __future__ import annotations
@@ -35,10 +41,7 @@ from memory_watch import Limits  # noqa: E402
 
 WORK = REPO / "tests" / ".work" / "look"
 BUILD_BUNDLES = BUILD_WORK / "bundles"
-
-
-def tolerance(look: dict) -> lc.Tolerance:
-    return lc.Tolerance(**look.get("tolerance", {}))
+SNAPSHOTS = REPO / "tests" / "snapshots" / "look"
 
 
 def build_and_render(name: str, game: str, look: dict, limits: Limits, switches: list[str], root: Path,
@@ -102,7 +105,7 @@ def _heat(r: lc.Result) -> np.ndarray:
 def compare_all(root: Path, game: str, look: dict, pregrade: bool = False) -> list[dict]:
     """Each Capture View's render against its capture; with `pregrade`, both before the Grade."""
     views = json.loads((REPO / "tests" / "look" / "views" / f"{game}.json").read_text())["views"]
-    t = tolerance(look)
+    t = lc.tolerances(look)["pregrade" if pregrade else "graded"]
     rows = []
     renders = root / "renders"
     for v in views:
@@ -157,8 +160,12 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--tag", default="", help="a name for an experiment's folder, such as one on edited bundle copies")
     ap.add_argument("--look", action="append", default=[], metavar="NAME=VALUE",
                     help="a look switch for the build (extension/kkbp_maps/builder/look.py)")
+    ap.add_argument("--update-snapshot", action="store_true",
+                    help="record this Blender build's numbers in the look snapshot (review the diff)")
     ap.add_argument("--max-rss-gb", type=float, default=8.0)
     args = ap.parse_args(argv)
+    if args.update_snapshot and (args.look or args.tag or args.keep_bundles):
+        ap.error("--update-snapshot records the default build only, without --look, --tag or --keep-bundles")
     look = json.loads((REPO / "tests" / "look" / f"{args.game}.json").read_text())
     root = WORK / (args.blender + "".join(f"+{sw}" for sw in sorted(args.look)) + (f"+{args.tag}" if args.tag else ""))
     if not args.no_render and not build_and_render(args.blender, args.game, look,
@@ -166,22 +173,54 @@ def main(argv: list[str]) -> int:
                                                           min_swap_free_gb=6.0), args.look, root,
                                                    args.keep_bundles):
         return 1
-    pre = compare_all(root, args.game, look, pregrade=True)
-    pre_path = report(pre, root, args.game, "report-pregrade")
-    for r in pre:
-        print(f"  pre-Grade {r['view']}: {r.get('missing') and 'no ' + r['missing'] or r['result'].summary()}")
-    print(f"look: before the Grade, {sum(1 for r in pre if 'result' in r and r['result'].passed)} of {len(pre)} "
-          f"views within tolerance; report {pre_path}")
-    rows = compare_all(root, args.game, look)
-    path = report(rows, root, args.game)
-    summary = {r["view"]: r["result"].summary() for r in rows if "result" in r}
-    summary.update({"pre-Grade " + r["view"]: r["result"].summary() for r in pre if "result" in r})
+    rows = {}
+    for kind in lc.PASSES:
+        rows[kind] = compare_all(root, args.game, look, pregrade=kind == "pregrade")
+        path = report(rows[kind], root, args.game, "report-pregrade" if kind == "pregrade" else "report")
+        within = sum(1 for r in rows[kind] if "result" in r and r["result"].passed)
+        print(f"look: {kind}, {within} of {len(rows[kind])} views within tolerance; report {path}")
+    views = [r["view"] for r in rows["graded"]]
+    print(f"  {'view':34} {'before the Grade':>26}   {'after the Grade':>26}")
+    for i, view in enumerate(views):
+        cells = []
+        for kind in lc.PASSES:
+            r = rows[kind][i]
+            if "missing" in r:
+                cells.append(f"{'no ' + r['missing']:>26}")
+            else:
+                m = r["result"].summary()
+                cells.append(f"{m['mean_de']:5.2f} {m['p95_de']:5.1f} {m['worst_tile']:5.0%} "
+                             f"{'pass' if m['passed'] else 'FAIL':>8}")
+        print(f"  {view:34} {cells[0]}   {cells[1]}")
+    summary = {kind: {r["view"]: {k: v for k, v in r["result"].summary().items() if k != "passed"}
+                      for r in rows[kind] if "result" in r} for kind in lc.PASSES}
     (root / "summary.json").write_text(json.dumps(summary, indent=1))
-    failed = [r for r in rows if "missing" in r or not r["result"].passed]
-    for r in rows:
-        print(f"  {r['view']}: {r.get('missing') and 'no ' + r['missing'] or r['result'].summary()}")
-    print(f"look: {len(rows) - len(failed)} of {len(rows)} views within tolerance; report {path}")
-    return 1 if failed else 0
+    failed = [v for i, v in enumerate(views)
+              if any("missing" in rows[k][i] or not rows[k][i]["result"].passed for k in lc.PASSES)]
+    print(f"look: {len(views) - len(failed)} of {len(views)} views pass both")
+    return check_snapshot(args.game, args.blender, summary, look, args.update_snapshot) or (1 if failed else 0)
+
+
+def check_snapshot(game: str, build: str, summary: dict, look: dict, update: bool) -> int:
+    """Compares this build's numbers with the look snapshot, or records them."""
+    path = SNAPSHOTS / f"{game}.json"
+    snapshot = json.loads(path.read_text()) if path.exists() else {}
+    if update:
+        snapshot[build] = summary
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(snapshot, indent=1, sort_keys=True) + "\n")
+        print(f"look: recorded {build}'s numbers in {path.relative_to(REPO)}")
+        return 0
+    if build not in snapshot:
+        print(f"look: no snapshot for {build} yet; record one with --update-snapshot")
+        return 0
+    margin = look.get("regression", {})
+    worse = [f"{kind}, {line}" for kind in lc.PASSES
+             for line in lc.regressions(snapshot[build].get(kind, {}), summary.get(kind, {}), margin)]
+    for line in worse:
+        print(f"  regressed: {line}")
+    print(f"look: {len(worse)} regressions from the snapshot" if worse else "look: no regressions from the snapshot")
+    return 1 if worse else 0
 
 
 if __name__ == "__main__":

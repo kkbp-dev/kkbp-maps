@@ -9,6 +9,12 @@ from tests/look/<Game>.json:
   the result is the largest relative difference, |render − capture| / max(capture, floor). This catches
   a region that is too bright or dark overall, which ΔE spreads thin.
 
+Each view is judged twice, with a tolerance for each pass (`PASSES`): before the Grade, which measures the
+Builder's lighting, and after it, the finished look. The Grade is steep in the darks, so the graded
+tolerance is looser. A view is within tolerance when it passes both. Apart from passing, `regressions`
+compares the numbers with a recorded look snapshot, so a change that makes a view worse is caught even
+while it still passes.
+
 numpy only, so it is host-tested on synthetic images.
 """
 
@@ -105,6 +111,35 @@ class Result:
     def summary(self) -> dict:
         return {"mean_de": round(self.mean_de, 3), "p95_de": round(self.p95_de, 3),
                 "worst_tile": round(self.worst_tile, 4), "passed": self.passed}
+
+
+PASSES = ("pregrade", "graded")
+MEASURES = ("mean_de", "p95_de", "worst_tile")
+
+
+def tolerances(look: dict) -> dict[str, Tolerance]:
+    """The tolerance of each pass, from a look file's "tolerance"."""
+    given = look.get("tolerance", {})
+    missing = [p for p in PASSES if p not in given]
+    if missing:
+        raise ValueError(f"the look file gives no tolerance for {missing}")
+    return {p: Tolerance(**given[p]) for p in PASSES}
+
+
+def regressions(before: dict, now: dict, margin: dict) -> list[str]:
+    """Where `now` is worse than the snapshot `before` by more than `margin`, per view and measure.
+    Both map a view's name to its `Result.summary()`. A view in the snapshot but not measured now is a
+    regression; a new view is not."""
+    out = []
+    for view, old in sorted(before.items()):
+        new = now.get(view)
+        if new is None:
+            out.append(f"{view}: not measured")
+            continue
+        for m in MEASURES:
+            if new[m] > old[m] + margin.get(m, 0.0):
+                out.append(f"{view}: {m} {old[m]} → {new[m]}")
+    return out
 
 
 def luminance(rgb8: np.ndarray) -> np.ndarray:

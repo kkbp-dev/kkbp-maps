@@ -197,6 +197,15 @@ Points that bore on decisions, settled with the user after the spike:
 
 Measured against Reference Captures taken in CharaStudio (`tools/capture.py`, `tools/look.py`), as the mean CIEDE2000 difference over 35 Capture Views of the three Golden Maps.
 
+**The tolerances** (`tests/look/KK.json`). Each view is judged twice and must pass both:
+
+| Pass | mean ΔE | p95 ΔE | worst tile | What it measures |
+|---|---|---|---|---|
+| Before the Grade | 3 | 10 | 25 % | The Builder's lighting: Blender with every Grade bypassed, against the capture's frame before AmplifyColor |
+| After the Grade | 5 | 15 | 40 % | The finished look, looser because `Lut_Amount` is steep in the darks and magnifies any lighting error there |
+
+Tiles are measured on an 8 × 8 grid, against a floor of 0.05 linear luminance. They were not fitted to what passes: at the time they were set, 1F passed every view, ground 5 of 15 (before the Grade) and park none, and each failing view points at a known error (ground's window glass, park's road). Phase 5 is done when every view passes both. Apart from passing, `tools/look.py` compares each view's numbers with the look snapshot (`tests/snapshots/look/KK.json`, per Blender build), so a change that makes a passing view worse is caught too; `--update-snapshot` records them after an intended change.
+
 - **What Studio does with `SunLightInfo`.** It shows the Map's sun, sky domes and visibility, but replaces the rest with the Studio scene's own settings: its fog (`GlobalFog`, a post effect, off by default), its sun shafts (off by default) and its filter, `Lut_Amount` unless the user picks another, at every Time of Day. Applying `Lut_Amount` to the captured frame before AmplifyColor gives the captured frame to ΔE 0.7. Studio's camera has no tonemapper, exposure 1 and no dithering. These are its Camera Profile in `builder/games.py`.
 - **The game camera's fog is a post effect.** KK's cameras carry `GlobalFog` (Standard Assets), which applies the RenderSettings fog to the depth buffer after the opaque pass and leaves the sky out. ADR 0021's fog in the material is checked only once the story game is captured.
 - **1F's ambient is its Flat colour,** not the stale probe: the probe makes 1F worse (+0.2).

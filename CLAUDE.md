@@ -44,6 +44,8 @@ Status: Phases 1 and 2 of [docs/design/roadmap.md](docs/design/roadmap.md) are d
 | Check Map Bundles, deep (any Python 3.11 or later) | `python3 tools/check_bundle.py <bundle>...` |
 | Build copies of the Golden Maps on `min` then `latest`, summarize the files and compare the build snapshot, in the background (about 30 s of building per Blender build, plus a summary per file) | `python3 tools/build_golden.py` |
 | Record the build snapshot after an intended change (review the diff) | `python3 tools/build_golden.py --update-snapshot` |
+| The look check: build the Golden Maps, render the Capture Views, compare with the Reference Captures (both passes) and the look snapshot, in the background | `../kkbp/importer/.venv/bin/python -I tools/look.py [--blender latest]` |
+| Record the look snapshot after an intended change (review the diff) | `../kkbp/importer/.venv/bin/python -I tools/look.py --no-render --update-snapshot` |
 | Build a Map Library from Map Bundles | `<blender> -b --factory-startup --python tools/blender_build.py -- --library "<out>/KK Maps" --bundles <bundle>...` |
 
 The tests need `pytest` and `jsonschema`, and the Extractor UnityPy, numpy and Pillow, all in KKBP's dev venv; `bundle/` itself needs only the standard library. `golden.py` extracts each Map in a process it watches, and stops it before memory runs short (Linux only). A Golden Map takes 15 to 40 s and under 1 GB. `build_golden.py` runs each build step in its own `blender -b` process under the same watchdog (`tools/memory_watch.py`), one Blender build at a time, with its own profile and `extension/` on the path, so nothing is installed into Blender. Its work folder, `tests/.work/`, is under home because the snap can't see `/tmp`.

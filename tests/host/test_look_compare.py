@@ -46,3 +46,26 @@ def test_small_noise_passes():
 def test_sizes_must_match():
     with pytest.raises(ValueError):
         lc.compare(np.zeros((4, 4, 3)), np.zeros((4, 5, 3)))
+
+
+def test_each_pass_has_its_own_tolerance():
+    look = {"tolerance": {"pregrade": {"mean_de": 3.0, "tile": 0.25}, "graded": {"mean_de": 5.0, "floor": 0.05}}}
+    t = lc.tolerances(look)
+    assert t["pregrade"].mean_de == 3.0 and t["pregrade"].tile == 0.25
+    assert t["graded"].mean_de == 5.0 and t["graded"].floor == 0.05
+
+
+def test_a_look_file_without_both_passes_is_refused():
+    with pytest.raises(ValueError, match="graded"):
+        lc.tolerances({"tolerance": {"pregrade": {}}})
+
+
+def test_a_view_worse_than_the_snapshot_by_more_than_the_margin_regresses():
+    before = {"a": {"mean_de": 2.0, "p95_de": 6.0, "worst_tile": 0.10},
+              "b": {"mean_de": 2.0, "p95_de": 6.0, "worst_tile": 0.10},
+              "gone": {"mean_de": 1.0, "p95_de": 2.0, "worst_tile": 0.0}}
+    now = {"a": {"mean_de": 2.05, "p95_de": 5.0, "worst_tile": 0.11},   # within the margins, or better
+           "b": {"mean_de": 2.3, "p95_de": 6.0, "worst_tile": 0.10},
+           "new": {"mean_de": 9.0, "p95_de": 20.0, "worst_tile": 1.0}}
+    margin = {"mean_de": 0.1, "p95_de": 0.3, "worst_tile": 0.02}
+    assert lc.regressions(before, now, margin) == ["b: mean_de 2.0 → 2.3", "gone: not measured"]

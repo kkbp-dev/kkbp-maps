@@ -162,7 +162,7 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
                 obj["kkbp_maps_asset_name"] = asset.name
             if obj.type == "MESH":
                 a = lm.get(i)
-                probe = _probe_of(v, world[i], obj.data)
+                probe = _probe_of(v, world[i], obj.data) if n["renderer"]["reflection_probes"] != "off" else 0
                 for o in made:  # every pass is lit as the renderer is
                     o[mats.PROP_TILE] = mats.udim(a["lightmap"]) if a else 0
                     o[mats.PROP_SCALE_OFFSET] = list(a["scale_offset"]) if a else [1.0, 1.0, 0.0, 0.0]
@@ -198,8 +198,9 @@ def _shown_nodes(b, v) -> set[int]:
 
 
 def _probe_of(v, world: Matrix, mesh) -> int:
-    """The reflection probe Unity would pick for a renderer: the first whose box holds its bounds' centre
-    (1-based), or 0 for the Map's own reflection."""
+    """The reflection probe Unity would pick for a renderer that takes probes: the first whose box holds its
+    bounds' centre (1-based), or 0 for the Map's own reflection. A renderer whose reflection_probes is off
+    always takes 0 (ADR 0026)."""
     if not v["reflection"]["probes"] or not len(mesh.vertices):
         return 0
     import numpy as np

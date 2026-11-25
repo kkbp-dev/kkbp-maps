@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.4/scene.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.5/scene.schema.json",
   "title": "scene.json",
   "description": "The Map's nodes, Helpers left out, in walk order: a node's id is its position in the list, and its parent comes before it.",
   "type": "object",
@@ -65,9 +65,13 @@
         "realtime_gi": {
           "description": "Whether the game adds real-time GI to the renderer (Enlighten, m_LightmapIndexDynamic): light bounced at run time that no file holds, which the Builder approximates (ADR 0025).",
           "type": "boolean"
+        },
+        "reflection_probes": {
+          "description": "How the renderer takes reflection probes, Unity's ReflectionProbeUsage: off (the Map's own reflection only), blend_probes, blend_probes_and_skybox, or simple (ADR 0026).",
+          "enum": ["off", "blend_probes", "blend_probes_and_skybox", "simple"]
         }
       },
-      "required": ["mesh", "draws", "shadows", "receive_shadows", "realtime_gi"],
+      "required": ["mesh", "draws", "shadows", "receive_shadows", "realtime_gi", "reflection_probes"],
       "additionalProperties": false
     }
   }

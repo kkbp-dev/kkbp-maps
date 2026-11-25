@@ -49,7 +49,7 @@ def build_scene(*, same_light=False):
     wall = s.object("mo_wall00", room, position=(0.0, 0.0, 5.0))
     wall_r = s.mesh_renderer(wall, s.mesh("wall", submeshes=2), [mat_plain], lightmap=0, scale_offset=(0.5, 0.5, 0.0, 0.0))
     floor = s.object("o_floor00", room)
-    floor_r = s.mesh_renderer(floor, s.mesh("floor", uv1=False), [mat_plain], lightmap=65535, dynamic=0)
+    floor_r = s.mesh_renderer(floor, s.mesh("floor", uv1=False), [mat_plain], lightmap=65535, dynamic=0, probes=0)
     vase = s.object("p_vase00", wall, position=(0.5, 1.0, 0.0))
     s.mesh_renderer(vase, s.mesh("vase", offset=(0.0, 1.0, 0.0)), [mat_wood])
     loose = s.object("hana_01", room)
@@ -174,6 +174,12 @@ def test_a_shadows_only_caster_is_the_map_variants_own(bundle):
 def test_a_renderer_with_real_time_gi_is_marked(bundle):
     rgi = [n["name"] for n in load(bundle, "scene")["nodes"] if n.get("renderer", {}).get("realtime_gi")]
     assert len(rgi) == 1
+
+
+def test_a_renderer_keeps_its_reflection_probe_usage(bundle):
+    modes = {n["name"]: n["renderer"]["reflection_probes"] for n in load(bundle, "scene")["nodes"] if "renderer" in n}
+    assert modes["o_floor00"] == "off"
+    assert {m for name, m in modes.items() if name != "o_floor00"} == {"blend_probes"}
 
 
 def test_what_isnt_carried_is_counted(bundle):

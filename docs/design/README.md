@@ -75,3 +75,4 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0023 Unprefixed copies of a Prop are its Placements, and unbaked reflection probes are left out](../adr/0023-unprefixed-copies-of-a-prop-are-its-placements.md)
 - [0024 Shadow Casters are carried, and renderers keep Unity's shadow mode](../adr/0024-shadow-casters-are-carried.md)
 - [0025 Real-time GI is approximated from the ambient light](../adr/0025-real-time-gi-is-approximated-from-the-ambient.md)
+- [0026 A renderer can refuse reflection probes](../adr/0026-a-renderer-can-refuse-reflection-probes.md)

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.4/map.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.5/map.schema.json",
   "title": "map.json",
   "description": "The Map's metadata. Names are the game's own; the Builder translates them with the Name Tables.",
   "type": "object",

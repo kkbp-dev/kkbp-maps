@@ -77,12 +77,12 @@ class FakeScene:
         return self.component(go, "MonoBehaviour", {"m_Enabled": 1, "m_Script": ptr(sid), **tree})
 
     def mesh_renderer(self, go, mesh_ref, materials, *, enabled=True, cast=1, lightmap=0xFFFF,
-                      scale_offset=(1.0, 1.0, 0.0, 0.0), dynamic=0xFFFF):
+                      scale_offset=(1.0, 1.0, 0.0, 0.0), dynamic=0xFFFF, probes=1):
         """`mesh_ref` is a mesh id, or builtin(pid) for a Unity built-in mesh."""
         self.component(go, "MeshFilter", {"m_Mesh": mesh_ref if isinstance(mesh_ref, dict) else ptr(mesh_ref)})
         return self.component(go, "MeshRenderer", {
             "m_Enabled": enabled, "m_CastShadows": cast, "m_ReceiveShadows": 1,
-            "m_LightmapIndex": lightmap, "m_LightmapIndexDynamic": dynamic,
+            "m_LightmapIndex": lightmap, "m_LightmapIndexDynamic": dynamic, "m_ReflectionProbeUsage": probes,
             "m_LightmapTilingOffset": dict(zip("xyzw", scale_offset)),
             "m_Materials": [ptr(m) for m in materials], "m_StaticBatchInfo": {"firstSubMesh": 0, "subMeshCount": 0}})
 

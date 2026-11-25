@@ -14,11 +14,11 @@ The contract between the Extractor and the Builder: the JSON Schemas in `schema/
 | `variants.json` | `variants.schema.json` |
 | `assets.json` | `assets.schema.json` |
 
-Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.4/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
+Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.5/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
 
 ## Schema Version
 
-`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.4`.
+`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.5`.
 
 ## Conventions
 
@@ -122,6 +122,7 @@ Every other slot is known by its Raw Property only. Illusion's own shaders (KK's
 - No two Map Variants are equal: two whose records are the same in everything but `id` and `times_of_day` must be one (ADR 0009). Equal means equal canonical JSON, compared exactly.
 - `hidden` nodes exist. `lightmap_set` names a set that exists.
 - A Sky's `geometry` names sky nodes that the Map Variant doesn't hide. Every sky node with a renderer is under the `geometry` of at least one Map Variant.
+- A renderer's `reflection_probes` is Unity's reflection probe usage. A renderer that is `off` takes only its Map Variant's own reflection (its `texture`, or none), never a probe (ADR 0026).
 - A Sky's cubemap, a reflection's texture and every probe's texture are EXRs. A reflection's texture is null only where the game holds no cubemap for its source. A Grade's `lut` is a `linear` PNG of 1024 × 32.
 
 ### Candidates and Placements

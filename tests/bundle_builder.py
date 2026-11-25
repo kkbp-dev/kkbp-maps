@@ -144,7 +144,7 @@ class MapBundleBuilder:
         if mesh:
             node["renderer"] = {"mesh": mesh, "draws": [{"submesh": s, "material": m} for s, m in draws],
                                 "shadows": "on", "receive_shadows": True,
-                                "realtime_gi": False}
+                                "realtime_gi": False, "reflection_probes": "blend_probes"}
         if sky:
             node["sky"] = True
         self.nodes.append(node)

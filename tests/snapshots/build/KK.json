@@ -1333,7 +1333,7 @@
    ],
    "collections": {
     "School 1F, Day": {
-     "in_probe": 278,
+     "in_probe": 277,
      "lightmapped": 68,
      "meshes": [
       "011e25f95a80de70870c493840d027c3",
@@ -1523,7 +1523,7 @@
      }
     },
     "School 1F, Evening": {
-     "in_probe": 278,
+     "in_probe": 277,
      "lightmapped": 68,
      "meshes": [
       "011e25f95a80de70870c493840d027c3",
@@ -1711,7 +1711,7 @@
      }
     },
     "School 1F, Night": {
-     "in_probe": 278,
+     "in_probe": 277,
      "lightmapped": 68,
      "meshes": [
       "011e25f95a80de70870c493840d027c3",
@@ -4641,7 +4641,7 @@
    ],
    "collections": {
     "Sports Ground, Day": {
-     "in_probe": 107,
+     "in_probe": 104,
      "lightmapped": 18,
      "meshes": [
       "00fe31105aeb1c94786c7057a3972296",
@@ -4771,7 +4771,7 @@
      }
     },
     "Sports Ground, Evening": {
-     "in_probe": 107,
+     "in_probe": 104,
      "lightmapped": 18,
      "meshes": [
       "00fe31105aeb1c94786c7057a3972296",
@@ -4899,7 +4899,7 @@
      }
     },
     "Sports Ground, Night": {
-     "in_probe": 107,
+     "in_probe": 104,
      "lightmapped": 18,
      "meshes": [
       "00fe31105aeb1c94786c7057a3972296",

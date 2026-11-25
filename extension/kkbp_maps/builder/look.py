@@ -14,8 +14,6 @@ SWITCHES: dict[str, tuple[object, str]] = {
     "reflection": (("on", "off"), "on"),
     # The share of ambient light added to a real-time GI renderer, instead of the Game's (ADR 0025).
     "realtime_gi_ambient": (float, ""),
-    # The direct light: Unity's BRDF for the sun (ADR 0028), or the Principled BSDF's as before.
-    "direct": (("unity", "principled"), "unity"),
 }
 
 # Settled by the look check (kk-spike.md, "Settled by the look check"): shadow culling as Unity's

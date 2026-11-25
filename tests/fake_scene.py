@@ -157,6 +157,9 @@ class FakeStore(Store):
             return None
         return (FILE, pptr["m_PathID"]) if pptr["m_FileID"] == 0 else ("unity default resources", pptr["m_PathID"])
 
+    def is_builtin(self, ref):
+        return ref is not None and ref[0] == "unity default resources"
+
     def script(self, ref):
         s = self.resolve(ref, self.tree(ref).get("m_Script"))
         return self.tree(s)["m_ClassName"] if s else None

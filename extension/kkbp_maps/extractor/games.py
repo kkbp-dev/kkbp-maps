@@ -49,6 +49,9 @@ class Game:
     normal_x_from_alpha: bool = True
     # The Shader name prefix of a Sky Dome's material, on a built-in mesh.
     sky_shader_prefix: str = "Skybox/"
+    # The player's own resource files under <data_folder>/Resources, which hold Unity's built-in
+    # meshes and shaders; a Map may point into them (ADR 0031).
+    builtin_resources: tuple[str, ...] = ("unity default resources", "unity_builtin_extra")
     # Lightmap RGBM decode: value = scale · a^exponent · srgb_to_linear(rgb) (kk-spike, section 3).
     rgbm: tuple[float, float] = (34.493242, 2.2)
 
@@ -90,6 +93,11 @@ class Install:
     @property
     def assets(self) -> Path:
         return self.root / self.game.asset_folder
+
+    def builtin_resources(self) -> tuple[Path, ...]:
+        """The player's built-in resource files that this install has."""
+        folder = self.root / self.game.data_folder / "Resources"
+        return tuple(folder / n for n in self.game.builtin_resources if (folder / n).is_file())
 
     def relative(self, path: Path) -> str:
         """A path in the install as a Manifest source names it: relative, with forward slashes."""

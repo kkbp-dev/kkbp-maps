@@ -56,7 +56,9 @@ def extract_map(install: Install, m: MapSource, out, options: Options = Options(
     partial.mkdir(parents=True)
     if store_factory is None:
         from .unity import UnityStore
-        store_factory = UnityStore
+
+        def store_factory(path):
+            return UnityStore(path, builtin=install.builtin_resources())
     store = store_factory(m.bundle)
     try:
         write_bundle(install, m, store, partial, options, sources)
@@ -201,7 +203,7 @@ def skipped(counts: dict[str, int]) -> list[dict]:
 # --- sources and freshness -------------------------------------------------------------------------
 
 def source_files(install: Install, m: MapSource) -> list[Path]:
-    files = [m.bundle] + sorted(m.list_files)
+    files = [m.bundle] + sorted(m.list_files) + list(install.builtin_resources())
     if m.thumbnail is not None:
         files.append(install.assets / m.thumbnail.bundle)
     return files

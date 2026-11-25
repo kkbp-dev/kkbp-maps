@@ -40,6 +40,8 @@ TIERS: dict[str, Tier] = {
     "Standard": _standard(),
     "Standard (Specular setup)": _standard(APPROXIMATED, "specular setup taken as metallic"),
     "Custom/StandardDouble": _standard(double_sided=True),
+    # Unity's built-in Lambert, read from the player's resources (ADR 0031): warehouse's Shadow Caster.
+    "Legacy Shaders/Diffuse": _standard(APPROXIMATED, "Lambert drawn as Standard"),
     # KK's only Game Shader Model candidate; its model waits for a Golden Map that uses it (D13).
     "Shader Forge/main_item": _standard(APPROXIMATED, "no Game Shader Model yet"),
     # KK draws its foliage with particle shaders on plain meshes: unlit, tinted, alpha blended.

@@ -9,7 +9,7 @@ What a survey of the HF Patched installs found (KK HF Patch v4.2, KKS v2.2, SVS 
 - Object names are ASCII, romanized Japanese, with Unity's ` (N)` duplicate suffixes. Prefixes: `p_` props, `mo_` and `o_` shell geometry, `n_` groups. Within a Scene Bundle, repeated objects share one Mesh (path id). Across Scene Bundles the same mesh has another path id but identical content, so Prop hashes come from mesh content.
 - Every Shader object carries a compiled D3D11 blob, so shaders can be disassembled as KKBP's `importer/tools/game_shaders/dump.py` does.
 - No crunched textures. Normal maps are DXT5 with the DXT5nm swizzle.
-- Helpers to leave out: inactive GameObjects, disabled renderers, renderers with no mesh, collider-only objects. Shadow-only casters (`m_CastShadows 3`) are carried as Shadow Casters (ADR 0024). Unity's built-in meshes are helpers except where a sky dome uses the built-in Sphere (KK). Layer names aren't in the bundles, only their numbers.
+- Helpers to leave out: inactive GameObjects, disabled renderers, renderers with no mesh, collider-only objects. Shadow-only casters (`m_CastShadows 3`) are carried as Shadow Casters (ADR 0024). Unity's built-in meshes are helpers except where a sky dome uses the built-in Sphere (KK). Unity's built-in objects are read from the player's `<Name>_Data/Resources/` files (ADR 0031): warehouse's Shadow Caster draws with `Legacy Shaders/Diffuse` from `unity_builtin_extra`. Layer names aren't in the bundles, only their numbers.
 - Map names are Japanese. SVS keeps its lists in MemoryPack binaries; KK and KKS keep them in Excel-style MonoBehaviours.
 
 ## KK

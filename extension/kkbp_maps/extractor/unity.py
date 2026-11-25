@@ -14,6 +14,8 @@ from typing import Iterator
 import numpy as np
 
 Ref = tuple[str, int]
+# The files Unity's built-in objects live in, by the name a reference ends in (ADR 0031).
+BUILTIN_NAMES = {"unity default resources", "unity_builtin_extra"}
 
 
 @dataclass
@@ -61,6 +63,7 @@ class Store:
     def resolve(self, owner: Ref, pptr: dict) -> Ref | None: ...
     def is_loaded(self, ref: Ref) -> bool: ...
     def script(self, ref: Ref) -> str | None: ...
+    def is_builtin(self, ref: Ref) -> bool: ...
     def mesh(self, ref: Ref) -> MeshData: ...
     def texture(self, ref: Ref) -> TextureData: ...
     def pixels(self, ref: Ref, face: int = 0) -> np.ndarray: ...
@@ -92,7 +95,10 @@ def unitypy():
 
 
 class UnityStore(Store):
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, builtin: tuple[Path, ...] = ()):
+        """A Scene Bundle and the bundles it names. `builtin` are the player's own resource files
+        (Game.builtin_resources, ADR 0031): their objects resolve and read like the bundle's, but
+        refs() never lists them, so nothing starts a walk from one."""
         UnityPy = unitypy()  # here, so the rest of the Extractor imports without it
 
         self.path = Path(path)
@@ -106,12 +112,23 @@ class UnityStore(Store):
         self._by_type: dict[str, list[Ref]] = {}
         for ref, obj in self._objects.items():
             self._by_type.setdefault(obj.type.name, []).append(ref)
+        self._builtin_names = {Path(p).name.lower() for p in builtin}
+        self._builtin_envs = []
+        for p in builtin:
+            env = UnityPy.load(str(p))
+            self._builtin_envs.append(env)
+            for sf in _serialized_files(env):
+                name = Path(p).name   # the name an external reference ends in
+                self._files[name.lower()] = sf
+                for pid, obj in sf.objects.items():
+                    self._objects[(name, pid)] = obj
         self._trees: dict[Ref, dict] = {}
 
     def close(self):
         self._trees.clear()
         self._objects.clear()
         self.env = None
+        self._builtin_envs = []
 
     def refs(self, type_name):
         return list(self._by_type.get(type_name, ()))
@@ -142,7 +159,13 @@ class UnityStore(Store):
         sf = self._objects[owner].assets_file
         external = sf.externals[fid - 1].path.replace("\\", "/").rsplit("/", 1)[-1]
         target = self._files.get(external.lower())
+        if target is not None and external.lower() in self._builtin_names:
+            return (external, pid)
         return (target.name if target is not None else external, pid)
+
+    def is_builtin(self, ref):
+        """Whether `ref` is in Unity's own resources rather than the game's bundles, loaded or not."""
+        return ref is not None and ref[0].lower() in BUILTIN_NAMES
 
     def script(self, ref):
         t = self.tree(ref)

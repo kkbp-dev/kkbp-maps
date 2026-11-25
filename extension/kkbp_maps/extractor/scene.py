@@ -249,7 +249,7 @@ def shader_name(store: Store, material: Ref | None) -> str | None:
 
 def is_sky_dome(graph: Graph, r: Renderer) -> bool:
     """A Sky Dome: a built-in mesh (from Unity's own resources, not the bundle) drawn with a skybox shader."""
-    if graph.store.is_loaded(r.mesh):
+    if not graph.store.is_builtin(r.mesh):
         return False
     names = [shader_name(graph.store, m) for m in r.materials if m is not None]
     return bool(names) and all(n and n.startswith(graph.game.sky_shader_prefix) for n in names)
@@ -303,8 +303,8 @@ def walk(graph: Graph, mesh_readable) -> Walk:
         if r is not None:
             if is_sky_dome(graph, r):
                 dome = True
-            elif not graph.store.is_loaded(r.mesh):
-                pass  # any other built-in mesh is a Helper
+            elif graph.store.is_builtin(r.mesh):
+                pass  # any other built-in mesh is a Helper (games.md)
             elif not mesh_readable(r.mesh):
                 census.add("unreadable_mesh")
             else:

@@ -80,3 +80,4 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0028 The story camera's height fog is drawn in the materials and the World](../adr/0028-the-story-cameras-height-fog-is-drawn-in-materials-and-the-world.md)
 - [0029 The wheels ship inside the extension, one zip per platform](../adr/0029-the-wheels-ship-inside-a-zip-per-platform.md)
 - [0030 The Schema Version stays 0.x through v0.1](../adr/0030-the-schema-version-stays-0x-through-v0-1.md)
+- [0031 Unity's built-in resources are read from the player's folder](../adr/0031-unitys-built-in-resources-are-read-from-the-player-folder.md)

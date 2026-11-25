@@ -1,5 +1,7 @@
 # Python dependencies download at first run
 
+*Superseded by ADR 0029: the wheels ship inside the extension, one zip per platform.*
+
 The extension ships as one zip for every platform. UnityPy and its native wheels (texture decoders, LZ4, Brotli, Pillow) are pinned, and the first run downloads them with Blender's own pip for the running Python and platform, as KKBP's Pillow installer does (`importer/kkbp/pillow.py` in KKBP). An offline wheel the user supplies is checked against the platform's tags before it is used.
 
 ## Considered Options

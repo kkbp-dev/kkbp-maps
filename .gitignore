@@ -8,9 +8,11 @@
 *.unity3d
 *.zipmod
 
-# The Extractor's cache and a Builder's output, wherever a developer points them.
-kkbp_maps_cache/
-kkbp_maps_library/
+# A Build's Bundle Folder and Map Libraries, wherever a developer points them.
+Map Bundles/
+KK Maps/
+KKS Maps/
+SVS Maps/
 
 # Python and tooling state.
 __pycache__/

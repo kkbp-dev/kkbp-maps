@@ -8,11 +8,12 @@ KKBP
   Copyright (c) 2026 KKBP developers. MIT License.
   The patterns kkbp-maps adapts: the export contract's style (JSON Schemas, closed sets, Manifest
   and Schema Version), Game Shader Models from the games' disassembled shaders, the library built
-  from code, Golden Samples made locally, the snapshot test harness, the per-platform wheel
-  installer, and the file-triggered request used by the developer capture plugin.
+  from code, Golden Samples made locally, the snapshot test harness, and the file-triggered request
+  used by the developer capture plugin.
 
 UnityPy
   https://github.com/K0lb3/UnityPy
-  MIT License. Downloaded at first run (ADR 0005); not bundled.
+  MIT License. Its wheel, and those of the packages it loads, ship inside each platform's
+  extension zip (ADR 0029).
 
 kkbp-maps ships no game content. Every Map Library is built by its user from their own game install.

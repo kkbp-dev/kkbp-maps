@@ -2,7 +2,7 @@
 
 KKBP's rule is that an additive change raises the Schema Version's minor and anything else its major, and that an importer accepts every bundle with its own major. kkbp-maps follows that rule, but not yet. Phases 3 to 5 will change the contract as the Extractor, the Builder and the look check meet real Maps, and many of those changes won't be additive.
 
-So the Schema Version starts at `0.1`, and while its major is 0, a Builder accepts only bundles with exactly its own version. Any change raises the minor. The first release (v0.1, Phase 6) sets it to `1.0`, and from then on KKBP's rule applies.
+So the Schema Version starts at `0.1`, and while its major is 0, a Builder accepts only bundles with exactly its own version. Any change raises the minor. The first release (v0.1, Phase 6) sets it to `1.0`, and from then on KKBP's rule applies. *Amended by ADR 0030: it stays `0.x` through v0.1, until the contract covers every Game.*
 
 ## Considered Options
 

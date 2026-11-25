@@ -118,6 +118,10 @@ _Avoid_: light setup, light preset
 The colour grade a Game applies at one Time of Day, applied inside materials.
 _Avoid_: LUT, colour correction, post
 
+**Bundle Folder**:
+The folder a build keeps its Map Bundles in between builds, beside the Map Library it builds, so the next build extracts only the Maps that changed.
+_Avoid_: cache, work folder
+
 **Name Tables**:
 The curated English names, word translations and category rules that give assets their names, catalogs and tags.
 _Avoid_: translations, dictionary
@@ -135,6 +139,10 @@ _Avoid_: importer, generator
 **Shader Tier**:
 How the Builder rebuilds a game shader: exactly, approximated, or not at all, in which case its renderers are left out. The Build Report lists the last two.
 _Avoid_: shader support level, fallback
+
+**Build**:
+One run that turns the chosen Maps of a Game install into a Map Library: each Map extracted into the Bundle Folder, then built. It can be cancelled and resumed.
+_Avoid_: job, export, import
 
 **Build Report**:
 What a build tells its user afterwards: what was built and skipped, and which names the Name Tables didn't know.

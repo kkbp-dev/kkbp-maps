@@ -38,9 +38,15 @@ def main(argv: list[str]) -> int:
         install = detect(args.game_folder)
     except (NotAGameFolder, UnsupportedGame) as e:
         return _result(args.result, {"error": str(e)}, 2)
-    if args.command == "list":
-        return _result(args.result, list_result(install), 0)
-    return _result(args.result, extract_result(install, args), 0)
+    try:
+        if args.command == "list":
+            return _result(args.result, list_result(install), 0)
+        return _result(args.result, extract_result(install, args), 0)
+    except Exception as e:   # the whole traceback goes to the log; its last line to the Build Report
+        import traceback
+
+        traceback.print_exc()
+        return _result(args.result, {"error": f"{type(e).__name__}: {e}"}, 1)
 
 
 def list_result(install) -> dict:

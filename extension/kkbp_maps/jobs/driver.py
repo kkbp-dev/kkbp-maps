@@ -231,7 +231,7 @@ class Driver:
             self.state.status = self.stopping() or "cancelled"
         elif code != 0:
             step.status = "failed"
-            step.reason = reason or outcome.get("error") or f"failed (exit code {code}; see {LOG_FILE})"
+            step.reason = reason or outcome.get("error") or f"exit code {code}; see {LOG_FILE}"
         else:
             step.status = "kept" if outcome.get("kept") or self._kept(step) else "done"
         self._say(f"{step.id}: {step.status}{f' ({step.reason})' if step.reason else ''} in {step.seconds:.0f} s, "
@@ -297,10 +297,11 @@ def list_maps(python: str, game_folder: str, site: list[str], result: Path, *, t
 
 # --- estimates --------------------------------------------------------------------------------------
 
-# Measured on the KK Golden Maps (1f, park, ground; 157 MB of Scene Bundles): extraction takes about
-# 0.5 s per MB of Scene Bundle, a Map file about 0.2 s per MB plus Blender's start, and the Map Bundle
-# and the Map Library each take about as much disk as the Scene Bundle.
-EXTRACT_S_PER_MB, BUILD_S_PER_MB, BLENDER_START_S, DISK_PER_BYTE = 0.5, 0.2, 5.0, 2.1
+# Measured on a Build of every KK Map (43 Maps, 1137 MB of Scene Bundles, 21 min on Blender 5.2.2):
+# extraction took about 0.6 s per MB of Scene Bundle, the Map files and the asset files with their
+# previews about 0.3 s per MB, plus about 5 s for Blender to start each step; the Bundle Folder and
+# the Map Library took 1.9 times the Scene Bundles' size.
+EXTRACT_S_PER_MB, BUILD_S_PER_MB, BLENDER_START_S, DISK_PER_BYTE = 0.6, 0.3, 5.0, 1.9
 
 
 def estimate(sizes: list[int]) -> tuple[int, float]:

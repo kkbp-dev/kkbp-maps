@@ -99,7 +99,7 @@ def test_a_map_file_that_fails_is_left_out_of_the_assets(tmp_path):
     req = request(tmp_path)
     state, fake = run(req, fail=["map:map/scene/park"])
     assert state.status == "done"
-    assert "failed (exit code 1" in state.not_built()["map/scene/park"]
+    assert state.not_built()["map/scene/park"] == "exit code 1; see build.log"
 
 
 def test_nothing_built_fails_the_build(tmp_path):
@@ -145,7 +145,7 @@ def test_this_process_is_alive_and_a_finished_one_isnt():
 def test_the_estimate_grows_with_the_maps():
     disk, seconds = driver.estimate([72 * 2**20, 31 * 2**20])
     assert disk == int(103 * 2**20 * driver.DISK_PER_BYTE)
-    assert 60 < seconds < 120
+    assert 90 < seconds < 120
     assert driver.estimate([]) == (0, 0.0)
 
 
@@ -160,3 +160,17 @@ def test_the_worker_lists_the_maps_on_this_python(tmp_path):
 def test_the_worker_names_a_folder_that_isnt_a_game(tmp_path):
     listed = driver.list_maps(sys.executable, str(tmp_path), [], tmp_path / "list.json")
     assert "isn't the folder of a KK, KKS or SVS install" in listed["error"]
+
+
+def test_an_extraction_error_reaches_the_report_in_words(tmp_path, monkeypatch):
+    from kkbp_maps.jobs import worker
+    from kkbp_maps.extractor import games
+
+    monkeypatch.setattr(games, "detect", lambda folder: object())
+    monkeypatch.setattr(worker, "extract_result", lambda install, args: (_ for _ in ()).throw(
+        RuntimeError("material Default-Diffuse's shader isn't in the bundle")))
+    result = tmp_path / "r.json"
+    code = worker.main(["--extension", str(tmp_path), "--result", str(result), "extract", "--game-folder", "g",
+                        "--out", "o", "--key", "k"])
+    assert code == 1
+    assert json.loads(result.read_text())["error"] == "RuntimeError: material Default-Diffuse's shader isn't in the bundle"

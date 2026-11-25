@@ -168,6 +168,7 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
                     o[mats.PROP_SCALE_OFFSET] = list(a["scale_offset"]) if a else [1.0, 1.0, 0.0, 0.0]
                     o[mats.PROP_UV] = a["uv"] if a else 1
                     o[mats.PROP_PROBE] = probe
+                    o[mats.PROP_REALTIME_GI] = int(n["renderer"]["realtime_gi"])
         for k, light_record in enumerate(v["lights"]):
             coll.objects.link(_light_object(plan.game, light_record, f"{vp.name} {light_record['type'].title()}"))
         w = build_world(b, v, vp, fb, grade)

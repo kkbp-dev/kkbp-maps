@@ -171,6 +171,11 @@ def test_a_shadows_only_caster_is_the_map_variants_own(bundle):
     assert kage not in roots
 
 
+def test_a_renderer_with_real_time_gi_is_marked(bundle):
+    rgi = [n["name"] for n in load(bundle, "scene")["nodes"] if n.get("renderer", {}).get("realtime_gi")]
+    assert len(rgi) == 1
+
+
 def test_what_isnt_carried_is_counted(bundle):
     assert load(bundle, "map")["skipped"] == [{"reason": "realtime_gi", "count": 1}, {"reason": "particles", "count": 1}]
 

@@ -349,7 +349,7 @@ def node_records(walk_: Walk, graph: Graph, mesh_id, draws_of) -> list[dict]:
         if n.renderer is not None:
             r = n.renderer
             rec["renderer"] = {"mesh": mesh_id(r.mesh), "draws": draws_of(n), "shadows": r.shadows,
-                               "receive_shadows": r.receive_shadows}
+                               "receive_shadows": r.receive_shadows, "realtime_gi": r.realtime_gi}
         if n.sky:
             rec["sky"] = True
         out.append(rec)

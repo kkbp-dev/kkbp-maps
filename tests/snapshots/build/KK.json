@@ -188,7 +188,7 @@
    },
    "groups": {
     ".KKM Grade Lut_TimeNight1": "28e5b21a87942cf5",
-    ".KKM Light Park": "9ffd315054c0bb03"
+    ".KKM Light Park": "87c5080842e8cb72"
    },
    "images": [
     {
@@ -1907,9 +1907,9 @@
     ".KKM Grade Lut_Amount": "5e2349814b900b4b",
     ".KKM Grade Lut_TimeNight1": "28e5b21a87942cf5",
     ".KKM Grade Lut_TimeSunset1": "638371d6b5b448ac",
-    ".KKM Light School 1F, Day": "d6956dab698af3b5",
-    ".KKM Light School 1F, Evening": "ef135ab9fbe2db8c",
-    ".KKM Light School 1F, Night": "e48aef164de63d95"
+    ".KKM Light School 1F, Day": "62b075f3e29afb53",
+    ".KKM Light School 1F, Evening": "832c98e2d4535dd1",
+    ".KKM Light School 1F, Night": "35a2084bd4397bd4"
    },
    "images": [
     {
@@ -5035,9 +5035,9 @@
     ".KKM Grade Lut_Amount": "5e2349814b900b4b",
     ".KKM Grade Lut_TimeNight1": "28e5b21a87942cf5",
     ".KKM Grade Lut_TimeSunset1": "638371d6b5b448ac",
-    ".KKM Light Sports Ground, Day": "c7947820f72e1102",
-    ".KKM Light Sports Ground, Evening": "805a3eb0f273e9f6",
-    ".KKM Light Sports Ground, Night": "4f0c59bb042558ff"
+    ".KKM Light Sports Ground, Day": "ee213441c4e209e5",
+    ".KKM Light Sports Ground, Evening": "ab08ee3b2ae56ec1",
+    ".KKM Light Sports Ground, Night": "31ab32bdcfd499fe"
    },
    "images": [
     {

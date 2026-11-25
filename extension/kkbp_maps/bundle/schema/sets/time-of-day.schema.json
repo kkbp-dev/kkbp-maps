@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.3/sets/time-of-day.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.4/sets/time-of-day.schema.json",
   "title": "Time of Day",
   "description": "One of the lighting states a Game gives a Map. Listed in the order a Game's Times of Day come in; lists of Times of Day keep this order.",
   "type": "string",

@@ -12,6 +12,8 @@ from __future__ import annotations
 SWITCHES: dict[str, tuple[object, str]] = {
     # The reflection term on or off, to measure what it adds to a view.
     "reflection": (("on", "off"), "on"),
+    # The share of ambient light added to a real-time GI renderer, instead of the Game's (ADR 0025).
+    "realtime_gi_ambient": (float, ""),
 }
 
 # Settled by the look check (kk-spike.md, "Settled by the look check"): shadow culling as Unity's
@@ -40,8 +42,9 @@ def get(name: str) -> str:
     return _current.get(name, SWITCHES[name][1])
 
 
-def number(name: str) -> float:
-    return float(get(name))
+def number(name: str, default: float | None = None) -> float:
+    value = get(name)
+    return float(value) if value != "" else float(default)
 
 
 def current() -> dict[str, str]:

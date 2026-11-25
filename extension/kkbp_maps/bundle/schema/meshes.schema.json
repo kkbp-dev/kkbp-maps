@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.3/meshes.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.4/meshes.schema.json",
   "title": "meshes.json",
   "description": "One record per unique mesh. Its data is meshes/<id>.bin: each attribute in turn as little-endian float32 for every vertex (position and normal 3 each, a UV set 2), then every submesh's triangle indices in turn as little-endian uint32, winding already converted (ADR 0011).",
   "type": "object",

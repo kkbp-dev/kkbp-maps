@@ -14,11 +14,11 @@ The contract between the Extractor and the Builder: the JSON Schemas in `schema/
 | `variants.json` | `variants.schema.json` |
 | `assets.json` | `assets.schema.json` |
 
-Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.3/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
+Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.4/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
 
 ## Schema Version
 
-`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.3`.
+`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.4`.
 
 ## Conventions
 
@@ -113,6 +113,7 @@ Every other slot is known by its Raw Property only. Illusion's own shaders (KK's
 
 - Set ids are unique, and so are lightmap `index`es within a set.
 - A `color` is an EXR; a `direction` is a `linear` PNG of the same size as its colour.
+- A renderer's `realtime_gi` says the game adds Enlighten's real-time GI to it at run time. The bounced light isn't carried; the Builder approximates it (ADR 0025).
 - Each assignment names a node with a renderer that isn't a sky node, at most once per set, and a lightmap of its set. `uv` 1 needs a mesh with `uv1`; `uv` 0 needs one with `uv0`.
 
 ### Map Variants

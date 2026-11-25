@@ -28,6 +28,9 @@ class CameraProfile:
 @dataclass(frozen=True)
 class GameLight:
     lights_use_linear_intensity: bool
+    # Real-time GI that no file holds (ADR 0025): a renderer that takes it gets this share of the Map's
+    # ambient light on top of its lightmap, fitted to the Reference Captures by the look check.
+    realtime_gi_ambient: float = 0.0
 
 
 CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
@@ -43,7 +46,9 @@ CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
 }
 
 LIGHTS: dict[str, GameLight] = {
-    "KK": GameLight(lights_use_linear_intensity=False),  # Koikatu_Data/globalgamemanagers, GraphicsSettings
+    # lights_use_linear_intensity: Koikatu_Data/globalgamemanagers, GraphicsSettings. realtime_gi_ambient:
+    # fitted on park's captures (kk-spike.md, "Settled by the look check"; 0.25 to 0.75 were tried).
+    "KK": GameLight(lights_use_linear_intensity=False, realtime_gi_ambient=0.5),
 }
 
 

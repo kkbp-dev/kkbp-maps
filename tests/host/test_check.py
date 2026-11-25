@@ -68,7 +68,7 @@ def test_without_manifest_it_is_unfinished(bundle):
 
 def test_another_schema_version_is_refused(bundle):
     edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.1"))
-    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.3 "
+    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.4 "
                                    "(ADR 0014), so extract the Map again"]
 
 
@@ -579,3 +579,10 @@ def test_shadow_modes_are_a_closed_set(bundle):
         next(n for n in d["nodes"] if "renderer" in n)["renderer"]["shadows"] = "sometimes"
     edit_json(bundle, "scene", odd)
     assert any("sometimes" in p for p in problems_of(bundle))
+
+
+def test_a_renderer_says_whether_it_takes_real_time_gi(bundle):
+    def drop(d):
+        del next(n for n in d["nodes"] if "renderer" in n)["renderer"]["realtime_gi"]
+    edit_json(bundle, "scene", drop)
+    assert any("realtime_gi" in p for p in problems_of(bundle))

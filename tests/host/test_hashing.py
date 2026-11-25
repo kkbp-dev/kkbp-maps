@@ -26,7 +26,8 @@ def _node(i, parent, mesh=None, translation=(0.0, 0.0, 0.0), rotation=(1.0, 0.0,
          "rotation": list(rotation), "scale": [1.0, 1.0, 1.0]}
     if mesh:
         n["renderer"] = {"mesh": mesh, "draws": [{"submesh": 0, "material": "m" * 32}],
-                         "shadows": "on", "receive_shadows": True}
+                         "shadows": "on", "receive_shadows": True,
+                                "realtime_gi": False}
     if sky:
         n["sky"] = True
     return n

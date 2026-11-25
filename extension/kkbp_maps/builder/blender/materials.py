@@ -24,12 +24,14 @@ from pathlib import Path
 import bpy
 
 from .. import look, shaders
+from ..games import light_convention
 from .nodes import Graph, io, new_group
 
 PROP_TILE = "kkbp_maps_lightmap_tile"
 PROP_SCALE_OFFSET = "kkbp_maps_lightmap_scale_offset"
 PROP_UV = "kkbp_maps_lightmap_uv"
 PROP_PROBE = "kkbp_maps_reflection_probe"
+PROP_REALTIME_GI = "kkbp_maps_realtime_gi"   # 1 where the game adds real-time GI (ADR 0025)
 PROP_HASH = "kkbp_maps_hash"
 
 UV0, UV1 = "UVMap", "Lightmap"
@@ -432,7 +434,12 @@ def variant_light(bundle, variant: dict, name: str, images: Images, grade) -> bp
     gi = _ambient(g, variant["ambient"], n)
     lm_set = bundle.lightmap_sets.get(variant["lightmap_set"]) if variant["lightmap_set"] else None
     if lm_set is not None:
-        gi = g.mix(_lightmapped(g), gi, _lightmap(g, bundle, lm_set, images, n))
+        lm = _lightmap(g, bundle, lm_set, images, n)
+        share = look.number("realtime_gi_ambient", light_convention(bundle.game).realtime_gi_ambient)
+        if share:   # real-time GI no file holds, as a share of the ambient on top of the lightmap (ADR 0025)
+            k = g.math("MULTIPLY", (_attribute(g, PROP_REALTIME_GI), "Fac"), share)
+            lm = g.vmath("ADD", lm, g.vmath("SCALE", gi, scale=k))
+        gi = g.mix(_lightmapped(g), gi, lm)
     diffuse = g.mix(1.0, diff_color, gi, blend_type="MULTIPLY")
     diffuse = g.vmath("SCALE", diffuse, scale=(i, "Occlusion"))
 

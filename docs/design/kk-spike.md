@@ -191,7 +191,6 @@ Points that bore on decisions, settled with the user after the spike:
 
 ## Open questions
 
-- park's real-time GI: see "Settled by the look check".
 - The story game camera's `AmplifyColorEffect`, `GlobalFog` and `SunShafts` settings: Studio's camera replaces all three (below), so they need a capture from the story game.
 
 ## Settled by the look check (Phase 5)
@@ -206,4 +205,6 @@ Measured against Reference Captures taken in CharaStudio (`tools/capture.py`, `t
 - **The sun's soft shadow angle** (0.5° against 0°) changes no view by more than 0.13.
 - **The lightmaps' RGB is sRGB-decoded,** as section 3 has it: leaving the decode out makes 1F's mean ΔE 8.1 instead of 2.4 (ground and park barely move). Every lightmap of the three Maps has `m_ColorSpace 1`.
 - **park's `LightmapPrefab` entries or the renderers' own values** give the same frames (within 0.05), so section 4's rule stands untested there.
-- **park's largest surfaces are lit at run time.** Its 8 lightmapped renderers (the roads `o_kouen_road_00`/`01`, the lawn `o_kouen_sibahu_00`, the lamps `o_kouen_gaitou_00`–`04`) all have Enlighten real-time GI (`m_LightmapIndexDynamic 0`), which adds the sun's bounce at run time and isn't in the files. The shaded road is 3× darker in Blender than in the capture (linear 0.024 against 0.073). Replacing their lightmap with the Map's ambient helps some views and hurts others, so the bounce lies between the two.
+- **park's largest surfaces are lit at run time.** Its 8 lightmapped renderers (the roads `o_kouen_road_00`/`01`, the lawn `o_kouen_sibahu_00`, the lamps `o_kouen_gaitou_00`–`04`) all have Enlighten real-time GI (`m_LightmapIndexDynamic 0`), which adds the sun's bounce at run time and isn't in the files. The shaded road is 3× darker in Blender than in the capture (linear 0.024 against 0.073). Replacing their lightmap with the Map's ambient helps some views and hurts others, so the bounce lies between the two. The Builder adds half the ambient on top of their lightmap (ADR 0025): before the Grade, park's mean ΔE goes from 3.80 to 3.45 and its worst tile from 66 % to 38 % (shares 0.25, 0.75 and 1 do less well).
+- **Grading blended surfaces one by one costs about 0.4 on park.** Studio's `Lut_Amount` is steep in the darks (sRGB 0.3 maps to nearly 0), so grading a blended decal such as `o_road_kage_*` and the road under it separately (ADR 0008) differs from grading the composited frame: 4.88 against 4.52 on park, under 0.03 on 1F and ground. It is the price of grading inside materials.
+- **Anti-aliasing order doesn't matter:** one EEVEE sample instead of 32 makes every Map slightly worse.

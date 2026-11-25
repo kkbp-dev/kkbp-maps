@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.3/scene.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.4/scene.schema.json",
   "title": "scene.json",
   "description": "The Map's nodes, Helpers left out, in walk order: a node's id is its position in the list, and its parent comes before it.",
   "type": "object",
@@ -61,9 +61,13 @@
           "description": "How the renderer casts shadows, Unity's ShadowCastingMode: off, on (from the faces its material draws), two_sided, or shadows_only (casts but isn't drawn).",
           "enum": ["off", "on", "two_sided", "shadows_only"]
         },
-        "receive_shadows": { "type": "boolean" }
+        "receive_shadows": { "type": "boolean" },
+        "realtime_gi": {
+          "description": "Whether the game adds real-time GI to the renderer (Enlighten, m_LightmapIndexDynamic): light bounced at run time that no file holds, which the Builder approximates (ADR 0025).",
+          "type": "boolean"
+        }
       },
-      "required": ["mesh", "draws", "shadows", "receive_shadows"],
+      "required": ["mesh", "draws", "shadows", "receive_shadows", "realtime_gi"],
       "additionalProperties": false
     }
   }

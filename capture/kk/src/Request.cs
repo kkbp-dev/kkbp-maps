@@ -28,7 +28,8 @@ namespace KKMaps.Capture
     /// It writes &lt;output&gt;/camera-studio.json (the Camera Profile's raw settings, Dump), and for each view
     /// &lt;output&gt;/&lt;folder&gt;/&lt;variant&gt;/&lt;view&gt;.png (the Reference Capture) and .pregrade.exr, and for each
     /// variant &lt;folder&gt;/&lt;variant&gt;/lights.json (Dump.Lights: every light, and the renderers the request
-    /// names under "renderers"). With "frames": false it writes only the lights. The result goes
+    /// names under "renderers"). With "frames": false it writes only the lights; with "sun_off": true the
+    /// Map's sun (RenderSettings.sun) is switched off after each Time of Day is set. The result goes
     /// to kkbp-maps-capture.result.json next to the request:
     /// { "state": "running" | "succeeded" | "failed", "error": …, "files": […], "warnings": […], "views": […] },
     /// rewritten after each view while "running", then the game quits.
@@ -108,6 +109,7 @@ namespace KKMaps.Capture
             var disable = new HashSet<string>(List(request, "disable").Cast<string>());
             bool takeFrames = !request.ContainsKey("frames") || (bool)request["frames"];
             var rendererNames = List(request, "renderers").Cast<string>().ToList();
+            bool sunOff = request.ContainsKey("sun_off") && (bool)request["sun_off"];
 
             var studio = Singleton<Studio.Studio>.Instance;
             Camera cam = studio.cameraCtrl.mainCmaera;
@@ -127,6 +129,11 @@ namespace KKMaps.Capture
                     var type = (SunLightInfo.Info.Type)Int(variant, "type", 0);
                     Singleton<Studio.Map>.Instance.sunType = type;
                     yield return new WaitForSecondsRealtime(1f);
+                    if (sunOff && RenderSettings.sun != null)
+                    {
+                        RenderSettings.sun.enabled = false;   // to measure what the sun adds (look check)
+                        yield return new WaitForSecondsRealtime(0.5f);
+                    }
                     Resources.UnloadUnusedAssets();
                     System.GC.Collect();
 

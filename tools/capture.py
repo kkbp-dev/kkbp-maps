@@ -76,7 +76,8 @@ def variants(map_key: str) -> list[dict]:
     return data["variants"]
 
 
-def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[str] | None = None) -> dict:
+def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[str] | None = None,
+            views_only: list[str] | None = None, sun_off: bool = False) -> dict:
     """With `lights`, a run that only dumps each Map Variant's lights and those renderers, taking no frames."""
     views = {} if seed else json.loads(VIEWS.read_text(encoding="utf-8"))["views"]
     maps = []
@@ -92,7 +93,8 @@ def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[
                     {"name": f"eye-{y}", "studio_default": y, "eye": SEED_EYE} for y in SEED_YAWS]
             else:
                 vv = [{"name": w["name"], "position": to_unity(w["position"]), "target": to_unity(w["target"]),
-                       "fov": w["fov"]} for w in views if w["map"] == key and w["variant"] == v["id"]]
+                       "fov": w["fov"]} for w in views if w["map"] == key and w["variant"] == v["id"]
+                      and (not views_only or f"{key}/{v['id']}/{w['name']}" in views_only)]
             if vv or lights is not None:
                 vs.append({"name": v["id"], "type": TIME_TYPE[v["times_of_day"][0]], "views": vv})
         maps.append({"folder": key, "bundle": bundle, "variants": vs})
@@ -100,6 +102,8 @@ def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[
            "disable": look["disable_effects"], "maps": maps}
     if lights is not None:
         out.update(frames=False, renderers=lights)
+    if sun_off:
+        out.update(sun_off=True, output=winpath(OUT / "sun-off"))
     return out
 
 
@@ -184,6 +188,9 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--map", action="append", help="only this Map, such as map/scene/park; all by default")
     ap.add_argument("--lights", nargs="*", metavar="RENDERER",
                     help="take no frames: only dump each Map Variant's lights (lights.json), and these renderers")
+    ap.add_argument("--view", action="append", help="only this Capture View, such as map/scene/ground/day/studio")
+    ap.add_argument("--sun-off", action="store_true",
+                    help="switch the Map's sun off; the frames go to captures/<Game>/sun-off/ (a measurement)")
     args = ap.parse_args(argv)
 
     if running():
@@ -202,7 +209,7 @@ def main(argv: list[str]) -> int:
         return 2
 
     look = json.loads(LOOK.read_text(encoding="utf-8"))
-    res = run(request(look, args.seed, args.map, args.lights), look, args.timeout)
+    res = run(request(look, args.seed, args.map, args.lights, args.view, args.sun_off), look, args.timeout)
     if res is None:
         print("capture: no result", file=sys.stderr)
         return 1

@@ -7,11 +7,15 @@ Developers only, never users. Run with KKBP's dev venv (numpy, for the one axis 
                                                                      # keep them as the Capture Views
     ../kkbp/importer/.venv/bin/python -I tools/capture.py --lights NAME... --map map/scene/ground
                                                                      # dump the lights only, no frames
+    ../kkbp/importer/.venv/bin/python -I tools/capture.py --camera game
+                                                                     # the same views in the story game
 
 It writes the request file (BepInEx/config/kkbp-maps-capture.json), sets aside the HF Patch plugins that
-change the frame (tests/look/KK.json, "set_aside"), starts CharaStudio through games/play.sh, waits for
-the plugin's result and the game to quit, and puts the plugins back whatever happens. The captures go to
-captures/KK/ (ignored: game content, ADR 0007), with camera-studio.json beside them.
+change the frame (tests/look/KK.json, "set_aside"), starts the game of the Camera Profile through
+games/play.sh (CharaStudio for "studio", the story game from its title screen for "game"), waits for the
+plugin's result and the game to quit, and puts the plugins back whatever happens. Studio's captures go to
+captures/KK/ (ignored: game content, ADR 0007), the story game's to captures/KK/game/, each with
+camera-<profile>.json beside them.
 
 It refuses while the game runs ("Running the games safely" in ../kkbp/CLAUDE.md) and stops the game only
 by its exact process name. The plugin must be deployed first (--deploy, after the user's OK), and is
@@ -47,6 +51,7 @@ VIEWS = REPO / "tests" / "look" / "views" / "KK.json"
 OUT = REPO / "captures" / "KK"
 GOLDEN = REPO / "golden" / "KK"
 OFF = ".kkbp-maps-off"
+EXES = {"studio": "CharaStudio.exe", "game": "Koikatu.exe"}   # the game each Camera Profile runs in
 TIME_TYPE = {"day": 0, "evening": 1, "night": 2}   # SunLightInfo.Info.Type
 SEED_YAWS = (0, 90, 180, 270)   # eye-level views about Studio's camera target
 SEED_EYE = 1.6
@@ -77,7 +82,8 @@ def variants(map_key: str) -> list[dict]:
 
 
 def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[str] | None = None,
-            views_only: list[str] | None = None, sun_off: bool = False, sun_no_shadows: bool = False) -> dict:
+            views_only: list[str] | None = None, sun_off: bool = False, sun_no_shadows: bool = False,
+            camera: str = "studio") -> dict:
     """With `lights`, a run that only dumps each Map Variant's lights and those renderers, taking no frames."""
     views = {} if seed else json.loads(VIEWS.read_text(encoding="utf-8"))["views"]
     maps = []
@@ -98,14 +104,15 @@ def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[
             if vv or lights is not None:
                 vs.append({"name": v["id"], "type": TIME_TYPE[v["times_of_day"][0]], "views": vv})
         maps.append({"folder": key, "bundle": bundle, "variants": vs})
-    out = {"output": winpath(OUT), "width": look["width"], "height": look["height"],
+    out_dir = OUT if camera == "studio" else OUT / camera
+    out = {"camera": camera, "output": winpath(out_dir), "width": look["width"], "height": look["height"],
            "disable": look["disable_effects"], "maps": maps}
     if lights is not None:
         out.update(frames=False, renderers=lights)
     if sun_off:
-        out.update(sun_off=True, output=winpath(OUT / "sun-off"))
+        out.update(sun_off=True, output=winpath(out_dir / "sun-off"))
     elif sun_no_shadows:
-        out.update(sun_shadows_off=True, output=winpath(OUT / "sun-no-shadows"))
+        out.update(sun_shadows_off=True, output=winpath(out_dir / "sun-no-shadows"))
     return out
 
 
@@ -140,10 +147,11 @@ def run(req: dict, look: dict, timeout: int) -> dict | None:
     OUT.mkdir(parents=True, exist_ok=True)
     req_path.write_text(json.dumps(req, indent=1), encoding="utf-8")
     moved = set_aside(look["set_aside"])
-    print(f"capture: set aside {len(moved)} plugins; starting CharaStudio", flush=True)
+    exe = EXES[req["camera"]]
+    print(f"capture: set aside {len(moved)} plugins; starting {exe}", flush=True)
     try:
         log = open(REPO / "tests" / ".work" / "capture" / "play.log", "w")
-        subprocess.Popen([str(GAMES / "play.sh"), "koikatsu", "CharaStudio.exe"], stdout=log, stderr=log)
+        subprocess.Popen([str(GAMES / "play.sh"), "koikatsu", exe], stdout=log, stderr=log)
         start = time.monotonic()
         while _state(result) in (None, "running"):
             if time.monotonic() > start + timeout:
@@ -183,6 +191,8 @@ def keep_views(placed: list[dict]):
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--camera", choices=sorted(EXES), default="studio",
+                    help="the Camera Profile, and so the game: CharaStudio (studio) or the story game (game)")
     ap.add_argument("--seed", action="store_true", help="capture Studio's own cameras and keep them as the Capture Views")
     ap.add_argument("--deploy", action="store_true", help="copy the built plugin into the game, then stop")
     ap.add_argument("--undeploy", action="store_true", help="take the plugin out of the game, then stop")
@@ -212,9 +222,12 @@ def main(argv: list[str]) -> int:
         print("capture: the plugin isn't deployed (--deploy)", file=sys.stderr)
         return 2
 
+    if args.seed and args.camera != "studio":
+        print("capture: --seed takes Studio's own cameras; it needs --camera studio", file=sys.stderr)
+        return 2
     look = json.loads(LOOK.read_text(encoding="utf-8"))
     res = run(request(look, args.seed, args.map, args.lights, args.view, args.sun_off,
-                      args.sun_no_shadows), look, args.timeout)
+                      args.sun_no_shadows, args.camera), look, args.timeout)
     if res is None:
         print("capture: no result", file=sys.stderr)
         return 1

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BepInEx;
-using KKAPI.Studio;
 using UnityEngine;
 
 namespace KKMaps.Capture
@@ -13,22 +12,24 @@ namespace KKMaps.Capture
     /// One capture run from a request file, after KKBP's auto-export (its ADR 0012). The request is
     /// BepInEx/config/kkbp-maps-capture.json, written by tools/capture.py, all positions in Unity space:
     /// <code>
-    /// { "output": "Z:\\path\\folder", "width": 1280, "height": 720,
+    /// { "camera": "studio", "output": "Z:\\path\\folder", "width": 1280, "height": 720,
     ///   "disable": [ "DepthOfField", "BloomAndFlares", ... ],
     ///   "maps": [ { "folder": "map/scene/1f", "bundle": "map/scene/1f.unity3d",
     ///     "variants": [ { "name": "day", "type": 0,
     ///       "views": [ { "name": "hall", "position": [x, y, z], "target": [x, y, z], "fov": 40 },
     ///                  { "name": "studio-90", "studio_default": 90 }, { "name": "eye-90", "studio_default": 90, "eye": 1.6 } ] } ] } ] }
     /// </code>
-    /// A view with "studio_default" starts from Studio's own camera for the Map (CameraControl.Reset)
-    /// and turns it about its target by that yaw in degrees. The result lists every view as placed, in
-    /// Unity space, so tools/capture.py can keep them as Capture Views.
-    /// <code>
-    /// </code>
-    /// It writes &lt;output&gt;/camera-studio.json (the Camera Profile's raw settings, Dump), and for each view
+    /// "camera" is the Camera Profile, and so the game the request runs in (Hosts.cs): "studio" (CharaStudio,
+    /// the default) or "game" (the story game, Koikatu.exe). A view with "studio_default" (Studio only)
+    /// starts from Studio's own camera for the Map (CameraControl.Reset) and turns it about its target by
+    /// that yaw in degrees. The result lists every view as placed, in Unity space, so tools/capture.py can
+    /// keep them as Capture Views.
+    ///
+    /// It writes &lt;output&gt;/camera-&lt;profile&gt;.json (the Camera Profile's raw settings, Dump), and for each view
     /// &lt;output&gt;/&lt;folder&gt;/&lt;variant&gt;/&lt;view&gt;.png (the Reference Capture) and .pregrade.exr, and for each
     /// variant &lt;folder&gt;/&lt;variant&gt;/lights.json (Dump.Lights: every light, and the renderers the request
-    /// names under "renderers"). With "frames": false it writes only the lights; with "sun_off": true the
+    /// names under "renderers") and camera.json (the camera at that Time of Day: its fog and sun shafts).
+    /// With "frames": false it writes no frames; with "sun_off": true the
     /// Map's sun (RenderSettings.sun) is switched off after each Time of Day is set, and with
     /// "sun_shadows_off": true it casts no shadows. The result goes
     /// to kkbp-maps-capture.result.json next to the request:
@@ -70,17 +71,21 @@ namespace KKMaps.Capture
             }
             Plugin.Log.LogInfo("Capture requested by " + RequestPath);
 
-            while (!StudioAPI.StudioLoaded)
+            IHost host;
+            string camera = request.ContainsKey("camera") ? (string)request["camera"] : "studio";
+            if (camera == "studio") host = new StudioHost(plugin);
+            else if (camera == "game") host = new GameHost(plugin);
+            else
             {
-                yield return new WaitForSecondsRealtime(0.5f);
+                Finish("Unknown camera " + camera + ": \"studio\" or \"game\"");
+                yield break;
             }
-            yield return new WaitForSecondsRealtime(2f);
 
             string error = null;
             IEnumerator work = null;
             try
             {
-                work = Work(request);
+                work = Sequence(host.Ready(), Work(request, host));
             }
             catch (Exception e)
             {
@@ -102,7 +107,7 @@ namespace KKMaps.Capture
             Finish(error);
         }
 
-        private IEnumerator Work(Dictionary<string, object> request)
+        private IEnumerator Work(Dictionary<string, object> request, IHost host)
         {
             string output = (string)request["output"];
             int width = Int(request, "width", 1280);
@@ -113,24 +118,18 @@ namespace KKMaps.Capture
             bool sunOff = request.ContainsKey("sun_off") && (bool)request["sun_off"];
             bool sunShadowsOff = request.ContainsKey("sun_shadows_off") && (bool)request["sun_shadows_off"];
 
-            var studio = Singleton<Studio.Studio>.Instance;
-            Camera cam = studio.cameraCtrl.mainCmaera;
+            Camera cam = host.Camera;
             var frames = new Frames(cam, width, height, disable);
+            string profileDump = Path.Combine(output, "camera-" + host.Profile + ".json");
 
             foreach (Dictionary<string, object> map in List(request, "maps"))
             {
-                string bundle = (string)map["bundle"];
-                int no = MapNumber(bundle);
-                Plugin.Log.LogInfo("Loading " + bundle + " (Studio map " + no + ")");
-                yield return plugin.StartCoroutine(Singleton<Studio.Map>.Instance.LoadMapCoroutine(no));
-                yield return new WaitForSecondsRealtime(2f);
+                for (var load = host.Load((string)map["bundle"]); load.MoveNext();) yield return load.Current;
 
                 foreach (Dictionary<string, object> variant in List(map, "variants"))
                 {
                     string vname = (string)variant["name"];
-                    var type = (SunLightInfo.Info.Type)Int(variant, "type", 0);
-                    Singleton<Studio.Map>.Instance.sunType = type;
-                    yield return new WaitForSecondsRealtime(1f);
+                    for (var set = host.SetTime((SunLightInfo.Info.Type)Int(variant, "type", 0)); set.MoveNext();) yield return set.Current;
                     if (sunOff && RenderSettings.sun != null)
                     {
                         RenderSettings.sun.enabled = false;   // to measure what the sun adds (look check)
@@ -144,50 +143,29 @@ namespace KKMaps.Capture
                     Resources.UnloadUnusedAssets();
                     System.GC.Collect();
 
-                    string lightsFolder = Path.Combine(Path.Combine(output, (string)map["folder"]), vname);
-                    Directory.CreateDirectory(lightsFolder);
-                    string lightsPath = Path.Combine(lightsFolder, "lights.json");
+                    string folder = Path.Combine(Path.Combine(output, (string)map["folder"]), vname);
+                    Directory.CreateDirectory(folder);
+                    string lightsPath = Path.Combine(folder, "lights.json");
                     File.WriteAllText(lightsPath, Json.Write(Dump.Lights(cam, rendererNames)));
                     files.Add(lightsPath);
+                    string cameraPath = Path.Combine(folder, "camera.json");   // this Time of Day's fog and sun shafts
+                    File.WriteAllText(cameraPath, Json.Write(Dump.Camera(cam)));
+                    files.Add(cameraPath);
                     Write("running", null);
                     if (!takeFrames) continue;
 
-                    if (!files.Any(f => ((string)f).EndsWith("camera-studio.json")))
+                    if (!files.Contains(profileDump))
                     {
-                        string dump = Path.Combine(output, "camera-studio.json");
-                        File.WriteAllText(dump, Json.Write(Dump.Camera(cam)));
-                        files.Add(dump);
+                        File.WriteAllText(profileDump, Json.Write(Dump.Camera(cam)));
+                        files.Add(profileDump);
                     }
 
-                    string folder = Path.Combine(Path.Combine(output, (string)map["folder"]), vname);
-                    Directory.CreateDirectory(folder);
-                    studio.cameraCtrl.enabled = false;
+                    host.Hold(true);
                     foreach (Dictionary<string, object> view in List(variant, "views"))
                     {
                         if (view.ContainsKey("studio_default"))
                         {
-                            // From Studio's own camera for the Map (CameraControl.Reset): with "eye", stand
-                            // that high above its target and look out level-ish along the camera's heading
-                            // turned by "studio_default" degrees; without, Studio's camera turned about its target.
-                            studio.cameraCtrl.enabled = true;
-                            studio.cameraCtrl.Reset(0);
-                            yield return null;
-                            yield return null;
-                            studio.cameraCtrl.enabled = false;
-                            Vector3 target = studio.cameraCtrl.targetPos;
-                            var yaw = Quaternion.AngleAxis((float)(double)view["studio_default"], Vector3.up);
-                            if (view.ContainsKey("eye"))
-                            {
-                                Vector3 heading = cam.transform.forward;
-                                heading.y = 0f;
-                                heading = yaw * heading.normalized;
-                                Vector3 eye = target + Vector3.up * (float)(double)view["eye"];
-                                frames.Place(eye, eye + heading * 10f + Vector3.down * 1f, cam.fieldOfView);
-                            }
-                            else
-                            {
-                                frames.Place(target + yaw * (cam.transform.position - target), target, cam.fieldOfView);
-                            }
+                            for (var place = host.PlaceDefault(frames, view); place.MoveNext();) yield return place.Current;
                         }
                         else
                         {
@@ -206,27 +184,18 @@ namespace KKMaps.Capture
                         });
                         Write("running", null);
                     }
-                    studio.cameraCtrl.enabled = true;
+                    host.Hold(false);
                     warnings.AddRange(frames.TakeWarnings().Cast<object>());
                 }
             }
         }
 
-        /// <summary>The Studio map that loads this Scene Bundle.</summary>
-        private static int MapNumber(string bundle)
+        private static IEnumerator Sequence(params IEnumerator[] steps)
         {
-            var maps = Singleton<Studio.Info>.Instance.dicMapLoadInfo;
-            string scene = Path.GetFileNameWithoutExtension(bundle);
-            foreach (var kv in maps)
+            foreach (var step in steps)
             {
-                if (kv.Value.bundlePath == bundle) return kv.Key;
+                while (step.MoveNext()) yield return step.Current;
             }
-            foreach (var kv in maps)
-            {
-                if (string.Equals(kv.Value.fileName, scene, StringComparison.OrdinalIgnoreCase)) return kv.Key;
-            }
-            throw new Exception("No Studio map loads " + bundle + "; Studio has: " +
-                string.Join(", ", maps.Select(kv => kv.Key + " " + kv.Value.bundlePath + " " + kv.Value.fileName).ToArray()));
         }
 
         private void Finish(string error)

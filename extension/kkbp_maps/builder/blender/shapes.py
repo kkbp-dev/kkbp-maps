@@ -13,7 +13,9 @@ RING_ALPHA = 0.67
 
 def round_preview(pixels, width: int, height: int) -> tuple[int, np.ndarray]:
     """`pixels` (flat RGBA floats, rows bottom first, as Blender gives them) cut to the centred square
-    of the shorter side, masked to a circle with smooth edges, and ringed. Returns (side, flat pixels)."""
+    of the shorter side, masked to a circle with smooth edges, and ringed. Returns (side, flat pixels),
+    premultiplied: the Asset Browser draws previews with premultiplied alpha, so a pixel's colour shows
+    whatever its alpha unless it is multiplied by it."""
     img = np.asarray(pixels, dtype=np.float32).reshape(height, width, 4)
     side = min(width, height)
     x0, y0 = (width - side) // 2, (height - side) // 2
@@ -33,4 +35,5 @@ def round_preview(pixels, width: int, height: int) -> tuple[int, np.ndarray]:
     over = band[..., None]
     img[..., :3] = img[..., :3] * (1 - over) + over          # white ring over the picture
     img[..., 3] = img[..., 3] + band * (1 - img[..., 3])
+    img[..., :3] *= img[..., 3:4]
     return side, img.reshape(-1)

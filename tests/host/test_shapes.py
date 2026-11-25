@@ -20,7 +20,7 @@ def test_the_corners_are_clear_and_the_middle_is_the_picture():
     side, out = round_preview(picture(256, 256), 256, 256)
     img = out.reshape(side, side, 4)
     for y, x in ((0, 0), (0, side - 1), (side - 1, 0), (side - 1, side - 1)):
-        assert img[y, x, 3] == 0.0
+        assert img[y, x].tolist() == [0.0, 0.0, 0.0, 0.0]   # premultiplied: no colour where no alpha
     assert np.allclose(img[side // 2, side // 2], [0.25, 0, 0, 1])
 
 
@@ -38,3 +38,12 @@ def test_the_crop_is_centred():
     side, out = round_preview(px.reshape(-1), 300, 100)
     img = out.reshape(side, side, 4)
     assert side == 100 and img[50, 50, 1] == 1.0 and img[50, 50, 3] == 1.0
+
+
+def test_the_pixels_are_premultiplied():
+    side, out = round_preview(picture(256, 256), 256, 256)
+    img = out.reshape(side, side, 4)
+    assert (img[..., :3] <= img[..., 3:4] + 1e-6).all()
+    edge = img[side // 2, :12]
+    soft = edge[(edge[:, 3] > 0) & (edge[:, 3] < 1)]
+    assert len(soft) and (soft[:, :3] <= soft[:, 3:4] + 1e-6).all()

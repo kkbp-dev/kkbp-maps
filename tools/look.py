@@ -5,19 +5,22 @@ Reference Capture, and writes a side-by-side report.
     python3 tools/look.py --blender latest
     python3 tools/look.py --no-render        # compare the renders already there
     python3 tools/look.py --update-snapshot  # record this Blender build's numbers in the look snapshot
+    python3 tools/look.py --camera game      # against the story game's captures (captures/KK/game/)
 
 Needs numpy and Pillow (KKBP's dev venv): ../kkbp/importer/.venv/bin/python -I tools/look.py
 It builds the Golden Maps' Map files through the Camera Profile the captures were taken with
-(tests/look/KK.json, "camera"; Studio's for now), renders the Capture Views (tests/look/views/KK.json)
-and compares them with the captures tools/capture.py took (captures/KK/), within the tolerances in
+(--camera; tests/look/KK.json, "camera", by default), renders the Capture Views (tests/look/views/KK.json)
+and compares them with the captures tools/capture.py took through that profile (captures/KK/ for Studio's,
+captures/KK/<profile>/ for another), within the tolerances in
 tests/look/KK.json: one before the Grade and one after it, and a view must pass both. Renders and the
 report go to tests/.work/look/ (game content, ADR 0007). Each Map file renders in its own `blender -b`
 under the memory watchdog.
 
 The numbers are then compared with the look snapshot, tests/snapshots/look/<Game>.json (numbers only), per
-Blender build: a view worse than its recorded numbers by more than the look file's "regression" margins is
-a regression even if it passes. A view the look file lists under "accepted" (with the reason the user
-accepted it) is reported as accepted rather than failed, and is still checked against the snapshot.
+Blender build and Camera Profile ("min", "min+game"): a view worse than its recorded numbers by more than
+the look file's "regression" margins is a regression even if it passes. A view the look file lists under
+"accepted" (Studio's; another profile's under "cameras", <profile>, "accepted"), with the reason the user
+accepted it, is reported as accepted rather than failed, and is still checked against the snapshot.
 Exits 1 if any view is out of tolerance and not accepted, or regressed.
 """
 
@@ -46,8 +49,17 @@ BUILD_BUNDLES = BUILD_WORK / "bundles"
 SNAPSHOTS = REPO / "tests" / "snapshots" / "look"
 
 
+def captures_of(game: str, camera: str) -> Path:
+    """Where tools/capture.py puts a Camera Profile's captures: Studio's at the top, another's beneath."""
+    return REPO / "captures" / game if camera == "studio" else REPO / "captures" / game / camera
+
+
+def accepted_of(look: dict, camera: str) -> dict:
+    return look.get("accepted", {}) if camera == "studio" else look.get("cameras", {}).get(camera, {}).get("accepted", {})
+
+
 def build_and_render(name: str, game: str, look: dict, limits: Limits, switches: list[str], root: Path,
-                     keep: bool = False) -> bool:
+                     keep: bool = False, camera: str = "studio") -> bool:
     """Each Golden Map's file, built through the captures' Camera Profile, then its views rendered.
     With `keep`, from the bundle copies as they are (an experiment may have edited them)."""
     if keep:
@@ -66,7 +78,7 @@ def build_and_render(name: str, game: str, look: dict, limits: Limits, switches:
     exe = blender_path(name)
     for key in GOLDEN[game]:
         cmd = ["--python", str(REPO / "tools" / "blender_build.py"), "--", "--library", str(library),
-               "--bundles", *map(str, bundles), "--step", f"map:{key}", "--no-previews", "--camera", look["camera"],
+               "--bundles", *map(str, bundles), "--step", f"map:{key}", "--no-previews", "--camera", camera,
                *[a for sw in switches for a in ("--look", sw)]]
         code, peak, reason = blender(exe, profile, cmd, limits, log)
         print(f"look: built {key} on {name}: {'ok' if code == 0 else f'failed ({reason or code})'}, "
@@ -78,7 +90,7 @@ def build_and_render(name: str, game: str, look: dict, limits: Limits, switches:
         code, peak, reason = blender(exe, profile, [
             str(blend), "--python", str(REPO / "tests" / "blender" / "render_views.py"), "--",
             str(REPO / "tests" / "look" / "views" / f"{game}.json"), str(REPO / "tests" / "look" / f"{game}.json"),
-            str(root / "renders"), str(REPO / "captures" / game)], limits, log)
+            str(root / "renders"), str(captures_of(game, camera))], limits, log)
         print(f"look: rendered {blend.stem} on {name}: {'ok' if code == 0 else f'failed ({reason or code})'}, "
               f"peak {peak / 2**30:.2f} GB", flush=True)
         if code != 0:
@@ -104,7 +116,7 @@ def _heat(r: lc.Result) -> np.ndarray:
     return (np.stack([x, np.clip(1.5 - 3 * np.abs(x - 0.5), 0, 1), 1 - x], -1) * 255).astype(np.uint8)
 
 
-def compare_all(root: Path, game: str, look: dict, pregrade: bool = False) -> list[dict]:
+def compare_all(root: Path, game: str, look: dict, pregrade: bool = False, camera: str = "studio") -> list[dict]:
     """Each Capture View's render against its capture; with `pregrade`, both before the Grade."""
     views = json.loads((REPO / "tests" / "look" / "views" / f"{game}.json").read_text())["views"]
     t = lc.tolerances(look)["pregrade" if pregrade else "graded"]
@@ -115,7 +127,7 @@ def compare_all(root: Path, game: str, look: dict, pregrade: bool = False) -> li
         if pregrade:
             cap, ren = renders / f"{rel}.capture-pregrade.png", renders / f"{rel}.pregrade.png"
         else:
-            cap, ren = REPO / "captures" / game / f"{rel}.png", renders / f"{rel}.png"
+            cap, ren = captures_of(game, camera) / f"{rel}.png", renders / f"{rel}.png"
         row = {"view": str(rel), "capture": cap, "render": ren}
         if not cap.exists() or not ren.exists():
             row["missing"] = "capture" if not cap.exists() else "render"
@@ -158,6 +170,7 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--game", default="KK")
     ap.add_argument("--blender", default="min", choices=sorted(BUILDS))
+    ap.add_argument("--camera", help="the Camera Profile to build through and compare with; the look file's by default")
     ap.add_argument("--no-render", action="store_true")
     ap.add_argument("--keep-bundles", action="store_true", help="build from the bundle copies as they are")
     ap.add_argument("--tag", default="", help="a name for an experiment's folder, such as one on edited bundle copies")
@@ -170,17 +183,19 @@ def main(argv: list[str]) -> int:
     if args.update_snapshot and (args.look or args.tag or args.keep_bundles):
         ap.error("--update-snapshot records the default build only, without --look, --tag or --keep-bundles")
     look = json.loads((REPO / "tests" / "look" / f"{args.game}.json").read_text())
-    root = WORK / (args.blender + "".join(f"+{sw}" for sw in sorted(args.look)) + (f"+{args.tag}" if args.tag else ""))
+    camera = args.camera or look["camera"]
+    run = args.blender + ("" if camera == "studio" else f"+{camera}")   # its snapshot entry
+    accepted = accepted_of(look, camera)
+    root = WORK / (run + "".join(f"+{sw}" for sw in sorted(args.look)) + (f"+{args.tag}" if args.tag else ""))
     if not args.no_render and not build_and_render(args.blender, args.game, look,
                                                    Limits(max_rss_gb=args.max_rss_gb, min_available_gb=1.5,
                                                           min_swap_free_gb=6.0), args.look, root,
-                                                   args.keep_bundles):
+                                                   args.keep_bundles, camera):
         return 1
     rows = {}
     for kind in lc.PASSES:
-        rows[kind] = compare_all(root, args.game, look, pregrade=kind == "pregrade")
-        path = report(rows[kind], root, args.game, "report-pregrade" if kind == "pregrade" else "report",
-                      look.get("accepted", {}))
+        rows[kind] = compare_all(root, args.game, look, pregrade=kind == "pregrade", camera=camera)
+        path = report(rows[kind], root, args.game, "report-pregrade" if kind == "pregrade" else "report", accepted)
         within = sum(1 for r in rows[kind] if "result" in r and r["result"].passed)
         print(f"look: {kind}, {within} of {len(rows[kind])} views within tolerance; report {path}")
     views = [r["view"] for r in rows["graded"]]
@@ -193,7 +208,7 @@ def main(argv: list[str]) -> int:
                 cells.append(f"{'no ' + r['missing']:>26}")
             else:
                 m = r["result"].summary()
-                state = "pass" if m["passed"] else "accepted" if view in look.get("accepted", {}) else "FAIL"
+                state = "pass" if m["passed"] else "accepted" if view in accepted else "FAIL"
                 cells.append(f"{m['mean_de']:5.2f} {m['p95_de']:5.1f} {m['worst_tile']:5.0%} {state:>8}")
         print(f"  {view:34} {cells[0]}   {cells[1]}")
     summary = {kind: {r["view"]: {k: v for k, v in r["result"].summary().items() if k != "passed"}
@@ -201,13 +216,12 @@ def main(argv: list[str]) -> int:
     (root / "summary.json").write_text(json.dumps(summary, indent=1))
     out = [v for i, v in enumerate(views)
            if any("missing" in rows[k][i] or not rows[k][i]["result"].passed for k in lc.PASSES)]
-    accepted = look.get("accepted", {})
     failed = [v for v in out if v not in accepted]
     for v in sorted(set(accepted) - set(out)):
         print(f"  {v} is accepted but {'passes' if v in views else 'is no Capture View'}: take it out of \"accepted\"")
     print(f"look: {len(views) - len(out)} of {len(views)} views pass both, {len(out) - len(failed)} accepted, "
           f"{len(failed)} failing")
-    return check_snapshot(args.game, args.blender, summary, look, args.update_snapshot) or (1 if failed else 0)
+    return check_snapshot(args.game, run, summary, look, args.update_snapshot) or (1 if failed else 0)
 
 
 def check_snapshot(game: str, build: str, summary: dict, look: dict, update: bool) -> int:

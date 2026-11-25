@@ -2,7 +2,7 @@
 
 How kkbp-maps is meant to work. Terms are defined in [CONTEXT.md](../../CONTEXT.md). Decisions that would be surprising without context are in [docs/adr/](../adr/). What each Game's map data looks like is in [games.md](games.md), and the order of work is in [roadmap.md](roadmap.md).
 
-Status: the KK spike's findings are in [kk-spike.md](kk-spike.md), the Map Bundle contract is in [map-bundle.md](map-bundle.md), the KK Extractor is in `extension/kkbp_maps/extractor/` (Phase 3), and the KK Builder in `extension/kkbp_maps/builder/` (Phase 4): its plan (no bpy) in `builder/`, the Blender side in `builder/blender/`, and the Name Tables in `names/`.
+Status: the KK spike's findings are in [kk-spike.md](kk-spike.md), the Map Bundle contract is in [map-bundle.md](map-bundle.md), the KK Extractor is in `extension/kkbp_maps/extractor/` (Phase 3), and the KK Builder in `extension/kkbp_maps/builder/` (Phase 4): its plan (no bpy) in `builder/`, the Blender side in `builder/blender/`, and the Name Tables in `names/`. The product shell (Phase 6) is the entry point and manifest, `deps/`, `jobs/` and `ui/`; its release checklist is [../release/v0.1.md](../release/v0.1.md).
 
 ## Shape
 
@@ -16,7 +16,7 @@ game install ──Extractor──▶ Map Bundles (cache) ──Builder──▶
 - The **Extractor** reads a Game install from disk (ADR 0001) and writes one Map Bundle per Map. It never imports `bpy`, so its tests run on any Python, and a build resumes where it stopped.
 - The **Map Bundle** is a contract in KKBP's style: JSON Schemas with `additionalProperties: false`, closed sets, a Manifest written last and a `major.minor` Schema Version ([map-bundle.md](map-bundle.md)).
 - The **Builder** turns Map Bundles into a Map Library: Props, Structures and Map Variants, marked as assets with catalogs, tags and previews.
-- Both run from an N-panel or from `blender -b`. Planned package layout: `extension/kkbp_maps/` with `extractor/` and `bundle/` (both bpy-free), `builder/`, `ui/`, `compat/` (the only place that checks Blender's version) and `deps/` (the first-run installer).
+- Both run from an N-panel or from `blender -b`. Package layout: `extension/kkbp_maps/` with `extractor/` and `bundle/` (both bpy-free), `builder/`, `ui/` (the N-panel), `compat/` (the only place that checks Blender's version), `deps/` (the pinned wheels and the checks that they're installed) and `jobs/` (the Build driver and the memory watchdog, both bpy-free).
 
 ## Decisions
 

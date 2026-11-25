@@ -109,6 +109,16 @@ class LibraryPlan:
                     return b, {"kind": "amplify_color", "lut": tid, "layout": "amplify_32x32"}
         raise ValueError(f"Camera Profile '{self.camera_of(m)}' grades with {name}, which no Map holds")
 
+    def as_shown(self, m: "MapPlan", variant: dict) -> dict:
+        """The Map Variant as its Camera Profile shows it: without the Map's fog where the camera replaces
+        it, and with the camera's height fog ("height_fog": top and density, or None) where it has one and
+        the Map's fog is drawn (ADR 0028)."""
+        profile = camera_profile(self.game, self.camera_of(m))
+        fog = variant["fog"] if profile.map_fog else {**variant["fog"], "enabled": False}
+        height = profile.height_fog
+        shown = {"top": height.top, "density": height.density} if height and fog["enabled"] else None
+        return {**variant, "fog": fog, "height_fog": shown}
+
     def props(self) -> list[AssetPlan]:
         return [a for a in self.assets.values() if a.kind == "prop"]
 

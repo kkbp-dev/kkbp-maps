@@ -36,6 +36,7 @@ PROP_HASH = "kkbp_maps_hash"
 
 UV0, UV1 = "UVMap", "Lightmap"
 COLOR_SPACE = {"srgb": "sRGB", "linear": "Non-Color"}
+OPAQUE_QUEUE = 2500       # Unity's last opaque queue: [ImageEffectOpaque] effects such as GlobalFog end here
 SPECCUBE_LOD_STEPS = 6   # UnityStandardConfig: the mip a fully rough surface samples
 EXTENSION = {"repeat": "REPEAT", "clamp": "EXTEND", "mirror": "MIRROR", "mirror_once": "MIRROR"}
 INTERPOLATION = {"point": "Closest", "bilinear": "Linear", "trilinear": "Linear"}
@@ -412,12 +413,15 @@ def _unlit(g: Graph, out, bundle, m, tier, images):
 LIGHT_INPUTS = [("Direct", "NodeSocketColor", (0.0, 0.0, 0.0, 1.0)), ("Albedo", "NodeSocketColor", (0.0, 0.0, 0.0, 1.0)),
                 ("Metallic", "NodeSocketFloat", 0.0), ("Smoothness", "NodeSocketFloat", 0.0),
                 ("Occlusion", "NodeSocketFloat", 1.0), ("Normal", "NodeSocketVector", (0.0, 0.0, 1.0)),
-                ("Reflections", "NodeSocketFloat", 1.0), ("Additive", "NodeSocketFloat", 0.0)]
+                ("Reflections", "NodeSocketFloat", 1.0), ("Additive", "NodeSocketFloat", 0.0),
+                ("Opaque", "NodeSocketFloat", 1.0)]
 
 
 def variant_light(bundle, variant: dict, name: str, images: Images, grade) -> bpy.types.ShaderNodeTree:
     """`.KKM Light <Map Variant>`: Unity Standard's indirect light added to the direct light, then the
-    linear fog and the Grade (ADR 0020, 0021). Outputs the graded colour and the ungraded one."""
+    linear fog, the camera's height fog on opaque surfaces, and the Grade (ADR 0020, 0021, 0028). Takes the
+    Map Variant as its Camera Profile shows it (LibraryPlan.as_shown). Outputs the graded colour and the
+    ungraded one."""
     tree = new_group(f".KKM Light {name}", inputs=LIGHT_INPUTS,
                      outputs=[("Color", "NodeSocketColor"), ("Ungraded", "NodeSocketColor")])
     g, i, o = io(tree)
@@ -456,6 +460,7 @@ def variant_light(bundle, variant: dict, name: str, images: Images, grade) -> bp
 
     lit = g.vmath("ADD", g.vmath("ADD", (i, "Direct"), diffuse), spec)
     lit = _fog(g, variant["fog"], lit, (i, "Additive"))
+    lit = _height_fog(g, variant, lit, (i, "Opaque"))
     g.link(lit, (o, "Ungraded"))
     g.link(g.group(grade, Color=lit) if grade is not None else lit, (o, "Color"))
     return tree
@@ -603,6 +608,43 @@ def _fog(g, fog: dict, lit, additive):
     return g.mix(f, color, lit)
 
 
+def _height_fog(g, variant: dict, lit, opaque):
+    """The camera's height fog (ADR 0028), as Unity's GlobalFog draws it over the opaque surfaces after
+    they are drawn (ComputeHalfSpace, height only): with C the camera, P the surface, V = P − C and F the
+    fog's top, k = 1 if C is at or below F, c1 = k(P·F + C·F), c2 = (1 − 2k)·P·F,
+    g = −(density/2)|V|·(c1 − min(c2, 0)² / |V·F|), and that distance through the linear fog."""
+    h = variant.get("height_fog")
+    if not h:
+        return lit
+    fog = variant["fog"]
+    geo = g.node("ShaderNodeNewGeometry")
+    dist = (g.node("ShaderNodeCameraData"), "View Distance")
+    toward = g.node("ShaderNodeSeparateXYZ", Vector=g.vmath("NORMALIZE", (geo, "Incoming")))
+    p_f = g.math("SUBTRACT", (g.node("ShaderNodeSeparateXYZ", Vector=(geo, "Position")), "Z"), h["top"])
+    v_f = g.math("MULTIPLY", g.math("MULTIPLY", (toward, "Z"), dist), -1.0)       # V·F, V from camera to surface
+    c_f = g.math("SUBTRACT", p_f, v_f)                                             # C·F
+    k = g.math("LESS_THAN", c_f, 1e-9)
+    c1 = g.math("MULTIPLY", k, g.math("ADD", p_f, c_f))
+    c2 = g.math("MULTIPLY", g.math("MULTIPLY_ADD", k, -2.0, 1.0), p_f)
+    low = g.math("MINIMUM", c2, 0.0)
+    term = g.math("DIVIDE", g.math("MULTIPLY", low, low), g.math("ABSOLUTE", g.math("ADD", v_f, 1e-5)))
+    depth = g.math("MULTIPLY", g.math("MULTIPLY", dist, -0.5 * h["density"]), g.math("SUBTRACT", c1, term))
+    span = max(fog["end"] - fog["start"], 1e-6)
+    f = g.math("DIVIDE", g.math("SUBTRACT", fog["end"], g.math("MAXIMUM", depth, 0.0)), span, clamp=True)
+    f = g.math("SUBTRACT", 1.0, g.math("MULTIPLY", opaque, g.math("SUBTRACT", 1.0, f)))  # 1 where not opaque
+    return g.mix(f, g.rgb(linear_rgb(fog["color"])), lit)
+
+
+def height_fog_sky(g, variant: dict, color, direction):
+    """The camera's height fog over a Sky Dome at infinity (ADR 0016, 0028): every direction below the
+    horizon goes the whole way through the fog, so it is the fog colour; above it, a camera above the fog's
+    top sees no fog. (A camera below the top would see a little near the horizon; that isn't drawn.)"""
+    if not variant.get("height_fog"):
+        return color
+    below = g.math("LESS_THAN", (g.node("ShaderNodeSeparateXYZ", Vector=direction), "Z"), 0.0)
+    return g.mix(below, color, g.rgb(linear_rgb(variant["fog"]["color"])))
+
+
 # --- materials --------------------------------------------------------------------------------------
 
 def _finish(mat, m: dict, tier):
@@ -626,7 +668,8 @@ def variant_material(bundle, material_id: str, variant_name: str, base, light) -
     additive = 1.0 if m["blend_mode"] == "additive" else 0.0
     lit = g.group(light, Direct=(rgb, "Color"), Albedo=(b, "Albedo"), Metallic=(b, "Metallic"),
                   Smoothness=(b, "Smoothness"), Occlusion=(b, "Occlusion"), Normal=(b, "Normal"),
-                  Reflections=(b, "Reflections"), Additive=additive)
+                  Reflections=(b, "Reflections"), Additive=additive,
+                  Opaque=1.0 if m["render_queue"] <= OPAQUE_QUEUE else 0.0)
     _outputs(g, m, (lit, "Color"), (b, "BSDF"), (b, "Alpha"))
     _finish(mat, m, tier)
     mat["kkbp_maps_variant"] = variant_name

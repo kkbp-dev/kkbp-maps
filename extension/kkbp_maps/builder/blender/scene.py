@@ -19,7 +19,7 @@ import bpy
 from mathutils import Matrix, Quaternion, Vector
 
 from .. import shaders
-from ..games import camera_profile, light_convention
+from ..games import light_convention
 from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, passes
 from . import materials as mats
 from .meshes import Meshes
@@ -174,7 +174,8 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
     for v, vp in zip(b.variants, m.variants):
         coll = bpy.data.collections.new(vp.name)
         grade = fb.grade(*plan.grade_of(m, v))
-        light = mats.variant_light(b, _as_shown(plan, m, v), vp.name, fb.images, grade)
+        as_shown = plan.as_shown(m, v)
+        light = mats.variant_light(b, as_shown, vp.name, fb.images, grade)
         variant_mats: dict[str, bpy.types.Material] = {}
 
         def material_for(material_id, vname=vp.name, light=light, variant_mats=variant_mats):
@@ -210,20 +211,13 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
                     o[mats.PROP_REALTIME_GI] = int(n["renderer"]["realtime_gi"])
         for k, light_record in enumerate(v["lights"]):
             coll.objects.link(_light_object(plan.game, light_record, f"{vp.name} {light_record['type'].title()}"))
-        w = build_world(b, v, vp, fb, grade)
+        w = build_world(b, as_shown, vp, fb, grade)
         coll["kkbp_maps_world"] = w.name
         coll["kkbp_maps_map"] = m.key
         coll["kkbp_maps_variant"] = v["id"]
         coll["kkbp_maps_times_of_day"] = list(v["times_of_day"])
         out.append(coll)
     return out
-
-
-def _as_shown(plan: LibraryPlan, m: MapPlan, v: dict) -> dict:
-    """The Map Variant as its Camera Profile shows it: without the Map's fog where the camera replaces it."""
-    if camera_profile(plan.game, plan.camera_of(m)).map_fog:
-        return v
-    return {**v, "fog": {**v["fog"], "enabled": False}}
 
 
 def _shown_nodes(b, v) -> set[int]:
@@ -270,13 +264,16 @@ def _light_object(game: str, light: dict, name: str) -> bpy.types.Object:
 
 
 def build_world(b, v: dict, vp: VariantPlan, fb: FileBuilder, grade) -> bpy.types.World:
-    """The Map Variant's World: in EEVEE the Sky for camera rays only, graded; black to every other ray,
-    since the Variant Materials hold the indirect light (ADR 0020). In Cycles the Sky, ungraded, for all."""
+    """The Map Variant's World: in EEVEE the Sky for camera rays only, with the camera's height fog over a
+    Sky Dome (ADR 0028), graded; black to every other ray, since the Variant Materials hold the indirect
+    light (ADR 0020). In Cycles the Sky, ungraded and unfogged, for all. Takes the Map Variant as its Camera
+    Profile shows it (LibraryPlan.as_shown)."""
     w = bpy.data.worlds.new(vp.name)
     w.use_nodes = True
     w.node_tree.nodes.clear()
     g = Graph(w.node_tree)
     sky = v["sky"]
+    shown = None
     if sky and sky["kind"] == "cubemap":
         img = fb.images.get(b, sky["texture"])
         coords = g.node("ShaderNodeTexCoord")
@@ -287,9 +284,12 @@ def build_world(b, v: dict, vp: VariantPlan, fb: FileBuilder, grade) -> bpy.type
         k = mats.COLOR_SPACE_DOUBLE * sky["exposure"]
         tint = tuple(k * c for c in mats.linear_rgb(sky["tint"]))
         color = g.mix(1.0, (env, "Color"), (*tint, 1.0), blend_type="MULTIPLY")
+        if sky["source"] == "dome":   # a mesh, so GlobalFog fogs it; Unity's skybox is past its reach
+            shown = mats.height_fog_sky(g, v, color, (coords, "Generated"))
     else:
         color = (g.rgb((0.0, 0.0, 0.0)), "Color")  # a procedural skybox isn't rebuilt yet; no KK Golden Map shows one
-    graded = (g.group(grade, Color=color), "Color") if grade is not None else color
+    shown = shown or color
+    graded = (g.group(grade, Color=shown), "Color") if grade is not None else shown
     camera = (g.node("ShaderNodeLightPath"), "Is Camera Ray")
     eevee = g.node("ShaderNodeBackground", Color=g.mix(camera, (0.0, 0.0, 0.0, 1.0), graded), Strength=1.0)
     g.link(eevee, (g.node("ShaderNodeOutputWorld", target="EEVEE", is_active_output=True), "Surface"))

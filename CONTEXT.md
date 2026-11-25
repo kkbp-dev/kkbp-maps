@@ -77,7 +77,7 @@ A renderer the game never draws but that casts shadows, such as the hidden shell
 _Avoid_: kage, shadow proxy
 
 **Camera Profile**:
-The settings of one game camera that no map file holds, such as its tonemapper, exposure and sun shaft strength, kept in the repository as Game data. A Map names the one that shows it.
+The settings of one game camera that no map file holds, such as its tonemapper, exposure, sun shaft strength and height fog, kept in the repository as Game data. KK has two: `studio` (CharaStudio's camera) and `game` (the story game's). A Map names the one that shows it.
 _Avoid_: camera preset, post settings
 
 ### What a Map Library holds

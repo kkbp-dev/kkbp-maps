@@ -165,3 +165,15 @@ def test_studio_grades_every_time_of_day_with_its_own_lut(tmp_path):
     assert names == ["Lut_Amount", "Lut_TimeNight1"]
     names = [b.textures[studio.grade_of(ms, v)[1]["lut"]]["name"] for v in b.variants]
     assert names == ["Lut_Amount", "Lut_Amount"]
+
+
+def test_the_story_camera_adds_its_height_fog_where_the_maps_fog_is_drawn(tmp_path):
+    b = bundle(tmp_path, change=lambda b: b.variants[1]["fog"].update(enabled=False))
+    game = plan_library([b], TABLES, camera="game")
+    studio = plan_library([b], TABLES, camera="studio")
+    fogged, clear = (game.as_shown(game.maps[0], v) for v in b.variants)
+    assert fogged["fog"] == b.variants[0]["fog"] and fogged["height_fog"] == {"top": 1.0, "density": 2.0}
+    assert clear["height_fog"] is None
+    in_studio = studio.as_shown(studio.maps[0], b.variants[0])
+    assert not in_studio["fog"]["enabled"] and in_studio["height_fog"] is None
+    assert b.variants[0]["fog"]["enabled"]   # the bundle's own record is left alone

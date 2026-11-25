@@ -188,7 +188,7 @@
    },
    "groups": {
     ".KKM Grade Lut_TimeNight1": "28e5b21a87942cf5",
-    ".KKM Light Park": "87c5080842e8cb72"
+    ".KKM Light Park": "8b27e063b0a17f61"
    },
    "images": [
     {
@@ -1907,9 +1907,9 @@
     ".KKM Grade Lut_Amount": "5e2349814b900b4b",
     ".KKM Grade Lut_TimeNight1": "28e5b21a87942cf5",
     ".KKM Grade Lut_TimeSunset1": "638371d6b5b448ac",
-    ".KKM Light School 1F, Day": "62b075f3e29afb53",
-    ".KKM Light School 1F, Evening": "832c98e2d4535dd1",
-    ".KKM Light School 1F, Night": "35a2084bd4397bd4"
+    ".KKM Light School 1F, Day": "1005c8dd63c770f6",
+    ".KKM Light School 1F, Evening": "4e3ce73289d5d43a",
+    ".KKM Light School 1F, Night": "560456e31ca764f5"
    },
    "images": [
     {
@@ -3990,15 +3990,15 @@
    },
    "worlds": {
     "School 1F, Day": {
-     "fingerprint": "b94735fbddf006db",
+     "fingerprint": "958a90da7cd8ec59",
      "sky": "cubemap"
     },
     "School 1F, Evening": {
-     "fingerprint": "410fc2b21db2cd7c",
+     "fingerprint": "a540ed2de670d39a",
      "sky": "cubemap"
     },
     "School 1F, Night": {
-     "fingerprint": "96b9e62e332e9c3a",
+     "fingerprint": "43ce5c3b3e6557fe",
      "sky": "cubemap"
     }
    }
@@ -5035,9 +5035,9 @@
     ".KKM Grade Lut_Amount": "5e2349814b900b4b",
     ".KKM Grade Lut_TimeNight1": "28e5b21a87942cf5",
     ".KKM Grade Lut_TimeSunset1": "638371d6b5b448ac",
-    ".KKM Light Sports Ground, Day": "ee213441c4e209e5",
-    ".KKM Light Sports Ground, Evening": "ab08ee3b2ae56ec1",
-    ".KKM Light Sports Ground, Night": "31ab32bdcfd499fe"
+    ".KKM Light Sports Ground, Day": "2bad20517dba7d51",
+    ".KKM Light Sports Ground, Evening": "14c5d2cb799864d4",
+    ".KKM Light Sports Ground, Night": "94e2fa4bf4ce3849"
    },
    "images": [
     {
@@ -6792,15 +6792,15 @@
    },
    "worlds": {
     "Sports Ground, Day": {
-     "fingerprint": "b94735fbddf006db",
+     "fingerprint": "6ba159031053ea34",
      "sky": "cubemap"
     },
     "Sports Ground, Evening": {
-     "fingerprint": "410fc2b21db2cd7c",
+     "fingerprint": "a540ed2de670d39a",
      "sky": "cubemap"
     },
     "Sports Ground, Night": {
-     "fingerprint": "96b9e62e332e9c3a",
+     "fingerprint": "43ce5c3b3e6557fe",
      "sky": "cubemap"
     }
    }
@@ -14028,9 +14028,7 @@
   "map_variants": 7,
   "maps": [
    {
-    "assumptions": [
-     "Camera Profile 'game' not captured yet: no tonemapper, exposure 1, no sun shafts (ADR 0010)"
-    ],
+    "assumptions": [],
     "extractor_skipped": [],
     "file": "Maps/School 1F.blend",
     "key": "map/scene/1f",
@@ -14058,9 +14056,7 @@
     ]
    },
    {
-    "assumptions": [
-     "Camera Profile 'game' not captured yet: no tonemapper, exposure 1, no sun shafts (ADR 0010)"
-    ],
+    "assumptions": [],
     "extractor_skipped": [],
     "file": "Maps/Sports Ground.blend",
     "key": "map/scene/ground",
@@ -14086,9 +14082,7 @@
     ]
    },
    {
-    "assumptions": [
-     "Camera Profile 'game' not captured yet: no tonemapper, exposure 1, no sun shafts (ADR 0010)"
-    ],
+    "assumptions": [],
     "extractor_skipped": [
      {
       "count": 8,

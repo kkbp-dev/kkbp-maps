@@ -24,5 +24,17 @@
   "map/scene/park/day/studio": "park's real-time GI is approximated (ADR 0025); judged fine by eye"
  },
  "disable_effects": ["DepthOfField", "BloomAndFlares", "VignetteAndChromaticAberration", "AmplifyOcclusionEffect", "Blur", "SepiaTone", "CrossFade"],
- "set_aside": ["GraphicsSettings.dll", "KK_BetterShadowQualitySettings.dll", "KK_ShadowColorSwapper.dll", "PostProcessingEffect.dll", "PostProcessingRuntime.dll"]
+ "set_aside": ["GraphicsSettings.dll", "KK_BetterShadowQualitySettings.dll", "KK_ShadowColorSwapper.dll", "PostProcessingEffect.dll", "PostProcessingRuntime.dll"],
+ "cameras": {"game": {"accepted": {
+   "map/scene/ground/day/eye-0": "the sunlit pathway is too bright: the Builder keeps the Principled BSDF and doesn't model the sun's self-shadowing (kk-spike.md, Known discrepancies) (as in Studio)",
+   "map/scene/ground/day/eye-90": "the gravel strip in front of the wall is a little noisier and brighter; judged fine by eye (as in Studio)",
+   "map/scene/ground/day/studio": "the sunlit pathway is too bright: the Builder keeps the Principled BSDF and doesn't model the sun's self-shadowing (kk-spike.md, Known discrepancies) (as in Studio)",
+   "map/scene/ground/evening/eye-0": "just over the pre-Grade mean; indistinguishable by eye (as in Studio)",
+   "map/scene/ground/evening/studio": "the Sky Dome is drawn at infinity (kk-spike.md, Known discrepancies); a fainter tree shadow (as in Studio)",
+   "map/scene/park/day/eye-0": "park's real-time GI is approximated (ADR 0025); judged fine by eye (as in Studio)",
+   "map/scene/park/day/eye-180": "park's real-time GI is approximated (ADR 0025); judged fine by eye (as in Studio)",
+   "map/scene/park/day/eye-270": "park's real-time GI is approximated (ADR 0025); judged fine by eye (as in Studio)",
+   "map/scene/park/day/eye-90": "park's real-time GI is approximated (ADR 0025); judged fine by eye (as in Studio)",
+   "map/scene/park/day/studio": "park's real-time GI is approximated (ADR 0025); judged fine by eye (as in Studio)"
+ }}}
 }

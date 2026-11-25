@@ -4,7 +4,9 @@
   capture plugin (tools/capture.py, camera-<profile>.json). `map_fog` and `map_sun_shafts` say whether
   the camera shows the Map's own fog and sun shafts: Studio replaces both with the scene's settings, off
   by default. `grade_lut` names the LUT the camera grades with instead of the Map's: Studio keeps its
-  scene filter (Lut_Amount unless the user picks another) whatever the Time of Day. A profile not captured yet is marked assumed, and the Build Report says so.
+  scene filter (Lut_Amount unless the user picks another) whatever the Time of Day. `height_fog` is the
+  camera's own height fog (ADR 0028), drawn where the Map's fog is. A profile not captured yet is marked
+  assumed, and the Build Report says so.
 - **The light convention** of the Game's Unity: with `lights_use_linear_intensity` false (KK's
   GraphicsSettings), a light's colour reaches the shader as linear(colour · intensity).
 """
@@ -15,6 +17,15 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
+class HeightFog:
+    """Unity's GlobalFog with height fog only (ADR 0028): fog thickening below `top` metres above the
+    origin (Unity's Y, Blender's Z, the same number), in the Map Variant's fog colour and through its linear
+    fog's start and end, over every surface up to the opaque queue and over a Sky Dome."""
+    top: float
+    density: float
+
+
+@dataclass(frozen=True)
 class CameraProfile:
     tonemapper: str = "none"      # AmplifyColor's: "none", "photographic" or "aces"
     exposure: float = 1.0
@@ -22,6 +33,7 @@ class CameraProfile:
     map_fog: bool = True          # the Map's fog is drawn (SunLightInfo's)
     map_sun_shafts: bool = True   # the Map's sun shafts are drawn
     grade_lut: str | None = None  # a LUT, by name, that grades every Map instead of the Map's own
+    height_fog: HeightFog | None = None
     assumed: bool = True
 
 
@@ -35,7 +47,13 @@ class GameLight:
 
 CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
     "KK": {
-        "game": CameraProfile(),
+        # The story game's ActionCamera (camera/action.unity3d; free roam's camera is a copy of it), captured
+        # 2026-11-25: AmplifyColor Tonemapper Disabled, Exposure 1, ApplyDithering false, the Map's own LUT
+        # per Time of Day; GlobalFog height fog only (height 1, heightDensity 2), on where the Map's fog is
+        # (ActionMap.UpdateCameraFog); SunShafts intensity 2.2, added after the Grade, which draw nothing on
+        # Maps with a Sky Dome (kk-spike.md, "Known discrepancies").
+        "game": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=2.2, map_fog=True, map_sun_shafts=True,
+                              grade_lut=None, height_fog=HeightFog(top=1.0, density=2.0), assumed=False),
         # CharaStudio 5.6.2f1, captured 2026-11-24: AmplifyColor Tonemapper Disabled, Exposure 1,
         # ApplyDithering false; GlobalFog and SunShafts follow the Studio scene, both off by default;
         # the Grade is the scene's filter, Lut_Amount by default, at every Time of Day (look check: the

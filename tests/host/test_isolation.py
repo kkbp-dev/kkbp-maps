@@ -108,3 +108,17 @@ def test_unitypy_imports_without_the_fmod_packages():
     )
     out = subprocess.run([sys.executable, "-I", "-c", probe], capture_output=True, text=True)
     assert out.stdout.strip() == "ok", out.stderr
+
+
+# --- the Build driver and the dependency pins -----------------------------------------------------
+
+def test_jobs_and_deps_import_only_the_standard_library():
+    """The driver runs on Blender's Python outside Blender; the N-panel imports deps in Blender."""
+    for folder in ("jobs", "deps"):
+        for path in sorted((PACKAGE_PARENT / folder).glob("*.py")):
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
+                    [node.module] if isinstance(node, ast.ImportFrom) and node.level == 0 else []
+                for name in names:
+                    top = name.split(".")[0]
+                    assert top in sys.stdlib_module_names or top == "kkbp_maps", f"{folder}/{path.name} imports {name}"

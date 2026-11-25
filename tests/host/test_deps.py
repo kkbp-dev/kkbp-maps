@@ -1,12 +1,9 @@
 """The dependency pins, their lock, and how Blender's process finds them without importing them."""
 
-import ast
 import sys
 from importlib import metadata
 
-import pytest
 
-from conftest import PACKAGE_PARENT
 from kkbp_maps import deps
 
 
@@ -60,12 +57,3 @@ def test_site_folders_hold_the_pins():
     assert folders
     import UnityPy
     assert any(UnityPy.__file__.startswith(f) for f in folders)
-
-
-def test_deps_imports_only_the_standard_library():
-    for path in sorted((PACKAGE_PARENT / "deps").glob("*.py")):
-        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-            names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
-                [node.module] if isinstance(node, ast.ImportFrom) and node.level == 0 else []
-            for name in names:
-                assert name.split(".")[0] in sys.stdlib_module_names, f"deps/{path.name} imports {name}"

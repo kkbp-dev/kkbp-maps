@@ -11,7 +11,7 @@ The Golden Maps (golden/<Game>/, made by tools/golden.py) are copied into tests/
 first and built from there, never in place. Each build gets its own library folder and its own Blender
 profile (BLENDER_USER_RESOURCES), and runs `blender -b --factory-startup` with this repository's
 extension/ on the path (tools/blender_build.py): nothing is installed into Blender or the user's
-profile. Every Blender process runs under the memory watchdog (tools/memory_watch.py).
+profile. Every Blender process runs under the memory watchdog (extension/kkbp_maps/jobs/memory.py).
 
 The snapshot, tests/snapshots/build/<Game>.json, holds counts, names, hashes and tags only (ADR 0007).
 Set KKBP_MAPS_BLENDER_<NAME> to use another binary for a build.
@@ -28,8 +28,8 @@ import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO / "tools"))
-from memory_watch import Limits, run_watched  # noqa: E402
+sys.path.insert(0, str(REPO / "extension"))
+from kkbp_maps.jobs.memory import Limits, run_watched  # noqa: E402
 
 GOLDEN = {"KK": ["map/scene/1f", "map/scene/ground", "map/scene/park"]}
 BUILDS = {  # the snap's launcher can't start from every process, so the snap's binary is named directly

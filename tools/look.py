@@ -42,7 +42,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
 import look_compare as lc  # noqa: E402
 from build_golden import BUILDS, GOLDEN, WORK as BUILD_WORK, blender, blender_path, copy_golden  # noqa: E402
-from memory_watch import Limits  # noqa: E402
+from kkbp_maps.jobs.memory import Limits  # noqa: E402
 
 WORK = REPO / "tests" / ".work" / "look"
 BUILD_BUNDLES = BUILD_WORK / "bundles"

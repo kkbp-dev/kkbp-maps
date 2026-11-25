@@ -9,8 +9,7 @@ Usage (on a Python with UnityPy, such as KKBP's dev venv):
 
 The Golden Maps go to golden/<Game>/ (ignored by git; ADR 0007). Each Map is extracted in a process of
 its own, watched: it is stopped if it grows past --max-rss-gb, or if the machine runs low on memory or
-swap, before the desktop would freeze. The watchdog reads /proc and so works on Linux only; elsewhere
-the extraction runs unwatched, with a notice. The snapshot, tests/snapshots/extract/<Game>.json, holds
+swap, before the desktop would freeze (extension/kkbp_maps/jobs/memory.py; the swap rule is Linux only). The snapshot, tests/snapshots/extract/<Game>.json, holds
 counts, hashes and names only, never game content.
 """
 
@@ -28,7 +27,7 @@ sys.path.insert(0, str(REPO / "extension"))
 sys.path.insert(0, str(REPO / "extension" / "kkbp_maps"))
 sys.path.insert(0, str(REPO / "tools"))
 
-from memory_watch import Limits, run_watched  # noqa: E402
+from kkbp_maps.jobs.memory import Limits, run_watched  # noqa: E402
 
 GOLDEN = {"KK": ["map/scene/1f", "map/scene/park", "map/scene/ground"]}
 GAME_FOLDERS = {"KK": "Koikatsu", "KKS": "Koikatsu Sunshine", "SVS": "Summer Vacation Scramble"}

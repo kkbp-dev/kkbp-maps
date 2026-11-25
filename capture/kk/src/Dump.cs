@@ -12,6 +12,72 @@ namespace KKMaps.Capture
     /// </summary>
     internal static class Dump
     {
+        /// <summary>
+        /// Every Light in the loaded scenes, active or not, with what decides how it lights a surface, the
+        /// global light settings, and the named renderers (their layer decides which lights reach them).
+        /// </summary>
+        public static Dictionary<string, object> Lights(Camera cam, IEnumerable<string> rendererNames)
+        {
+            var lights = new List<object>();
+            foreach (var l in Resources.FindObjectsOfTypeAll<Light>())
+            {
+                if (!l.gameObject.scene.IsValid()) continue;   // prefabs and assets, not in a scene
+                lights.Add(new Dictionary<string, object>
+                {
+                    { "path", PathOf(l.transform) }, { "active", l.gameObject.activeInHierarchy }, { "enabled", l.enabled },
+                    { "type", l.type.ToString() }, { "color", Value(l.color) }, { "intensity", l.intensity },
+                    { "bounce_intensity", l.bounceIntensity }, { "shadows", l.shadows.ToString() },
+                    { "shadow_strength", l.shadowStrength }, { "shadow_bias", l.shadowBias },
+                    { "shadow_normal_bias", l.shadowNormalBias }, { "culling_mask", (double)l.cullingMask },
+                    { "render_mode", l.renderMode.ToString() }, { "range", l.range }, { "layer", (double)l.gameObject.layer },
+                    { "euler", Value(l.transform.eulerAngles) }, { "forward", Value(l.transform.forward) },
+                    { "is_render_settings_sun", RenderSettings.sun == l },
+                });
+            }
+            var renderers = new List<object>();
+            var wanted = new HashSet<string>(rendererNames);
+            foreach (var r in UnityEngine.Object.FindObjectsOfType<Renderer>())
+            {
+                if (!wanted.Contains(r.gameObject.name)) continue;
+                var mats = new List<object>();
+                foreach (var m in r.sharedMaterials)
+                {
+                    if (m == null) { mats.Add(null); continue; }
+                    mats.Add(new Dictionary<string, object>
+                    {
+                        { "name", m.name }, { "shader", m.shader.name },
+                        { "keywords", new List<object>(m.shaderKeywords) }, { "render_queue", (double)m.renderQueue },
+                        { "gi_flags", m.globalIlluminationFlags.ToString() },
+                    });
+                }
+                renderers.Add(new Dictionary<string, object>
+                {
+                    { "path", PathOf(r.transform) }, { "layer", (double)r.gameObject.layer }, { "enabled", r.enabled },
+                    { "lightmap_index", (double)r.lightmapIndex }, { "realtime_lightmap_index", (double)r.realtimeLightmapIndex },
+                    { "shadow_casting", r.shadowCastingMode.ToString() }, { "receive_shadows", r.receiveShadows },
+                    { "reflection_probe_usage", r.reflectionProbeUsage.ToString() }, { "materials", mats },
+                });
+            }
+            return new Dictionary<string, object>
+            {
+                { "lights_use_linear_intensity", UnityEngine.Rendering.GraphicsSettings.lightsUseLinearIntensity },
+                { "render_settings_sun", RenderSettings.sun == null ? null : PathOf(RenderSettings.sun.transform) },
+                { "ambient_mode", RenderSettings.ambientMode.ToString() }, { "ambient_intensity", RenderSettings.ambientIntensity },
+                { "ambient_light", Value(RenderSettings.ambientLight) },
+                { "reflection_intensity", RenderSettings.reflectionIntensity },
+                { "shadow_distance", QualitySettings.shadowDistance },
+                { "camera_culling_mask", (double)cam.cullingMask },
+                { "lights", lights }, { "renderers", renderers },
+            };
+        }
+
+        private static string PathOf(Transform t)
+        {
+            string p = t.name;
+            for (t = t.parent; t != null; t = t.parent) p = t.name + "/" + p;
+            return p;
+        }
+
         public static Dictionary<string, object> Camera(Camera cam)
         {
             var components = new List<object>();

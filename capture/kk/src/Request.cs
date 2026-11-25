@@ -26,7 +26,9 @@ namespace KKMaps.Capture
     /// <code>
     /// </code>
     /// It writes &lt;output&gt;/camera-studio.json (the Camera Profile's raw settings, Dump), and for each view
-    /// &lt;output&gt;/&lt;folder&gt;/&lt;variant&gt;/&lt;view&gt;.png (the Reference Capture) and .pregrade.exr. The result goes
+    /// &lt;output&gt;/&lt;folder&gt;/&lt;variant&gt;/&lt;view&gt;.png (the Reference Capture) and .pregrade.exr, and for each
+    /// variant &lt;folder&gt;/&lt;variant&gt;/lights.json (Dump.Lights: every light, and the renderers the request
+    /// names under "renderers"). With "frames": false it writes only the lights. The result goes
     /// to kkbp-maps-capture.result.json next to the request:
     /// { "state": "running" | "succeeded" | "failed", "error": …, "files": […], "warnings": […], "views": […] },
     /// rewritten after each view while "running", then the game quits.
@@ -104,6 +106,8 @@ namespace KKMaps.Capture
             int width = Int(request, "width", 1280);
             int height = Int(request, "height", 720);
             var disable = new HashSet<string>(List(request, "disable").Cast<string>());
+            bool takeFrames = !request.ContainsKey("frames") || (bool)request["frames"];
+            var rendererNames = List(request, "renderers").Cast<string>().ToList();
 
             var studio = Singleton<Studio.Studio>.Instance;
             Camera cam = studio.cameraCtrl.mainCmaera;
@@ -125,6 +129,14 @@ namespace KKMaps.Capture
                     yield return new WaitForSecondsRealtime(1f);
                     Resources.UnloadUnusedAssets();
                     System.GC.Collect();
+
+                    string lightsFolder = Path.Combine(Path.Combine(output, (string)map["folder"]), vname);
+                    Directory.CreateDirectory(lightsFolder);
+                    string lightsPath = Path.Combine(lightsFolder, "lights.json");
+                    File.WriteAllText(lightsPath, Json.Write(Dump.Lights(cam, rendererNames)));
+                    files.Add(lightsPath);
+                    Write("running", null);
+                    if (!takeFrames) continue;
 
                     if (!files.Any(f => ((string)f).EndsWith("camera-studio.json")))
                     {

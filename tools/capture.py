@@ -5,6 +5,8 @@ Developers only, never users. Run with KKBP's dev venv (numpy, for the one axis 
     ../kkbp/importer/.venv/bin/python -I tools/capture.py            # capture every Capture View
     ../kkbp/importer/.venv/bin/python -I tools/capture.py --seed     # capture Studio's own cameras and
                                                                      # keep them as the Capture Views
+    ../kkbp/importer/.venv/bin/python -I tools/capture.py --lights NAME... --map map/scene/ground
+                                                                     # dump the lights only, no frames
 
 It writes the request file (BepInEx/config/kkbp-maps-capture.json), sets aside the HF Patch plugins that
 change the frame (tests/look/KK.json, "set_aside"), starts CharaStudio through games/play.sh, waits for
@@ -74,7 +76,8 @@ def variants(map_key: str) -> list[dict]:
     return data["variants"]
 
 
-def request(look: dict, seed: bool, only: list[str] | None = None) -> dict:
+def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[str] | None = None) -> dict:
+    """With `lights`, a run that only dumps each Map Variant's lights and those renderers, taking no frames."""
     views = {} if seed else json.loads(VIEWS.read_text(encoding="utf-8"))["views"]
     maps = []
     for key in look["maps"]:
@@ -90,11 +93,14 @@ def request(look: dict, seed: bool, only: list[str] | None = None) -> dict:
             else:
                 vv = [{"name": w["name"], "position": to_unity(w["position"]), "target": to_unity(w["target"]),
                        "fov": w["fov"]} for w in views if w["map"] == key and w["variant"] == v["id"]]
-            if vv:
+            if vv or lights is not None:
                 vs.append({"name": v["id"], "type": TIME_TYPE[v["times_of_day"][0]], "views": vv})
         maps.append({"folder": key, "bundle": bundle, "variants": vs})
-    return {"output": winpath(OUT), "width": look["width"], "height": look["height"],
-            "disable": look["disable_effects"], "maps": maps}
+    out = {"output": winpath(OUT), "width": look["width"], "height": look["height"],
+           "disable": look["disable_effects"], "maps": maps}
+    if lights is not None:
+        out.update(frames=False, renderers=lights)
+    return out
 
 
 def set_aside(names: list[str]) -> list[Path]:
@@ -176,6 +182,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--undeploy", action="store_true", help="take the plugin out of the game, then stop")
     ap.add_argument("--timeout", type=int, default=2400)
     ap.add_argument("--map", action="append", help="only this Map, such as map/scene/park; all by default")
+    ap.add_argument("--lights", nargs="*", metavar="RENDERER",
+                    help="take no frames: only dump each Map Variant's lights (lights.json), and these renderers")
     args = ap.parse_args(argv)
 
     if running():
@@ -194,7 +202,7 @@ def main(argv: list[str]) -> int:
         return 2
 
     look = json.loads(LOOK.read_text(encoding="utf-8"))
-    res = run(request(look, args.seed, args.map), look, args.timeout)
+    res = run(request(look, args.seed, args.map, args.lights), look, args.timeout)
     if res is None:
         print("capture: no result", file=sys.stderr)
         return 1

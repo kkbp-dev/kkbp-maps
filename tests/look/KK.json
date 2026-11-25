@@ -10,6 +10,17 @@
   "graded": {"mean_de": 5.0, "p95_de": 15.0, "tile": 0.40, "grid": 8, "floor": 0.05}
  },
  "regression": {"mean_de": 0.1, "p95_de": 0.3, "worst_tile": 0.02},
+ "accepted": {
+  "map/scene/ground/day/eye-90": "the gravel strip in front of the wall is a little noisier and brighter; judged fine by eye",
+  "map/scene/ground/evening/eye-0": "just over the pre-Grade mean; indistinguishable by eye",
+  "map/scene/ground/evening/eye-270": "the Sky Dome is drawn at infinity (kk-spike.md, Known discrepancies)",
+  "map/scene/ground/evening/studio": "the Sky Dome is drawn at infinity (kk-spike.md, Known discrepancies); a fainter tree shadow",
+  "map/scene/park/day/eye-0": "park's real-time GI is approximated (ADR 0025); judged fine by eye",
+  "map/scene/park/day/eye-180": "park's real-time GI is approximated (ADR 0025); judged fine by eye",
+  "map/scene/park/day/eye-270": "park's real-time GI is approximated (ADR 0025); judged fine by eye",
+  "map/scene/park/day/eye-90": "park's real-time GI is approximated (ADR 0025); judged fine by eye",
+  "map/scene/park/day/studio": "park's real-time GI is approximated (ADR 0025); judged fine by eye"
+ },
  "disable_effects": ["DepthOfField", "BloomAndFlares", "VignetteAndChromaticAberration", "AmplifyOcclusionEffect", "Blur", "SepiaTone", "CrossFade"],
  "set_aside": ["GraphicsSettings.dll", "KK_BetterShadowQualitySettings.dll", "KK_ShadowColorSwapper.dll", "PostProcessingEffect.dll", "PostProcessingRuntime.dll"]
 }

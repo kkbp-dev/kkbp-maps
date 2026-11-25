@@ -16,7 +16,9 @@ under the memory watchdog.
 
 The numbers are then compared with the look snapshot, tests/snapshots/look/<Game>.json (numbers only), per
 Blender build: a view worse than its recorded numbers by more than the look file's "regression" margins is
-a regression even if it passes. Exits 1 if any view is out of tolerance or regressed.
+a regression even if it passes. A view the look file lists under "accepted" (with the reason the user
+accepted it) is reported as accepted rather than failed, and is still checked against the snapshot.
+Exits 1 if any view is out of tolerance and not accepted, or regressed.
 """
 
 from __future__ import annotations
@@ -123,10 +125,11 @@ def compare_all(root: Path, game: str, look: dict, pregrade: bool = False) -> li
     return rows
 
 
-def report(rows: list[dict], root: Path, game: str, name: str = "report") -> Path:
+def report(rows: list[dict], root: Path, game: str, name: str = "report", accepted: dict | None = None) -> Path:
+    accepted = accepted or {}
     parts = [f"<!doctype html><meta charset=utf-8><title>Look check {game} {root.name}</title><style>"
              "body{font:14px system-ui;margin:16px;background:#1b1b1b;color:#ddd}img{width:32%;margin-right:1%}"
-             "h2{font-size:15px;margin:24px 0 4px}.fail{color:#f77}.pass{color:#7d7}td,th{padding:2px 10px;text-align:right}"
+             "h2{font-size:15px;margin:24px 0 4px}.fail{color:#f77}.pass{color:#7d7}.accepted{color:#db7}td,th{padding:2px 10px;text-align:right}"
              "</style>", f"<h1>Look check: {game}, {html.escape(root.name)}</h1><p>Left: Reference Capture. Middle: Blender. "
              "Right: ΔE2000 (blue 0, red ≥ twice the p95 tolerance).</p><table><tr><th>view<th>mean ΔE<th>p95 ΔE"
              "<th>worst tile<th>"]
@@ -135,9 +138,9 @@ def report(rows: list[dict], root: Path, game: str, name: str = "report") -> Pat
             parts.append(f"<tr><td>{html.escape(r['view'])}<td colspan=4 class=fail>no {r['missing']}")
         else:
             s = r["result"].summary()
-            cls = "pass" if s["passed"] else "fail"
+            cls = "pass" if s["passed"] else "accepted" if r["view"] in accepted else "fail"
             parts.append(f"<tr><td><a href='#{html.escape(r['view'])}'>{html.escape(r['view'])}</a><td>{s['mean_de']}"
-                         f"<td>{s['p95_de']}<td>{s['worst_tile']:+.1%}<td class={cls}>{'pass' if s['passed'] else 'fail'}")
+                         f"<td>{s['p95_de']}<td>{s['worst_tile']:+.1%}<td class={cls} title='{html.escape(accepted.get(r["view"], ""))}'>{cls}")
     parts.append("</table>")
     for r in rows:
         if "missing" in r:
@@ -176,7 +179,8 @@ def main(argv: list[str]) -> int:
     rows = {}
     for kind in lc.PASSES:
         rows[kind] = compare_all(root, args.game, look, pregrade=kind == "pregrade")
-        path = report(rows[kind], root, args.game, "report-pregrade" if kind == "pregrade" else "report")
+        path = report(rows[kind], root, args.game, "report-pregrade" if kind == "pregrade" else "report",
+                      look.get("accepted", {}))
         within = sum(1 for r in rows[kind] if "result" in r and r["result"].passed)
         print(f"look: {kind}, {within} of {len(rows[kind])} views within tolerance; report {path}")
     views = [r["view"] for r in rows["graded"]]
@@ -189,15 +193,20 @@ def main(argv: list[str]) -> int:
                 cells.append(f"{'no ' + r['missing']:>26}")
             else:
                 m = r["result"].summary()
-                cells.append(f"{m['mean_de']:5.2f} {m['p95_de']:5.1f} {m['worst_tile']:5.0%} "
-                             f"{'pass' if m['passed'] else 'FAIL':>8}")
+                state = "pass" if m["passed"] else "accepted" if view in look.get("accepted", {}) else "FAIL"
+                cells.append(f"{m['mean_de']:5.2f} {m['p95_de']:5.1f} {m['worst_tile']:5.0%} {state:>8}")
         print(f"  {view:34} {cells[0]}   {cells[1]}")
     summary = {kind: {r["view"]: {k: v for k, v in r["result"].summary().items() if k != "passed"}
                       for r in rows[kind] if "result" in r} for kind in lc.PASSES}
     (root / "summary.json").write_text(json.dumps(summary, indent=1))
-    failed = [v for i, v in enumerate(views)
-              if any("missing" in rows[k][i] or not rows[k][i]["result"].passed for k in lc.PASSES)]
-    print(f"look: {len(views) - len(failed)} of {len(views)} views pass both")
+    out = [v for i, v in enumerate(views)
+           if any("missing" in rows[k][i] or not rows[k][i]["result"].passed for k in lc.PASSES)]
+    accepted = look.get("accepted", {})
+    failed = [v for v in out if v not in accepted]
+    for v in sorted(set(accepted) - set(out)):
+        print(f"  {v} is accepted but {'passes' if v in views else 'is no Capture View'}: take it out of \"accepted\"")
+    print(f"look: {len(views) - len(out)} of {len(views)} views pass both, {len(out) - len(failed)} accepted, "
+          f"{len(failed)} failing")
     return check_snapshot(args.game, args.blender, summary, look, args.update_snapshot) or (1 if failed else 0)
 
 

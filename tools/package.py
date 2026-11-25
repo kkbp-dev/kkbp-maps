@@ -224,8 +224,13 @@ def zip_problems(path: Path, lock: dict) -> list[str]:
             f"{package['name']}-{package['version']}-py3-none-any.whl"
         if expected not in shipped:
             problems.append(f"no wheel of {package['name']} {package['version']} ({expected})")
-    if manifest.get("platforms") != [platform]:
-        problems.append(f"its manifest names the platforms {manifest.get('platforms')}, not [{platform!r}]")
+    # Blender's --split-platforms keeps the manifest and records the zip's own platform beneath it.
+    generated = manifest.get("build", {}).get("generated", {})
+    if generated.get("platforms") != [platform]:
+        problems.append(f"its manifest's build.generated platforms are {generated.get('platforms')}, not [{platform!r}]")
+    listed = {Path(w).name for w in generated.get("wheels", [])}
+    if listed != shipped:
+        problems.append(f"its manifest lists other wheels than it holds: {sorted(listed ^ shipped)}")
     if any(left in n.lower() for n in shipped for left in deps.LEFT_OUT):
         problems.append("it holds an FMOD wheel (ADR 0029)")
     return problems

@@ -1,0 +1,226 @@
+{
+ "python": "3.13",
+ "platforms": [
+  "linux-x64",
+  "macos-arm64",
+  "windows-x64"
+ ],
+ "packages": [
+  {
+   "name": "UnityPy",
+   "version": "1.25.4",
+   "files": {
+    "linux-x64": {
+     "filename": "unitypy-1.25.4-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl",
+     "url": "https://files.pythonhosted.org/packages/b5/e7/30de2189ece5f0896ed484662dbd97ad5b9731cc17cf9efe3642da01ec8f/unitypy-1.25.4-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl",
+     "size": 1329943,
+     "sha256": "a50ca709280cb6dd3da12038c7a7fc001767b9a8f1ab93cb2ecc8838cf49eb1f"
+    },
+    "windows-x64": {
+     "filename": "unitypy-1.25.4-cp313-cp313-win_amd64.whl",
+     "url": "https://files.pythonhosted.org/packages/b1/8e/46e1051dc09be92eb08d358ea44f7fcf68091d8e8e863d0f749f12d523da/unitypy-1.25.4-cp313-cp313-win_amd64.whl",
+     "size": 438393,
+     "sha256": "4107c14c551d5978484b5d7852190bc1d9283eaab4b7657be8ad150c8facf711"
+    },
+    "macos-arm64": {
+     "filename": "unitypy-1.25.4-cp313-cp313-macosx_11_0_arm64.whl",
+     "url": "https://files.pythonhosted.org/packages/dd/e7/ac03a30f5ca9639b8abd3f30e76ec218c287723dca3705f44d71d97b9cb4/unitypy-1.25.4-cp313-cp313-macosx_11_0_arm64.whl",
+     "size": 442812,
+     "sha256": "05ce3cd2afee9886eb9579ff4848a67ccc8a749a7f906a0e08960df89169733a"
+    }
+   }
+  },
+  {
+   "name": "Pillow",
+   "version": "12.3.0",
+   "files": {
+    "linux-x64": {
+     "filename": "pillow-12.3.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+     "url": "https://files.pythonhosted.org/packages/f7/62/de5bdd77d935331f4f802edc11e4d82950f642caad6cb2f949837b8560e2/pillow-12.3.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+     "size": 6937129,
+     "sha256": "0847a763afefb695bc912d7c131e7e0632d4edc1d8698f58ddabec8e46b8b6d3"
+    },
+    "windows-x64": {
+     "filename": "pillow-12.3.0-cp313-cp313-win_amd64.whl",
+     "url": "https://files.pythonhosted.org/packages/a6/9b/7a58e61d62be561da3a356fe2384d4059a6345fc130e23ef1c36a5b81d24/pillow-12.3.0-cp313-cp313-win_amd64.whl",
+     "size": 7239691,
+     "sha256": "1cca606cd25738df4ed873d5ad46bbdb3d83b5cbca291f6b4ff13a4df6b0bbe8"
+    },
+    "macos-arm64": {
+     "filename": "pillow-12.3.0-cp313-cp313-macosx_11_0_arm64.whl",
+     "url": "https://files.pythonhosted.org/packages/10/76/8803c13605b763d33d156c4678fc77f8443389c0c51c8aef707bb02015f4/pillow-12.3.0-cp313-cp313-macosx_11_0_arm64.whl",
+     "size": 4780109,
+     "sha256": "d69141514cc30b774ceea5e3ed3a6635c8d8a96edf664689b890f4089111fb35"
+    }
+   }
+  },
+  {
+   "name": "lz4",
+   "version": "4.4.5",
+   "files": {
+    "linux-x64": {
+     "filename": "lz4-4.4.5-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+     "url": "https://files.pythonhosted.org/packages/d2/fb/ba9256c48266a09012ed1d9b0253b9aa4fe9cdff094f8febf5b26a4aa2a2/lz4-4.4.5-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+     "size": 1368257,
+     "sha256": "451039b609b9a88a934800b5fc6ee401c89ad9c175abf2f4d9f8b2e4ef1afc64"
+    },
+    "windows-x64": {
+     "filename": "lz4-4.4.5-cp313-cp313-win_amd64.whl",
+     "url": "https://files.pythonhosted.org/packages/18/e0/f06028aea741bbecb2a7e9648f4643235279a770c7ffaf70bd4860c73661/lz4-4.4.5-cp313-cp313-win_amd64.whl",
+     "size": 99502,
+     "sha256": "da68497f78953017deb20edff0dba95641cc86e7423dfadf7c0264e1ac60dc22"
+    },
+    "macos-arm64": {
+     "filename": "lz4-4.4.5-cp313-cp313-macosx_11_0_arm64.whl",
+     "url": "https://files.pythonhosted.org/packages/8f/3f/ea3334e59de30871d773963997ecdba96c4584c5f8007fd83cfc8f1ee935/lz4-4.4.5-cp313-cp313-macosx_11_0_arm64.whl",
+     "size": 207163,
+     "sha256": "b424df1076e40d4e884cfcc4c77d815368b7fb9ebcd7e634f937725cd9a8a72a"
+    }
+   }
+  },
+  {
+   "name": "Brotli",
+   "version": "1.2.1",
+   "files": {
+    "linux-x64": {
+     "filename": "brotli-1.2.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+     "url": "https://files.pythonhosted.org/packages/65/85/4c57c3cd2eee42878677b4943086e6b36cefc50214a5447028268045ce63/brotli-1.2.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+     "size": 1420480,
+     "sha256": "264fd5b200f6f6170cb551a4b9fcaabf8aa846ddaefe72db4d5f49f9d3743df9"
+    },
+    "windows-x64": {
+     "filename": "brotli-1.2.1-cp313-cp313-win_amd64.whl",
+     "url": "https://files.pythonhosted.org/packages/96/c2/0c7abb25013043d4bcf7dd768d343bf7dee6ce99ac8c172f7ee4aef1c772/brotli-1.2.1-cp313-cp313-win_amd64.whl",
+     "size": 371072,
+     "sha256": "e6c4fa55eab6b5684b33239597876a18a35ce1280b63ab960164032afbb8783f"
+    },
+    "macos-arm64": {
+     "filename": "brotli-1.2.1-cp313-cp313-macosx_10_13_universal2.whl",
+     "url": "https://files.pythonhosted.org/packages/f0/85/d74a573b92ba449960eb088ce87dcb61a9dc6a0c5a7ba8d104ae180e64c3/brotli-1.2.1-cp313-cp313-macosx_10_13_universal2.whl",
+     "size": 861657,
+     "sha256": "a84e0ae14d1efe782a9f143021c4e01d5ed986a140fe5070505cc5978eaf0592"
+    }
+   }
+  },
+  {
+   "name": "texture2ddecoder",
+   "version": "1.0.6",
+   "files": {
+    "linux-x64": {
+     "filename": "texture2ddecoder-1.0.6-cp311-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+     "url": "https://files.pythonhosted.org/packages/8b/89/4bb28293d4b49834386a81e9f89008dc872da5ee0564e370f560e16869a2/texture2ddecoder-1.0.6-cp311-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+     "size": 399552,
+     "sha256": "09b98ea4d66e21aca42558727dc609a8a952e2b6eb09d0ee8e0e52ba14b7848a"
+    },
+    "windows-x64": {
+     "filename": "texture2ddecoder-1.0.6-cp311-abi3-win_amd64.whl",
+     "url": "https://files.pythonhosted.org/packages/ac/f8/cbbefcb1b3435aea8ef1b3d65622c933f79ea7c70af4d4571f667277cc86/texture2ddecoder-1.0.6-cp311-abi3-win_amd64.whl",
+     "size": 64500,
+     "sha256": "1bad8209d9dfbfc7daf13ea2e545236ea2bbc1e423b2992b6e7563909975a47b"
+    },
+    "macos-arm64": {
+     "filename": "texture2ddecoder-1.0.6-cp311-abi3-macosx_11_0_arm64.whl",
+     "url": "https://files.pythonhosted.org/packages/af/39/e95286fdff39227eef8741c3138dfec22bbbaf4bea966ae081df1e664ba5/texture2ddecoder-1.0.6-cp311-abi3-macosx_11_0_arm64.whl",
+     "size": 89260,
+     "sha256": "ebb12555f8774a2e497c92803102224546abe4d9bb8d10c77c2f300f07ce6ed9"
+    }
+   }
+  },
+  {
+   "name": "etcpak",
+   "version": "0.9.15",
+   "files": {
+    "linux-x64": {
+     "filename": "etcpak-0.9.15-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+     "url": "https://files.pythonhosted.org/packages/d1/b1/07d7955b6c25aa5c56c427125a32ea8431e61edf4df79a54e14329b3a7f7/etcpak-0.9.15-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+     "size": 2610903,
+     "sha256": "b75248c4869c7fddf1e5bba4be02a504da08cffb17434dcdb5bc618869d4ea0a"
+    },
+    "windows-x64": {
+     "filename": "etcpak-0.9.15-cp37-abi3-win_amd64.whl",
+     "url": "https://files.pythonhosted.org/packages/65/d5/6659ba74d4fec78a46dcf4ae6780c6fac34acf041c8e4d63bba709995a4d/etcpak-0.9.15-cp37-abi3-win_amd64.whl",
+     "size": 1132728,
+     "sha256": "669d902eeb774bc6d4df226183c09c3d03c9fc0f47b4c0c20030fc2b39eec2f2"
+    },
+    "macos-arm64": {
+     "filename": "etcpak-0.9.15-cp37-abi3-macosx_11_0_arm64.whl",
+     "url": "https://files.pythonhosted.org/packages/17/6c/501e3c4307ce022d2522af84e78dd03c4e225870f7484ccb5d4302b7c0ec/etcpak-0.9.15-cp37-abi3-macosx_11_0_arm64.whl",
+     "size": 185525,
+     "sha256": "b96260c18ff79387d9b003c9188196c2490bdcd3420496fcf544f246a534c31b"
+    }
+   }
+  },
+  {
+   "name": "astc-encoder-py",
+   "version": "0.1.12",
+   "files": {
+    "linux-x64": {
+     "filename": "astc_encoder_py-0.1.12-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+     "url": "https://files.pythonhosted.org/packages/08/a3/4a0399ef6f14cf3738eafb14cc89d890bdc8eae2b5c5eaaf6ab74495c9af/astc_encoder_py-0.1.12-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+     "size": 4764225,
+     "sha256": "1a3c0efc3187e06fd1d5992a986220a5921498c35c44d1edbd9b2971c71a8a4f"
+    },
+    "windows-x64": {
+     "filename": "astc_encoder_py-0.1.12-cp37-abi3-win_amd64.whl",
+     "url": "https://files.pythonhosted.org/packages/81/36/9c36fdcedc314f514298f602661518a1525bcb37d81c1197fc290bce8484/astc_encoder_py-0.1.12-cp37-abi3-win_amd64.whl",
+     "size": 2533265,
+     "sha256": "a45d375fc6b0ff2cd3d772aab3eef19a6b7f3e067306e11fab37820ea9576121"
+    },
+    "macos-arm64": {
+     "filename": "astc_encoder_py-0.1.12-cp37-abi3-macosx_11_0_arm64.whl",
+     "url": "https://files.pythonhosted.org/packages/96/6c/096111aa3b31149edf384f24272086ca91d224f0fb2dcdeb2c21cf47ffd7/astc_encoder_py-0.1.12-cp37-abi3-macosx_11_0_arm64.whl",
+     "size": 272780,
+     "sha256": "b7fdd11d997610da9e64a91bb031a5e18f41cfd20315763019fb14227b461c85"
+    }
+   }
+  },
+  {
+   "name": "archspec",
+   "version": "0.2.7",
+   "files": {
+    "any": {
+     "filename": "archspec-0.2.7-py3-none-any.whl",
+     "url": "https://files.pythonhosted.org/packages/8a/51/ef383bb83ed9018413d3a9259c3d0535c9fb2c05ebce13a7ada259b20a0b/archspec-0.2.7-py3-none-any.whl",
+     "size": 87319,
+     "sha256": "b6d97c2d840d8538d3f63b70c7c45ace2d26b3d9591d7c93d5fb33e50b1bc592"
+    }
+   }
+  },
+  {
+   "name": "attrs",
+   "version": "26.1.0",
+   "files": {
+    "any": {
+     "filename": "attrs-26.1.0-py3-none-any.whl",
+     "url": "https://files.pythonhosted.org/packages/64/b4/17d4b0b2a2dc85a6df63d1157e028ed19f90d4cd97c36717afef2bc2f395/attrs-26.1.0-py3-none-any.whl",
+     "size": 67548,
+     "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"
+    }
+   }
+  },
+  {
+   "name": "fsspec",
+   "version": "2026.9.0",
+   "files": {
+    "any": {
+     "filename": "fsspec-2026.9.0-py3-none-any.whl",
+     "url": "https://files.pythonhosted.org/packages/6c/c0/a98505f18594f1bce828bb159cec0fcf9860562f1a2c85913409fc8f3d9e/fsspec-2026.9.0-py3-none-any.whl",
+     "size": 221738,
+     "sha256": "8dd6e646e99ea382bd85f97a45e6b526a442d79423a7dc673f1e2756d05fcb5f"
+    }
+   }
+  },
+  {
+   "name": "tpk_ar",
+   "version": "0.2.4",
+   "files": {
+    "source": {
+     "filename": "tpk_ar-0.2.4.tar.gz",
+     "url": "https://files.pythonhosted.org/packages/fa/02/654a73cbd323970b5c1551881968dbadec1d697984fff5fdd33b66764dfc/tpk_ar-0.2.4.tar.gz",
+     "size": 10796,
+     "sha256": "d64897e5a0bcddd58e8a7d4dd922f372da984a0f98bc3b460ec869aab906ee78"
+    }
+   }
+  }
+ ]
+}

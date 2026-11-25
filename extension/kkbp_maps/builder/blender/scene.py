@@ -5,6 +5,8 @@
   bundle does, so transforms stay exact. Its clouds or stars come with it; nodes it hides don't. Its sun
   is in the collection and its World is a World asset of the same name (ADR 0020).
 - A **Prop or Structure** is a collection asset of its first Placement's nodes, its root at the origin.
+- A renderer that draws a blended material draws through a child object at the centre of its bounds,
+  where Unity sorts it among the transparent renderers (ADR 0027); its node's object is then an empty.
 - Objects carry `kkbp_maps_*` properties: the asset a Placement root stands for, and each renderer's
   lightmap tile, scale-offset and UV set and its reflection probe, which the Variant Materials read.
 """
@@ -25,6 +27,7 @@ from .nodes import Graph
 
 SOFT_SHADOW_ANGLE = math.radians(0.5)   # Unity's soft shadows have no angle; the look check sees no difference
 PROP_ASSET, PROP_KIND = "kkbp_maps_asset", "kkbp_maps_kind"
+BLENDED = ("alpha", "additive")
 
 
 def local_matrix(node: dict) -> Matrix:
@@ -46,6 +49,7 @@ class FileBuilder:
         self.images = images
         self.meshes: dict[str, Meshes] = {}
         self.mesh_by_id: dict[str, bpy.types.Mesh] = {}
+        self.centred_by_id: dict[str, tuple[bpy.types.Mesh, Vector]] = {}
         self.grades: dict[str, bpy.types.ShaderNodeTree] = {}
         self.twins: dict[str, bpy.types.Material] = {}
 
@@ -54,6 +58,25 @@ class FileBuilder:
         if mesh_id not in self.mesh_by_id:
             self.mesh_by_id[mesh_id] = self.meshes.setdefault(bundle.key, Meshes(bundle)).get(mesh_id)
         return self.mesh_by_id[mesh_id]
+
+    def centred(self, bundle, mesh_id) -> tuple[bpy.types.Mesh, Vector]:
+        """A copy of a mesh moved so its bounds' centre is at the origin, and that centre (ADR 0027).
+        The centre of a box's bounds moves with the box, so an object at the centre, under the node,
+        stands where Unity's renderer bounds have theirs."""
+        if mesh_id not in self.centred_by_id:
+            mesh = self.mesh(bundle, mesh_id)
+            centre = Vector((0.0, 0.0, 0.0))
+            if len(mesh.vertices):
+                import numpy as np
+                co = np.empty(len(mesh.vertices) * 3, np.float32)
+                mesh.vertices.foreach_get("co", co)
+                co = co.reshape(-1, 3)
+                centre = Vector(((co.min(0) + co.max(0)) / 2).tolist())
+            copy = mesh.copy()
+            copy.name = f"{mesh.name} centred"
+            copy.transform(Matrix.Translation(-centre))
+            self.centred_by_id[mesh_id] = (copy, centre)
+        return self.centred_by_id[mesh_id]
 
     def grade(self, bundle, grade: dict | None):
         if not grade:
@@ -79,10 +102,14 @@ class FileBuilder:
 
     def make_object(self, bundle, node: dict, tiers, collection, parent, material_for) -> list[bpy.types.Object]:
         """The objects for a node: a mesh object if it draws something, else an empty; and one more for
-        each further pass over a submesh. The first object comes first."""
+        each further pass over a submesh. The node's object comes first. A renderer that draws a blended
+        material draws through a child at the centre of its bounds instead, so EEVEE, which sorts blended
+        objects by their origins, sorts it as Unity does (ADR 0027); the node's object is then an empty."""
         r = node.get("renderer")
         drawn = r is not None and any(t.level != shaders.SKIPPED for t in tiers)
-        mesh = self.mesh(bundle, r["mesh"]) if drawn else None
+        blended = drawn and any(t.level != shaders.SKIPPED and bundle.materials[d["material"]]["blend_mode"] in BLENDED
+                                for d, t in zip(r["draws"], tiers))
+        mesh = self.mesh(bundle, r["mesh"]) if drawn and not blended else None
         obj = bpy.data.objects.new(node["name"], mesh)
         if mesh is None:
             obj.empty_display_type = "PLAIN_AXES"
@@ -94,15 +121,25 @@ class FileBuilder:
         collection.objects.link(obj)
         if parent is not None:
             obj.parent = parent
-        if mesh is None:
+        if blended:
+            mesh, centre = self.centred(bundle, r["mesh"])
+            first = bpy.data.objects.new(f"{node['name']} blended", mesh)
+            collection.objects.link(first)
+            first.parent = obj
+            first.location = centre
+            first["kkbp_maps_sorting"] = True
+            out = [obj, first]
+        elif mesh is None:
             return [obj]
-        out = [obj]
+        else:
+            first = obj
+            out = [obj]
         for k, assigned in enumerate(passes(r["draws"], tiers)):
-            target = obj
+            target = first
             if k:
                 target = bpy.data.objects.new(f"{node['name']} pass {k + 1}", mesh)
                 collection.objects.link(target)
-                target.parent = obj
+                target.parent = first
                 target["kkbp_maps_pass"] = k + 1
                 out.append(target)
             for i, slot in enumerate(target.material_slots):
@@ -160,10 +197,12 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
                 obj[PROP_ASSET] = m.roots[i]
                 obj[PROP_KIND] = asset.kind
                 obj["kkbp_maps_asset_name"] = asset.name
-            if obj.type == "MESH":
+            drawing = [o for o in made if o.type == "MESH"]
+            if drawing:
                 a = lm.get(i)
-                probe = _probe_of(v, world[i], obj.data) if n["renderer"]["reflection_probes"] != "off" else 0
-                for o in made:  # every pass is lit as the renderer is
+                probe = _probe_of(v, world[i], fb.mesh(b, n["renderer"]["mesh"])) \
+                    if n["renderer"]["reflection_probes"] != "off" else 0
+                for o in drawing:  # every pass is lit as the renderer is
                     o[mats.PROP_TILE] = mats.udim(a["lightmap"]) if a else 0
                     o[mats.PROP_SCALE_OFFSET] = list(a["scale_offset"]) if a else [1.0, 1.0, 0.0, 0.0]
                     o[mats.PROP_UV] = a["uv"] if a else 1

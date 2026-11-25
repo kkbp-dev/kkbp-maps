@@ -1,5 +1,6 @@
-"""Asset previews (D18): Map Variants show the game's own thumbnail; Props and Structures get an EEVEE
-render from a fixed three-quarter camera, in a grey world with one sun."""
+"""Asset previews (D18): Map Variants show the game's own thumbnail, and their Worlds the same thumbnail
+cut to a circle (shapes.round_preview); Props and Structures get an EEVEE render from a fixed
+three-quarter camera, in a grey world with one sun."""
 
 from __future__ import annotations
 
@@ -23,13 +24,20 @@ def set_pixels(idblock, width: int, height: int, pixels):
     p.image_pixels_float = pixels
 
 
-def from_image_file(idblock, path: Path) -> bool:
+def from_image_file(idblock, path: Path, *, round_: bool = False) -> bool:
+    """The preview of `idblock` from an image file; `round_` cuts it to a circle, as a World's is."""
     img = bpy.data.images.load(str(path), check_existing=False)
     try:
         w, h = img.size
         if not w or not h:
             return False
-        set_pixels(idblock, w, h, img.pixels[:])
+        if round_:
+            from .shapes import round_preview
+
+            side, pixels = round_preview(img.pixels[:], w, h)
+            set_pixels(idblock, side, side, pixels)
+        else:
+            set_pixels(idblock, w, h, img.pixels[:])
         return True
     finally:
         bpy.data.images.remove(img)

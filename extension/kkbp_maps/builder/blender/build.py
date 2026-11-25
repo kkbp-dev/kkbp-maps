@@ -16,6 +16,7 @@ Run from a shell (the harness does), with this repository's extension/ on Blende
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -47,8 +48,26 @@ def build_library(plan: LibraryPlan, library, *, previews_on: bool = True, log=p
 
 
 def options(plan: LibraryPlan, previews_on: bool) -> dict:
-    """What a Map file depends on besides its Map Bundle and the Builder: a change rebuilds it."""
-    return {"camera": plan.camera, "previews": previews_on, "look": look.current()}
+    """What a Map file depends on besides its Map Bundle: a change rebuilds it. The Builder's code and
+    Name Tables count by their digest, since what they make can change while the version doesn't."""
+    return {"camera": plan.camera, "previews": previews_on, "look": look.current(), "builder_code": builder_digest()}
+
+
+_digest: str | None = None
+
+
+def builder_digest() -> str:
+    """SHA-256 of the Builder's code and the Name Tables, file by file in path order."""
+    global _digest
+    if _digest is None:
+        package = Path(__file__).resolve().parent.parent.parent   # kkbp_maps/
+        files = sorted((package / "builder").rglob("*.py")) + sorted((package / "names").glob("*.toml"))
+        h = hashlib.sha256()
+        for path in files:
+            h.update(path.relative_to(package).as_posix().encode() + b"\0")
+            h.update(path.read_bytes().replace(b"\r\n", b"\n") + b"\0")
+        _digest = h.hexdigest()
+    return _digest
 
 
 def build_step(plan: LibraryPlan, library, step: str, *, previews_on: bool = True, log=print,
@@ -142,7 +161,7 @@ def _map_file(plan: LibraryPlan, m, library: Path, previews_on: bool) -> dict:
         mark_asset(coll, catalog, tags, description)
         mark_asset(world, catalog, tags, f"The World of {vp.name}")
         if previews_on and vp.thumbnail and previews.from_image_file(coll, m.bundle.texture_path(vp.thumbnail)):
-            previews.from_image_file(world, m.bundle.texture_path(vp.thumbnail))
+            previews.from_image_file(world, m.bundle.texture_path(vp.thumbnail), round_=True)
             with_preview += 1
     for layer_coll in list(bpy.context.view_layer.layer_collection.children)[1:]:
         layer_coll.exclude = True   # the file opens on its first Map Variant

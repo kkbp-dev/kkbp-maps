@@ -29,7 +29,8 @@ namespace KKMaps.Capture
     /// &lt;output&gt;/&lt;folder&gt;/&lt;variant&gt;/&lt;view&gt;.png (the Reference Capture) and .pregrade.exr, and for each
     /// variant &lt;folder&gt;/&lt;variant&gt;/lights.json (Dump.Lights: every light, and the renderers the request
     /// names under "renderers"). With "frames": false it writes only the lights; with "sun_off": true the
-    /// Map's sun (RenderSettings.sun) is switched off after each Time of Day is set. The result goes
+    /// Map's sun (RenderSettings.sun) is switched off after each Time of Day is set, and with
+    /// "sun_shadows_off": true it casts no shadows. The result goes
     /// to kkbp-maps-capture.result.json next to the request:
     /// { "state": "running" | "succeeded" | "failed", "error": …, "files": […], "warnings": […], "views": […] },
     /// rewritten after each view while "running", then the game quits.
@@ -110,6 +111,7 @@ namespace KKMaps.Capture
             bool takeFrames = !request.ContainsKey("frames") || (bool)request["frames"];
             var rendererNames = List(request, "renderers").Cast<string>().ToList();
             bool sunOff = request.ContainsKey("sun_off") && (bool)request["sun_off"];
+            bool sunShadowsOff = request.ContainsKey("sun_shadows_off") && (bool)request["sun_shadows_off"];
 
             var studio = Singleton<Studio.Studio>.Instance;
             Camera cam = studio.cameraCtrl.mainCmaera;
@@ -132,6 +134,11 @@ namespace KKMaps.Capture
                     if (sunOff && RenderSettings.sun != null)
                     {
                         RenderSettings.sun.enabled = false;   // to measure what the sun adds (look check)
+                        yield return new WaitForSecondsRealtime(0.5f);
+                    }
+                    if (sunShadowsOff && RenderSettings.sun != null)
+                    {
+                        RenderSettings.sun.shadows = LightShadows.None;   // to measure what its shadows take away
                         yield return new WaitForSecondsRealtime(0.5f);
                     }
                     Resources.UnloadUnusedAssets();

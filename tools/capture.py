@@ -77,7 +77,7 @@ def variants(map_key: str) -> list[dict]:
 
 
 def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[str] | None = None,
-            views_only: list[str] | None = None, sun_off: bool = False) -> dict:
+            views_only: list[str] | None = None, sun_off: bool = False, sun_no_shadows: bool = False) -> dict:
     """With `lights`, a run that only dumps each Map Variant's lights and those renderers, taking no frames."""
     views = {} if seed else json.loads(VIEWS.read_text(encoding="utf-8"))["views"]
     maps = []
@@ -104,6 +104,8 @@ def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[
         out.update(frames=False, renderers=lights)
     if sun_off:
         out.update(sun_off=True, output=winpath(OUT / "sun-off"))
+    elif sun_no_shadows:
+        out.update(sun_shadows_off=True, output=winpath(OUT / "sun-no-shadows"))
     return out
 
 
@@ -191,6 +193,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--view", action="append", help="only this Capture View, such as map/scene/ground/day/studio")
     ap.add_argument("--sun-off", action="store_true",
                     help="switch the Map's sun off; the frames go to captures/<Game>/sun-off/ (a measurement)")
+    ap.add_argument("--sun-no-shadows", action="store_true",
+                    help="the Map's sun casts no shadows; frames go to captures/<Game>/sun-no-shadows/ (a measurement)")
     args = ap.parse_args(argv)
 
     if running():
@@ -209,7 +213,8 @@ def main(argv: list[str]) -> int:
         return 2
 
     look = json.loads(LOOK.read_text(encoding="utf-8"))
-    res = run(request(look, args.seed, args.map, args.lights, args.view, args.sun_off), look, args.timeout)
+    res = run(request(look, args.seed, args.map, args.lights, args.view, args.sun_off,
+                      args.sun_no_shadows), look, args.timeout)
     if res is None:
         print("capture: no result", file=sys.stderr)
         return 1

@@ -3,8 +3,8 @@
     build_library(plan, "out/KK Maps")                  # everything, in this Blender
     build_step(plan, "out/KK Maps", "map:map/scene/1f")  # one step, as the background build runs them
 
-Steps: `map:<key>` writes Maps/<Map>.blend (kept as it is when its Map Bundle and the Builder haven't
-changed), `assets` writes Props.blend and Structures.blend from every Map Bundle, `finish` writes the
+Steps: `map:<key>` writes Maps/<Map>.blend (kept as it is when its Map Bundle, the Builder and the
+build's options haven't changed), `assets` writes Props.blend and Structures.blend from every Map Bundle, `finish` writes the
 catalog file, build.json and the Build Report. Each file starts from Blender's factory settings, is
 saved with relative image paths, and holds its own copies of everything it uses.
 
@@ -46,11 +46,18 @@ def build_library(plan: LibraryPlan, library, *, previews_on: bool = True, log=p
         build_step(plan, library, s, previews_on=previews_on, log=log)
 
 
-def build_step(plan: LibraryPlan, library, step: str, *, previews_on: bool = True, log=print) -> dict:
+def options(plan: LibraryPlan, previews_on: bool) -> dict:
+    """What a Map file depends on besides its Map Bundle and the Builder: a change rebuilds it."""
+    return {"camera": plan.camera, "previews": previews_on, "look": look.current()}
+
+
+def build_step(plan: LibraryPlan, library, step: str, *, previews_on: bool = True, log=print,
+               not_built: dict[str, str] | None = None) -> dict:
+    """Runs one step. `not_built` names the Maps the Build left out, with why, for the Build Report."""
     compat.require()
     library = Path(library)
     library.mkdir(parents=True, exist_ok=True)
-    state = _state(library)
+    state = _state(library, options(plan, previews_on))
     if step.startswith("map:"):
         m = plan.map_of(step[4:])
         entry = state["maps"].get(m.key)
@@ -70,7 +77,7 @@ def build_step(plan: LibraryPlan, library, step: str, *, previews_on: bool = Tru
         (library / CATALOG_FILE).write_text(catalog_file(plan.catalogs()), encoding="utf-8", newline="\n")
         results = {k: v for k, v in state["maps"].items()}
         results["files"] = state.get("files", {})
-        report = build_report(plan, results)
+        report = build_report(plan, results, not_built)
         (library / "build-report.json").write_text(json.dumps(report, indent=1, ensure_ascii=False) + "\n",
                                                    encoding="utf-8", newline="\n")
         (library / "build-report.md").write_text(markdown(report), encoding="utf-8", newline="\n")
@@ -79,14 +86,16 @@ def build_step(plan: LibraryPlan, library, step: str, *, previews_on: bool = Tru
         raise ValueError(f"no build step {step!r}")
     state["builder"] = VERSION
     state["schema_version"] = bundle_contract.SCHEMA_VERSION
+    state["options"] = options(plan, previews_on)
     _save_state(library, state)
     return state
 
 
-def _state(library: Path) -> dict:
+def _state(library: Path, opts: dict) -> dict:
     try:
         state = json.loads((library / STATE_FILE).read_text(encoding="utf-8"))
-        if state.get("builder") == VERSION and state.get("schema_version") == bundle_contract.SCHEMA_VERSION:
+        if state.get("builder") == VERSION and state.get("schema_version") == bundle_contract.SCHEMA_VERSION \
+                and state.get("options") == opts:
             state.setdefault("maps", {})
             return state
     except (OSError, ValueError):
@@ -188,13 +197,16 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--no-previews", action="store_true")
     parser.add_argument("--look", action="append", metavar="NAME=VALUE",
                         help="a look switch (builder/look.py), for the look check; developers only")
-    parser.add_argument("--camera", help="show every Map through this Camera Profile (game or studio), for the look check")
+    parser.add_argument("--camera", help="show every Map through this Camera Profile (game or studio)")
+    parser.add_argument("--not-built", action="append", default=[], metavar="KEY=REASON",
+                        help="a Map the Build left out, for the Build Report")
     args = parser.parse_args(argv)
     look.set_switches(args.look)
     bundles = [bundle_contract.read(p) for p in args.bundles]
     plan = plan_library(bundles, NameTables.load(bundles[0].game), camera=args.camera)
     for s in args.step or steps(plan):
         build_step(plan, args.library, s, previews_on=not args.no_previews,
-                   log=lambda text: print(f"  {text}", flush=True))
+                   log=lambda text: print(f"  {text}", flush=True),
+                   not_built=dict(item.split("=", 1) for item in args.not_built))
     print(f"{NAME} {VERSION}: done", flush=True)
     return 0

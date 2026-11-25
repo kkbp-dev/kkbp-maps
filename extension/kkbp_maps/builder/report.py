@@ -10,9 +10,10 @@ from .plan import LibraryPlan
 REPORT_VERSION = 1
 
 
-def build_report(plan: LibraryPlan, results: dict | None = None) -> dict:
+def build_report(plan: LibraryPlan, results: dict | None = None, not_built: dict[str, str] | None = None) -> dict:
     """The report of a build of `plan`. `results` are what the Blender side reports per Map key
-    ({"kept": bool, "previews": {...}}) and for the asset files."""
+    ({"kept": bool, "previews": {...}}) and for the asset files; `not_built` the Maps the Build left out
+    (key -> why), such as one whose extraction failed or ran short of memory."""
     results = results or {}
     unknown: dict[str, list[str]] = {}
     for a in plan.assets.values():
@@ -62,13 +63,17 @@ def build_report(plan: LibraryPlan, results: dict | None = None) -> dict:
         "unknown_words": {w: sorted(names) for w, names in sorted(unknown.items())},
         "unnamed_maps": [m.key for m in plan.maps if not m.named],
         "files": results.get("files", {}),
+        "not_built": [{"key": k, "reason": r} for k, r in sorted((not_built or {}).items())],
     }
 
 
 def markdown(report: dict) -> str:
+    not_built = report.get("not_built", [])
+    left_out = f", and {len(not_built)} Maps not built" if not_built else ""
     lines = [f"# Build Report: {report['game']} Maps", "",
              f"{len(report['maps'])} Maps, {report['map_variants']} Map Variants, {report['props']} Props and "
-             f"{report['structures']} Structures. Built by {report['builder']['name']} {report['builder']['version']}.",
+             f"{report['structures']} Structures{left_out}. Built by {report['builder']['name']} "
+             f"{report['builder']['version']}.",
              ""]
     for m in report["maps"]:
         lines += [f"## {m['name']}", "", f"`{m['key']}` → `{m['file']}`{' (kept: unchanged)' if m['kept'] else ''}", ""]
@@ -91,6 +96,10 @@ def markdown(report: dict) -> str:
             lines.append(f"- Assumed: {a}")
         if not m["named"]:
             lines.append("- The Name Tables don't know this Map: it keeps the game's list name")
+        lines.append("")
+    if report.get("not_built"):
+        lines += ["## Not built", ""]
+        lines += [f"- `{n['key']}`: {n['reason']}" for n in report["not_built"]]
         lines.append("")
     if report["unknown_words"]:
         lines += ["## Words the Name Tables don't know", ""]

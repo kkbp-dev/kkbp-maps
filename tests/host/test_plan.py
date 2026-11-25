@@ -177,3 +177,12 @@ def test_the_story_camera_adds_its_height_fog_where_the_maps_fog_is_drawn(tmp_pa
     in_studio = studio.as_shown(studio.maps[0], b.variants[0])
     assert not in_studio["fog"]["enabled"] and in_studio["height_fog"] is None
     assert b.variants[0]["fog"]["enabled"]   # the bundle's own record is left alone
+
+
+def test_the_report_lists_the_maps_a_build_left_out(tmp_path):
+    p = plan_library([bundle(tmp_path)], TABLES)
+    report = build_report(p, not_built={"map/scene/2f": "stopped: it passed 3.0 GB"})
+    assert report["not_built"] == [{"key": "map/scene/2f", "reason": "stopped: it passed 3.0 GB"}]
+    text = markdown(report)
+    assert "and 1 Maps not built" in text and "## Not built" in text and "it passed 3.0 GB" in text
+    assert build_report(p)["not_built"] == [] and "Not built" not in markdown(build_report(p))

@@ -9,5 +9,4 @@ Imports only the standard library at the top; numpy, Pillow and UnityPy are load
 need them, so the package can be imported to show a message before its dependencies are installed.
 """
 
-NAME = "kkbp-maps"
-VERSION = "0.1.0.dev0"
+from .. import NAME, VERSION  # noqa: F401  (one version for the whole extension)

@@ -1,0 +1,18 @@
+schema_version = "1.0.0"
+
+id = "kkbp_maps"
+version = "0.1.0"
+name = "kkbp-maps"
+tagline = "Builds asset libraries from the maps of your own KK install"
+maintainer = "kkbp-dev"
+type = "add-on"
+tags = ["Import-Export"]
+blender_version_min = "5.2.0"
+license = ["SPDX:MIT"]
+platforms = ["linux-x64", "windows-x64", "macos-arm64"]
+
+# tools/package.py writes the `wheels` list into the copy it packages (ADR 0029); the repository's
+# manifest has none, so the extension/ folder on a developer's path needs no wheels.
+
+[permissions]
+files = "Reads your game install and writes libraries where you choose"

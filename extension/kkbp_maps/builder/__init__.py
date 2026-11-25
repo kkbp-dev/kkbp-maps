@@ -9,5 +9,4 @@ The plan (plan.py, names.py, shaders.py, catalogs.py, report.py) never imports b
 and Blender version checks live in compat/.
 """
 
-NAME = "kkbp-maps"
-VERSION = "0.1.0.dev0"
+from .. import NAME, VERSION  # noqa: F401  (one version for the whole extension)

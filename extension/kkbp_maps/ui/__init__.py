@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-MODULES: tuple = ()
+from . import operators, panel, props, session
+
+MODULES = (props, operators, panel)
 
 
 def register():
@@ -11,5 +13,6 @@ def register():
 
 
 def unregister():
+    session.unregister()
     for m in reversed(MODULES):
         m.unregister()

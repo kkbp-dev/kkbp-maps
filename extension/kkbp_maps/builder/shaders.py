@@ -23,10 +23,31 @@ class Tier:
     tint: str | None = None   # an unlit model's colour property
     tint_scale: float = 1.0   # Unity's particle shaders double their tint
     vertex_color: bool = False   # the albedo is multiplied by the mesh's color0
+    blend: str | None = None     # a Blend Mode the Builder draws the material with, whatever the bundle says
+    cutout_keywords: tuple[str, ...] = ()   # keywords that make the material cutout at its _Cutoff
+    color: str | None = None     # the water model's colour property
+    alpha: float = 1.0           # the water model's opacity
 
 
 def _standard(level=REBUILT, reason="", double_sided=False, vertex_color=False):
     return Tier("standard", level, reason, double_sided, vertex_color=vertex_color)
+
+
+def _water(color, reason="water drawn as a smooth tinted surface"):
+    """Water (Lux Water, NatureManufacture's rivers): its textures are foam, caustics and flow, not its
+    colour; drawn as a smooth, partly see-through surface of one colour property (a first guess)."""
+    return Tier("water", APPROXIMATED, reason, double_sided=True, blend="alpha", color=color, alpha=0.6)
+
+
+def blend_mode(material: dict) -> str:
+    """The Blend Mode the Builder draws a material with: the bundle's, unless its Shader Tier sets one or
+    one of its keywords makes it cutout (SpeedTree clips its leaves and fronds at _Cutoff)."""
+    t = tier(material["shader"])
+    if t.blend:
+        return t.blend
+    if any(k in material["keywords"] for k in t.cutout_keywords):
+        return "cutout"
+    return material["blend_mode"]
 
 
 def _unlit(level=REBUILT, reason="", tint=None, tint_scale=1.0):
@@ -65,7 +86,8 @@ TIERS: dict[str, Tier] = {
     "Unlit/MosaicTexture": _skip("mosaic"),
     "Custom/Silhouette": _skip("silhouette"),
     # KKS (kks-spike.md, section 9).
-    "Nature/SpeedTree": _standard(APPROXIMATED, "hue variation and wind aren't drawn"),
+    "Nature/SpeedTree": Tier("standard", APPROXIMATED, "hue variation and wind aren't drawn",
+                             cutout_keywords=("GEOM_TYPE_LEAF", "GEOM_TYPE_FROND")),
     "Koikano/main_item_map": _standard(APPROXIMATED, "no Game Shader Model yet"),
     "Koikano/sub_texture_cutout": _standard(APPROXIMATED, "Koikano drawn as Standard"),
     "Koikano/sub_texture_subblendcutout": _standard(APPROXIMATED, "Koikano drawn as Standard"),
@@ -73,11 +95,11 @@ TIERS: dict[str, Tier] = {
     "Koikano/main_clothes_item": _standard(APPROXIMATED, "Koikano drawn as Standard"),
     "Koikano/main_clothes_item_glasses": _standard(APPROXIMATED, "Koikano drawn as Standard"),
     "ProBuilder/Standard Vertex Color": _standard(vertex_color=True),
-    "Lux Water/WaterSurface": _standard(APPROXIMATED, "water drawn as Standard"),
-    "Lux Water/WaterSurface Tessellation": _standard(APPROXIMATED, "water drawn as Standard"),
-    "NatureManufacture Shaders/Water/Water River Mobile": _standard(APPROXIMATED, "water drawn as Standard"),
-    "NatureManufacture Shaders/Water/Water River Tesseled": _standard(APPROXIMATED, "water drawn as Standard"),
-    "NatureManufacture Shaders/Water/Water River Tesseled Vertex Color": _standard(APPROXIMATED, "water drawn as Standard"),
+    "Lux Water/WaterSurface": _water("_UnderWaterReflCol"),
+    "Lux Water/WaterSurface Tessellation": _water("_UnderWaterReflCol"),
+    "NatureManufacture Shaders/Water/Water River Mobile": _water("_ShalowColor"),
+    "NatureManufacture Shaders/Water/Water River Tesseled": _water("_ShalowColor"),
+    "NatureManufacture Shaders/Water/Water River Tesseled Vertex Color": _water("_ShalowColor"),
     "Legacy Shaders/Particles/VertexLit Blended": _unlit(APPROXIMATED, "drawn unlit", tint="_EmisColor"),
     "FX/MirrorReflection": _skip("mirror"),
     "Custom/MiniMapRoad": _skip("mini-map overlay"),

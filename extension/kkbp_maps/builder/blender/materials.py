@@ -261,6 +261,8 @@ def base_material(bundle, material_id: str, images: Images) -> bpy.types.ShaderN
     g, _, out = io(tree)
     if tier.model == "unlit":
         _unlit(g, out, bundle, m, tier, images)
+    elif tier.model == "water":
+        _water(g, out, m, tier)
     else:
         _standard(g, out, bundle, m, images, vertex_color=tier.vertex_color)
     return tree
@@ -370,6 +372,18 @@ def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
     for key, value in (("Alpha", alpha), ("Albedo", albedo), ("Metallic", metallic), ("Smoothness", smoothness),
                        ("Occlusion", occlusion), ("Normal", normal),
                        ("Reflections", 0.0 if "_GLOSSYREFLECTIONS_OFF" in kw else 1.0)):
+        g.set(out, key, value)
+
+
+def _water(g: Graph, out, m, tier):
+    """Water as a smooth surface of one colour, partly see-through (shaders._water)."""
+    albedo = g.rgb(linear_rgb(m["colors"].get(tier.color, [0.0, 0.4, 0.7, 1.0])))
+    normal = (g.node("ShaderNodeNewGeometry"), "Normal")
+    bsdf = g.node("ShaderNodeBsdfPrincipled", **{"Base Color": albedo, "Metallic": 0.0, "Roughness": 0.05,
+                                                  "Normal": normal, "Specular IOR Level": 0.5})
+    g.link(bsdf, (out, "BSDF"))
+    for key, value in (("Alpha", tier.alpha), ("Albedo", albedo), ("Metallic", 0.0), ("Smoothness", 0.95),
+                       ("Occlusion", 1.0), ("Normal", normal), ("Reflections", 1.0)):
         g.set(out, key, value)
 
 

@@ -226,6 +226,9 @@ def plan_library(bundles: list[Bundle], tables: NameTables, camera: str | None =
     used_names: dict[str, set[str]] = {"prop": set(), "structure": set(), "map": set()}
     grades: dict[str, tuple[str, str, str]] = {}
 
+    for b in bundles:   # the Blend Mode each material is drawn with (shaders.blend_mode), once, here
+        for material in b.materials.values():
+            material["blend_mode"] = shaders.blend_mode(material)
     canonical = match_batched(bundles)
     by_geometry: dict[str, MapPlan] = {}
     for b in bundles:

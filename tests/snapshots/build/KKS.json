@@ -40,7 +40,7 @@
     [
      "04ecc84df354e0f054a56bd28a49e80c",
      "approximated",
-     "e6d294aec76d1565"
+     "4c5370cb75a40633"
     ],
     [
      "05602dff07854fa787de4ba5f16c1af1",
@@ -130,7 +130,7 @@
     [
      "4e9fdd4d9988be8bbd24a0f81f6dd294",
      "approximated",
-     "91db15c472c194b7"
+     "bd0edf1d9ae5d948"
     ],
     [
      "5912a3c242c42ed29f51bb13ebaf040a",
@@ -150,7 +150,7 @@
     [
      "69a9781d4e98f8a80464fb7e29bcb9d9",
      "approximated",
-     "57f0d4df6a2fe3dc"
+     "405c03e386e079d1"
     ],
     [
      "6f9ecfd3bd5175f864b8398ca60cf765",
@@ -175,7 +175,7 @@
     [
      "7b5e6f756740ee3d338381e57316179b",
      "approximated",
-     "e9ee045b87c7df30"
+     "29db51ab72a6d762"
     ],
     [
      "80e49420a752b03fbbf95822d5e8e6a7",
@@ -190,7 +190,7 @@
     [
      "83a2104b50a8d6d693105c5df59c09ae",
      "approximated",
-     "705a2ed16282f094"
+     "430aadb4210ac2bc"
     ],
     [
      "86d803c72c57ac2af6855619abf1812e",
@@ -205,7 +205,7 @@
     [
      "9a5b8c918ca160560cd71072c7c5a8ac",
      "approximated",
-     "f1f7e6dd7c1af001"
+     "4b236b583f57bbd7"
     ],
     [
      "9c733f909fa4894237c0fb8134e6ee05",
@@ -250,7 +250,7 @@
     [
      "ab1e8488684642fe7c0c71bb9a49cfa6",
      "approximated",
-     "bd5c266814bf832b"
+     "4f41baca3c0d182f"
     ],
     [
      "af3dec9eb6d1b559f6d34e171ad30717",
@@ -335,7 +335,7 @@
     [
      "f301c9bbef29fa4eb5f6cce158c30123",
      "approximated",
-     "9033a7618995c2b1"
+     "710180f194e343f3"
     ],
     [
      "f5a6ddc179b8f7f13ceddb8c599d6955",
@@ -454,7 +454,7 @@
      ],
      "no_shadow": 32,
      "objects": {
-      "EMPTY": 48,
+      "EMPTY": 49,
       "LIGHT": 4,
       "MESH": 199
      },
@@ -473,7 +473,7 @@
      "objects": {
       "MESH": 1
      },
-     "placements": 1,
+     "placements": 0,
      "slots": {
       "material": 1
      }
@@ -581,11 +581,11 @@
     }
    },
    "counts": {
-    "images": 86,
+    "images": 85,
     "materials": 65,
     "meshes": 88,
     "node_groups": 67,
-    "objects": 251
+    "objects": 252
    },
    "groups": {
     ".KKM Grade Lut_Amount + Lut_TimeNight1 0.3": "87d2f8f2487370c7",
@@ -625,11 +625,6 @@
     {
      "colorspace": "Non-Color",
      "name": "12807abbd4d379d6c5a1aa6f0037326f",
-     "relative": true
-    },
-    {
-     "colorspace": "Non-Color",
-     "name": "13bc0dac7603b6e7625edcaf65301e1b",
      "relative": true
     },
     {
@@ -1643,7 +1638,7 @@
     [
      "a3c2f605c16e0dfd660d447bec64f23d",
      "approximated",
-     "de05359469f49b08"
+     "fab37b5165767caa"
     ],
     [
      "a752869b16b3673e86d73cdf29faad43",
@@ -1663,7 +1658,7 @@
     [
      "b97c92c63ce8c7a2ea70c3ffb68b2cf6",
      "approximated",
-     "3a66c7596992365e"
+     "0b5df3f8c9622980"
     ],
     [
      "be430a73b5fb18e67e3b1544f6699004",
@@ -3090,7 +3085,7 @@
     [
      "12242259d6ef74ea2de24331b751a598",
      "approximated",
-     "1fdaf86ae57b0a3b"
+     "b2f7739fafc3b7b7"
     ],
     [
      "170728149fe5cce46aac815ebcf8d21e",
@@ -3100,7 +3095,7 @@
     [
      "1905f32c6c3df1e85238f1905fcc15a3",
      "approximated",
-     "163bc981f34dfe3a"
+     "6bb14e7ca0570061"
     ],
     [
      "191efe731d89feebe81cce62d99966d3",
@@ -3145,7 +3140,7 @@
     [
      "3947a4886a4cfcb0b30fb760e7e3759a",
      "approximated",
-     "ad7cc694c4d53b69"
+     "e04033d283689092"
     ],
     [
      "39750a649e92d4e129a8bd91b92d45b8",
@@ -3155,7 +3150,7 @@
     [
      "40144d718a5e56c22b2594a187b1e4ef",
      "approximated",
-     "7cfd5ae94c02fd6b"
+     "028899898d05132f"
     ],
     [
      "41a19ca75ead05b13252997109d27396",
@@ -3170,7 +3165,7 @@
     [
      "4631dcc0a996ef91ea917a92e60c3a61",
      "approximated",
-     "802b13a3fea41605"
+     "59d2f29640142edb"
     ],
     [
      "477858518df1431fe1bbc90c28b16c73",
@@ -3180,7 +3175,7 @@
     [
      "4b3f02cddf48b089b96dc4d1484124a0",
      "approximated",
-     "1ad1bb6de6519d15"
+     "882b55d66fa46e8f"
     ],
     [
      "4cc1956e57de346c4e1c92059fffcfbf",
@@ -3190,7 +3185,7 @@
     [
      "4edf17f54b9932aaac875d42f5f237cb",
      "approximated",
-     "7b1498f3f6a42429"
+     "4b5ee0e22ea3bd98"
     ],
     [
      "5270bb664621bf70c56460224f1972da",
@@ -3205,7 +3200,7 @@
     [
      "550d129a7e0b96845cbc196d09a2c28a",
      "approximated",
-     "f7fb71454d41d9f6"
+     "be49333a67062c24"
     ],
     [
      "55a6f3b7e8bf59009279b6b810201ff3",
@@ -3230,7 +3225,7 @@
     [
      "649d4880c13a27d31eb5c9ad4a49772f",
      "approximated",
-     "101c59cbf95115e0"
+     "f2851146f7a5f163"
     ],
     [
      "6878b3b7b456121b87ab16886eb59fb7",
@@ -3285,12 +3280,12 @@
     [
      "756d399bab8bda9dd93f69aefcf896e4",
      "approximated",
-     "ab3b8cc9487ea17c"
+     "33d9de9520374102"
     ],
     [
      "78658f041bffc97dee3d967c486513db",
      "approximated",
-     "1ad1bb6de6519d15"
+     "882b55d66fa46e8f"
     ],
     [
      "7a980eef0cd513ae36a2d91c7e93c975",
@@ -3335,12 +3330,12 @@
     [
      "9f087959bf689d2f2c0b4fa8a02ad67e",
      "approximated",
-     "931cb8283e704b1f"
+     "8bff3d9af98042e4"
     ],
     [
      "a3c2f605c16e0dfd660d447bec64f23d",
      "approximated",
-     "de05359469f49b08"
+     "fab37b5165767caa"
     ],
     [
      "a74ea6bffb59c092868156570dce5537",
@@ -3350,7 +3345,7 @@
     [
      "aa3a2a999e33801c72e3c64feec4fc1c",
      "approximated",
-     "5a8d9136fbef33c0"
+     "f648bf683a7245d3"
     ],
     [
      "add0076af181e5a47f5b6e81b1087636",
@@ -3390,7 +3385,7 @@
     [
      "b97c92c63ce8c7a2ea70c3ffb68b2cf6",
      "approximated",
-     "3a66c7596992365e"
+     "0b5df3f8c9622980"
     ],
     [
      "bdc26b5bc1a2640dd47fcdbfd8d70357",
@@ -3445,7 +3440,7 @@
     [
      "d0427c370657b511a11529c9a687643d",
      "approximated",
-     "322353d13d49d087"
+     "8c10eec29f6f1616"
     ],
     [
      "d0e090a8875a26fad13bd3198f42978b",
@@ -3480,7 +3475,7 @@
     [
      "d8dcbfb09730664d5375ce69c809fe08",
      "approximated",
-     "41638d8575cac37d"
+     "019224fc5fd1ae28"
     ],
     [
      "dee959bc5b61b4f91de97b914c517943",
@@ -3490,7 +3485,7 @@
     [
      "e119538f1f14e15fed9272e672bf7115",
      "approximated",
-     "6d98695802333617"
+     "eca2c471fe2cdc5f"
     ],
     [
      "e1b9f463da98bf0fe480139a1fd8764b",
@@ -3505,17 +3500,17 @@
     [
      "e7492fd7f68577289480bebee1b26871",
      "approximated",
-     "31806f4f6c38c94b"
+     "f3a16f3335920f2f"
     ],
     [
      "e784a2dd226268b66377220386f009cc",
      "approximated",
-     "9dc27bd7b0555975"
+     "36ccc9a6e45a8345"
     ],
     [
      "eb995b977c9f5d588dce57a718d4086a",
      "approximated",
-     "ad7cc694c4d53b69"
+     "67ea71c55b3ee61d"
     ],
     [
      "eba689a102bb0f4de67ae3f063c5f86a",
@@ -3714,7 +3709,7 @@
      ],
      "no_shadow": 1,
      "objects": {
-      "EMPTY": 276,
+      "EMPTY": 277,
       "LIGHT": 5,
       "MESH": 520
      },
@@ -3733,7 +3728,7 @@
      "objects": {
       "MESH": 1
      },
-     "placements": 1,
+     "placements": 0,
      "slots": {
       "material": 1
      }
@@ -4054,7 +4049,7 @@
      ],
      "no_shadow": 1,
      "objects": {
-      "EMPTY": 276,
+      "EMPTY": 277,
       "LIGHT": 5,
       "MESH": 520
      },
@@ -4073,7 +4068,7 @@
      "objects": {
       "MESH": 1
      },
-     "placements": 1,
+     "placements": 0,
      "slots": {
       "material": 1
      }
@@ -4394,7 +4389,7 @@
      ],
      "no_shadow": 1,
      "objects": {
-      "EMPTY": 276,
+      "EMPTY": 277,
       "LIGHT": 5,
       "MESH": 520
      },
@@ -4413,7 +4408,7 @@
      "objects": {
       "MESH": 1
      },
-     "placements": 1,
+     "placements": 0,
      "slots": {
       "material": 1
      }
@@ -4735,7 +4730,7 @@
      ],
      "no_shadow": 1,
      "objects": {
-      "EMPTY": 281,
+      "EMPTY": 282,
       "LIGHT": 3,
       "MESH": 525
      },
@@ -4754,7 +4749,7 @@
      "objects": {
       "MESH": 1
      },
-     "placements": 1,
+     "placements": 0,
      "slots": {
       "material": 1
      }
@@ -4923,11 +4918,11 @@
     }
    },
    "counts": {
-    "images": 146,
+    "images": 145,
     "materials": 379,
     "meshes": 149,
     "node_groups": 107,
-    "objects": 3212
+    "objects": 3216
    },
    "groups": {
     ".KKM Grade Lut_Amount": "5e2349814b900b4b",
@@ -4982,11 +4977,6 @@
     {
      "colorspace": "sRGB",
      "name": "0f0ff1c8d511e97577dddaf3212e993d",
-     "relative": true
-    },
-    {
-     "colorspace": "Non-Color",
-     "name": "13bc0dac7603b6e7625edcaf65301e1b",
      "relative": true
     },
     {
@@ -7736,7 +7726,7 @@
     [
      "12242259d6ef74ea2de24331b751a598",
      "approximated",
-     "1fdaf86ae57b0a3b"
+     "b2f7739fafc3b7b7"
     ],
     [
      "141c69489b39909d260fd1eb7c7bb914",
@@ -7746,7 +7736,7 @@
     [
      "1905f32c6c3df1e85238f1905fcc15a3",
      "approximated",
-     "163bc981f34dfe3a"
+     "6bb14e7ca0570061"
     ],
     [
      "191efe731d89feebe81cce62d99966d3",
@@ -7831,7 +7821,7 @@
     [
      "40144d718a5e56c22b2594a187b1e4ef",
      "approximated",
-     "7cfd5ae94c02fd6b"
+     "028899898d05132f"
     ],
     [
      "41a19ca75ead05b13252997109d27396",
@@ -7851,7 +7841,7 @@
     [
      "4631dcc0a996ef91ea917a92e60c3a61",
      "approximated",
-     "802b13a3fea41605"
+     "59d2f29640142edb"
     ],
     [
      "48a0249c950decbb419f69b37ab3d9f4",
@@ -7861,7 +7851,7 @@
     [
      "4b3f02cddf48b089b96dc4d1484124a0",
      "approximated",
-     "1ad1bb6de6519d15"
+     "882b55d66fa46e8f"
     ],
     [
      "4dd0152ab108698bf452fb33599b92de",
@@ -7871,7 +7861,7 @@
     [
      "4edf17f54b9932aaac875d42f5f237cb",
      "approximated",
-     "7b1498f3f6a42429"
+     "4b5ee0e22ea3bd98"
     ],
     [
      "4f98da9519b112aa1826d5f66b988d29",
@@ -7896,7 +7886,7 @@
     [
      "550d129a7e0b96845cbc196d09a2c28a",
      "approximated",
-     "f7fb71454d41d9f6"
+     "be49333a67062c24"
     ],
     [
      "55a6f3b7e8bf59009279b6b810201ff3",
@@ -7921,7 +7911,7 @@
     [
      "649d4880c13a27d31eb5c9ad4a49772f",
      "approximated",
-     "101c59cbf95115e0"
+     "f2851146f7a5f163"
     ],
     [
      "68c12382cdc32dfaa174a7bc662fc9d1",
@@ -7966,12 +7956,12 @@
     [
      "756d399bab8bda9dd93f69aefcf896e4",
      "approximated",
-     "ab3b8cc9487ea17c"
+     "33d9de9520374102"
     ],
     [
      "78658f041bffc97dee3d967c486513db",
      "approximated",
-     "1ad1bb6de6519d15"
+     "882b55d66fa46e8f"
     ],
     [
      "7a980eef0cd513ae36a2d91c7e93c975",
@@ -8031,7 +8021,7 @@
     [
      "a3c2f605c16e0dfd660d447bec64f23d",
      "approximated",
-     "de05359469f49b08"
+     "fab37b5165767caa"
     ],
     [
      "a541bd4528b2b55a8a421ffe7fe5fdfc",
@@ -8081,7 +8071,7 @@
     [
      "b97c92c63ce8c7a2ea70c3ffb68b2cf6",
      "approximated",
-     "3a66c7596992365e"
+     "0b5df3f8c9622980"
     ],
     [
      "bb98a7a669df7913faf946331dc66578",
@@ -8161,7 +8151,7 @@
     [
      "d0427c370657b511a11529c9a687643d",
      "approximated",
-     "322353d13d49d087"
+     "8c10eec29f6f1616"
     ],
     [
      "d4481393de701135657c2ddd822169d9",
@@ -8191,7 +8181,7 @@
     [
      "e119538f1f14e15fed9272e672bf7115",
      "approximated",
-     "6d98695802333617"
+     "eca2c471fe2cdc5f"
     ],
     [
      "e355c82c04d44c627775dc3f69fbe36d",
@@ -8211,7 +8201,7 @@
     [
      "e784a2dd226268b66377220386f009cc",
      "approximated",
-     "9dc27bd7b0555975"
+     "36ccc9a6e45a8345"
     ],
     [
      "e7daabb6c910cec20352478531a50fe7",
@@ -12490,7 +12480,7 @@
     [
      "04ecc84df354e0f054a56bd28a49e80c",
      "approximated",
-     "e6d294aec76d1565"
+     "4c5370cb75a40633"
     ],
     [
      "055630019dfbd59b0932c464991d8b66",
@@ -12570,7 +12560,7 @@
     [
      "3947a4886a4cfcb0b30fb760e7e3759a",
      "approximated",
-     "ad7cc694c4d53b69"
+     "e04033d283689092"
     ],
     [
      "39750a649e92d4e129a8bd91b92d45b8",
@@ -12600,12 +12590,12 @@
     [
      "4e9fdd4d9988be8bbd24a0f81f6dd294",
      "approximated",
-     "91db15c472c194b7"
+     "bd0edf1d9ae5d948"
     ],
     [
      "4edf17f54b9932aaac875d42f5f237cb",
      "approximated",
-     "7b1498f3f6a42429"
+     "4b5ee0e22ea3bd98"
     ],
     [
      "5270bb664621bf70c56460224f1972da",
@@ -12645,7 +12635,7 @@
     [
      "69a9781d4e98f8a80464fb7e29bcb9d9",
      "approximated",
-     "57f0d4df6a2fe3dc"
+     "405c03e386e079d1"
     ],
     [
      "6c199ed7c1432f5803460c709b8de4d9",
@@ -12685,7 +12675,7 @@
     [
      "7b5e6f756740ee3d338381e57316179b",
      "approximated",
-     "e9ee045b87c7df30"
+     "29db51ab72a6d762"
     ],
     [
      "7b691a5e0be72db49571f83f6a797a19",
@@ -12710,7 +12700,7 @@
     [
      "83a2104b50a8d6d693105c5df59c09ae",
      "approximated",
-     "705a2ed16282f094"
+     "430aadb4210ac2bc"
     ],
     [
      "85ed440860d659361b60ceac6fb9a0b7",
@@ -12740,7 +12730,7 @@
     [
      "9a5b8c918ca160560cd71072c7c5a8ac",
      "approximated",
-     "f1f7e6dd7c1af001"
+     "4b236b583f57bbd7"
     ],
     [
      "9a6ef12947a29d4497292989ae69645e",
@@ -12760,7 +12750,7 @@
     [
      "9f087959bf689d2f2c0b4fa8a02ad67e",
      "approximated",
-     "931cb8283e704b1f"
+     "8bff3d9af98042e4"
     ],
     [
      "a0fa38cac4dedde114cc10aae4506450",
@@ -12785,12 +12775,12 @@
     [
      "aa3a2a999e33801c72e3c64feec4fc1c",
      "approximated",
-     "5a8d9136fbef33c0"
+     "f648bf683a7245d3"
     ],
     [
      "ab1e8488684642fe7c0c71bb9a49cfa6",
      "approximated",
-     "bd5c266814bf832b"
+     "4f41baca3c0d182f"
     ],
     [
      "ace9a0eef7501659c13365d08d8325c7",
@@ -12920,7 +12910,7 @@
     [
      "d8dcbfb09730664d5375ce69c809fe08",
      "approximated",
-     "41638d8575cac37d"
+     "019224fc5fd1ae28"
     ],
     [
      "ded7f4e87525edd5ba1e59918bc5f6a4",
@@ -12945,7 +12935,7 @@
     [
      "e7492fd7f68577289480bebee1b26871",
      "approximated",
-     "31806f4f6c38c94b"
+     "f3a16f3335920f2f"
     ],
     [
      "e7daabb6c910cec20352478531a50fe7",
@@ -12955,7 +12945,7 @@
     [
      "eb995b977c9f5d588dce57a718d4086a",
      "approximated",
-     "ad7cc694c4d53b69"
+     "67ea71c55b3ee61d"
     ],
     [
      "ebc89e1fccb03e39945c942e455c4f55",
@@ -12965,7 +12955,7 @@
     [
      "f301c9bbef29fa4eb5f6cce158c30123",
      "approximated",
-     "9033a7618995c2b1"
+     "710180f194e343f3"
     ],
     [
      "f597923766d706d764d3c4bd95d9be76",
@@ -13211,6 +13201,7 @@
      ],
      "no_shadow": 0,
      "objects": {
+      "EMPTY": 1,
       "MESH": 1
      },
      "placements": 1,
@@ -13832,6 +13823,7 @@
      ],
      "no_shadow": 0,
      "objects": {
+      "EMPTY": 1,
       "MESH": 1
      },
      "placements": 1,
@@ -13847,6 +13839,7 @@
      ],
      "no_shadow": 0,
      "objects": {
+      "EMPTY": 1,
       "MESH": 1
      },
      "placements": 1,
@@ -13862,6 +13855,7 @@
      ],
      "no_shadow": 0,
      "objects": {
+      "EMPTY": 1,
       "MESH": 1
      },
      "placements": 1,
@@ -14406,11 +14400,11 @@
     }
    },
    "counts": {
-    "images": 146,
+    "images": 145,
     "materials": 103,
     "meshes": 157,
     "node_groups": 104,
-    "objects": 241
+    "objects": 245
    },
    "groups": {
     ".KKM Grade Lut_Amount + Lut_TimeNight1 0.3": "87d2f8f2487370c7"
@@ -14454,11 +14448,6 @@
     {
      "colorspace": "sRGB",
      "name": "0eaf6eb0cce7737b225303aa31d84624",
-     "relative": true
-    },
-    {
-     "colorspace": "Non-Color",
-     "name": "13bc0dac7603b6e7625edcaf65301e1b",
      "relative": true
     },
     {
@@ -15802,7 +15791,7 @@
       "draws": 1,
       "level": "approximated",
       "materials": 1,
-      "reason": "water drawn as Standard",
+      "reason": "water drawn as a smooth tinted surface",
       "shader": "Lux Water/WaterSurface"
      },
      {
@@ -15879,7 +15868,7 @@
       "draws": 4,
       "level": "approximated",
       "materials": 3,
-      "reason": "water drawn as Standard",
+      "reason": "water drawn as a smooth tinted surface",
       "shader": "Lux Water/WaterSurface"
      },
      {
@@ -15893,7 +15882,7 @@
       "draws": 1,
       "level": "approximated",
       "materials": 1,
-      "reason": "water drawn as Standard",
+      "reason": "water drawn as a smooth tinted surface",
       "shader": "NatureManufacture Shaders/Water/Water River Mobile"
      }
     ],

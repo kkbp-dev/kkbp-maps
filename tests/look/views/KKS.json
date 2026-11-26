@@ -1,0 +1,726 @@
+{
+ "game": "KKS",
+ "space": "blender",
+ "views": [
+  {
+   "map": "map/scene/aquariuminside",
+   "variant": "morning",
+   "name": "eye-0",
+   "position": [
+    -106.256,
+    74.957,
+    1.6
+   ],
+   "target": [
+    -103.0995,
+    65.4682,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/aquariuminside",
+   "variant": "morning",
+   "name": "eye-180",
+   "position": [
+    -106.256,
+    74.957,
+    1.6
+   ],
+   "target": [
+    -109.4125,
+    84.4458,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/aquariuminside",
+   "variant": "morning",
+   "name": "eye-270",
+   "position": [
+    -106.256,
+    74.957,
+    1.6
+   ],
+   "target": [
+    -96.7672,
+    78.1135,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/aquariuminside",
+   "variant": "morning",
+   "name": "eye-90",
+   "position": [
+    -106.256,
+    74.957,
+    1.6
+   ],
+   "target": [
+    -115.7448,
+    71.8005,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/aquariuminside",
+   "variant": "morning",
+   "name": "overview",
+   "position": [
+    -108.1499,
+    80.6503,
+    3.5
+   ],
+   "target": [
+    -106.256,
+    74.957,
+    1.0
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "day",
+   "name": "eye-0",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    73.5544,
+    96.0751,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "day",
+   "name": "eye-180",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    53.9856,
+    91.9449,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "day",
+   "name": "eye-270",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    61.7049,
+    103.7944,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "day",
+   "name": "eye-90",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    65.8351,
+    84.2256,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "day",
+   "name": "overview",
+   "position": [
+    57.8993,
+    92.7709,
+    3.5
+   ],
+   "target": [
+    63.77,
+    94.01,
+    1.0
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "evening",
+   "name": "eye-0",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    73.5544,
+    96.0751,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "evening",
+   "name": "eye-180",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    53.9856,
+    91.9449,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "evening",
+   "name": "eye-270",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    61.7049,
+    103.7944,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "evening",
+   "name": "eye-90",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    65.8351,
+    84.2256,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "evening",
+   "name": "overview",
+   "position": [
+    57.8993,
+    92.7709,
+    3.5
+   ],
+   "target": [
+    63.77,
+    94.01,
+    1.0
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "morning",
+   "name": "eye-0",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    73.5544,
+    96.0751,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "morning",
+   "name": "eye-180",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    53.9856,
+    91.9449,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "morning",
+   "name": "eye-270",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    61.7049,
+    103.7944,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "morning",
+   "name": "eye-90",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    65.8351,
+    84.2256,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "morning",
+   "name": "overview",
+   "position": [
+    57.8993,
+    92.7709,
+    3.5
+   ],
+   "target": [
+    63.77,
+    94.01,
+    1.0
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "night",
+   "name": "eye-0",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    73.5544,
+    96.0751,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "night",
+   "name": "eye-180",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    53.9856,
+    91.9449,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "night",
+   "name": "eye-270",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    61.7049,
+    103.7944,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "night",
+   "name": "eye-90",
+   "position": [
+    63.77,
+    94.01,
+    1.6
+   ],
+   "target": [
+    65.8351,
+    84.2256,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/hoteloutside",
+   "variant": "night",
+   "name": "overview",
+   "position": [
+    57.8993,
+    92.7709,
+    3.5
+   ],
+   "target": [
+    63.77,
+    94.01,
+    1.0
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "day",
+   "name": "eye-0",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    0.84,
+    74.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "day",
+   "name": "eye-180",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    0.84,
+    94.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "day",
+   "name": "eye-270",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    10.84,
+    84.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "day",
+   "name": "eye-90",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    -9.16,
+    84.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "day",
+   "name": "overview",
+   "position": [
+    0.84,
+    90.55,
+    3.5
+   ],
+   "target": [
+    0.84,
+    84.55,
+    1.0
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "evening",
+   "name": "eye-0",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    0.84,
+    74.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "evening",
+   "name": "eye-180",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    0.84,
+    94.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "evening",
+   "name": "eye-270",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    10.84,
+    84.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "evening",
+   "name": "eye-90",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    -9.16,
+    84.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "evening",
+   "name": "overview",
+   "position": [
+    0.84,
+    90.55,
+    3.5
+   ],
+   "target": [
+    0.84,
+    84.55,
+    1.0
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "morning",
+   "name": "eye-0",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    0.84,
+    74.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "morning",
+   "name": "eye-180",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    0.84,
+    94.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "morning",
+   "name": "eye-270",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    10.84,
+    84.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "morning",
+   "name": "eye-90",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    -9.16,
+    84.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "morning",
+   "name": "overview",
+   "position": [
+    0.84,
+    90.55,
+    3.5
+   ],
+   "target": [
+    0.84,
+    84.55,
+    1.0
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "night",
+   "name": "eye-0",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    0.84,
+    74.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "night",
+   "name": "eye-180",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    0.84,
+    94.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "night",
+   "name": "eye-270",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    10.84,
+    84.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "night",
+   "name": "eye-90",
+   "position": [
+    0.84,
+    84.55,
+    1.6
+   ],
+   "target": [
+    -9.16,
+    84.55,
+    0.6
+   ],
+   "fov": 40
+  },
+  {
+   "map": "map/scene/minsyukulobby",
+   "variant": "night",
+   "name": "overview",
+   "position": [
+    0.84,
+    90.55,
+    3.5
+   ],
+   "target": [
+    0.84,
+    84.55,
+    1.0
+   ],
+   "fov": 40
+  }
+ ]
+}

@@ -14961,6 +14961,7 @@
     "placements": 109,
     "renderer_notes": [],
     "shader_tiers": [],
+    "variant_notes": [],
     "variants": [
      "School 1F, Day",
      "School 1F, Evening",
@@ -14987,6 +14988,7 @@
     "placements": 40,
     "renderer_notes": [],
     "shader_tiers": [],
+    "variant_notes": [],
     "variants": [
      "Sports Ground, Day",
      "Sports Ground, Evening",
@@ -15036,6 +15038,7 @@
       "shader": "Xffect/heat_distortion"
      }
     ],
+    "variant_notes": [],
     "variants": [
      "Park"
     ]

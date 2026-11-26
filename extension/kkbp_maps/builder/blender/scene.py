@@ -22,6 +22,7 @@ from .. import shaders
 from ..games import light_convention
 from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, passes
 from . import materials as mats
+from . import sky as skystudio
 from .meshes import Meshes
 from .nodes import Graph
 
@@ -335,8 +336,11 @@ def build_world(b, v: dict, vp: VariantPlan, fb: FileBuilder, grade) -> bpy.type
         color = g.mix(1.0, (env, "Color"), (*tint, 1.0), blend_type="MULTIPLY")
         if sky["source"] == "dome":   # a mesh, so GlobalFog fogs it; Unity's skybox is past its reach
             shown = mats.height_fog_sky(g, v, color, (coords, "Generated"))
+    elif sky and sky["kind"] == "material" and sky["shader"] == skystudio.SHADER:
+        coords = g.node("ShaderNodeTexCoord")
+        color = skystudio.skystudio(g, sky, fb.images, b, (coords, "Generated"))
     else:
-        color = (g.rgb((0.0, 0.0, 0.0)), "Color")  # a procedural skybox isn't rebuilt yet; no KK Golden Map shows one
+        color = (g.rgb((0.0, 0.0, 0.0)), "Color")  # a procedural skybox isn't rebuilt yet; no Golden Map shows one
     shown = shown or color
     graded = (g.group(grade, Color=shown), "Color") if grade is not None else shown
     camera = (g.node("ShaderNodeLightPath"), "Is Camera Ray")

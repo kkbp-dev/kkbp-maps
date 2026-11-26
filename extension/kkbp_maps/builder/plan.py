@@ -27,6 +27,26 @@ from .catalogs import catalog_uuid
 from .names import NameTables
 
 OTHER_AREA = "Other"
+SKYSTUDIO = "Funly/Sky Studio/Skybox/3D Standard"   # rebuilt in builder/blender/sky.py
+SKY_LEFT_OUT = {"STAR_LAYER_1": "stars", "STAR_LAYER_2": "stars", "STAR_LAYER_3": "stars", "STARS_BASIC": "stars",
+                "MOON_CUSTOM_TEXTURE": "the moon's texture", "SUN_CUSTOM_TEXTURE": "the sun's texture",
+                "CUBEMAP_CLOUDS": "cubemap clouds", "CUBEMAP_NORMAL_CLOUDS": "cubemap clouds",
+                "HORIZON_FOG": "horizon fog"}
+
+
+def sky_notes(sky: dict | None) -> list[str]:
+    """For the Build Report: what a Map Variant's Sky asks for that the World doesn't draw."""
+    if not sky or sky["kind"] == "cubemap":
+        return []
+    if sky["kind"] == "procedural":
+        return ["procedural skybox not drawn"]
+    if sky["shader"] != SKYSTUDIO:
+        return [f"sky {sky['shader']} not drawn"]
+    kw = set(sky["keywords"])
+    left = sorted({SKY_LEFT_OUT[k] for k in kw if k in SKY_LEFT_OUT
+                   and not (k == "MOON_CUSTOM_TEXTURE" and "MOON" not in kw)
+                   and not (k == "SUN_CUSTOM_TEXTURE" and "SUN" not in kw)})
+    return [f"SkyStudio sky approximated: {', '.join(left)} not drawn"] if left else []
 UNSAFE_FILE_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 
 
@@ -77,6 +97,7 @@ class MapPlan:
     notes: Counter = field(default_factory=Counter)        # (note) -> materials, for the Build Report
     renderer_notes: Counter = field(default_factory=Counter)  # (note) -> renderers, for the Build Report
     twins: list[str] = field(default_factory=list)         # Maps of the same geometry, kept as this one (D22)
+    variant_notes: Counter = field(default_factory=Counter)   # (note) -> Map Variants, for the Build Report
 
     @property
     def catalog(self) -> str:
@@ -319,6 +340,9 @@ def _plan_map(b: Bundle, tables: NameTables, used: set[str]) -> MapPlan:
     for mid, material in b.materials.items():
         for note in material_notes(material):
             m.notes[note] += 1
+    for v in b.variants:
+        for note in sky_notes(v["sky"]):
+            m.variant_notes[note] += 1
     return m
 
 

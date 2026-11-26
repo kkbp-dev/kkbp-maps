@@ -56,6 +56,8 @@ namespace KKMaps.Capture
                     { "lightmap_index", (double)r.lightmapIndex }, { "realtime_lightmap_index", (double)r.realtimeLightmapIndex },
                     { "shadow_casting", r.shadowCastingMode.ToString() }, { "receive_shadows", r.receiveShadows },
                     { "reflection_probe_usage", r.reflectionProbeUsage.ToString() }, { "materials", mats },
+                    { "position", Value(r.transform.position) }, { "lossy_scale", Value(r.transform.lossyScale) },
+                    { "bounds_min", Value(r.bounds.min) }, { "bounds_max", Value(r.bounds.max) },
                 });
             }
             return new Dictionary<string, object>

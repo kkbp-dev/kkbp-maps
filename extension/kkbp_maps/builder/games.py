@@ -34,6 +34,7 @@ class CameraProfile:
     map_sun_shafts: bool = True   # the Map's sun shafts are drawn
     grade_lut: str | None = None  # a LUT, by name, that grades every Map instead of the Map's own
     height_fog: HeightFog | None = None
+    height_fog_from_map: bool = False   # the height fog is on only where a Map Variant switches it on (KKS)
     assumed: bool = True
 
 
@@ -43,6 +44,11 @@ class GameLight:
     # Real-time GI that no file holds (ADR 0025): a renderer that takes it gets this share of the Map's
     # ambient light on top of its lightmap, fitted to the Reference Captures by the look check.
     realtime_gi_ambient: float = 0.0
+    # Point and spot lights: Unity's built-in falloff is 1 / (1 + 25 (d/range)^2), Blender's 1/d^2. A
+    # Blender light agrees with Unity's at this share of its range, and is cut off at its range.
+    point_reference: float = 0.2
+    # Unity's spot cookie fades towards the cone's edge; the Blender spot's blend.
+    spot_blend: float = 0.5
 
 
 CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
@@ -60,6 +66,15 @@ CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
         # captures' frames before AmplifyColor through Lut_Amount match the frames after it to ΔE 0.7).
         "studio": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=False,
                                 map_sun_shafts=False, grade_lut="Lut_Amount", assumed=False),
+    },    # Not captured yet (the KKS capture plugin, Phase 7): KK's, as a start. The story camera's CameraEffector
+    # has GlobalFog, AmplifyColor and SunShafts like KK's (kks-spike.md, section 2); its height fog is
+    # on only where a Map Variant switches it on (Map Bundle 0.9), with KK's density until captured.
+    "KKS": {
+        "game": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=True, map_sun_shafts=True,
+                              grade_lut=None, height_fog=HeightFog(top=0.0, density=2.0),
+                              height_fog_from_map=True, assumed=True),
+        "studio": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=False,
+                                map_sun_shafts=False, grade_lut="Lut_Amount", assumed=True),
     },
 }
 
@@ -67,6 +82,9 @@ LIGHTS: dict[str, GameLight] = {
     # lights_use_linear_intensity: Koikatu_Data/globalgamemanagers, GraphicsSettings. realtime_gi_ambient:
     # fitted on park's captures (kk-spike.md, "Settled by the look check"; 0.25 to 0.75 were tried).
     "KK": GameLight(lights_use_linear_intensity=False, realtime_gi_ambient=0.5),
+    # KoikatsuSunshine_Data/globalgamemanagers, GraphicsSettings (kks-spike.md, section 5); the point
+    # light reference and spot blend are first guesses, for the look check to fit.
+    "KKS": GameLight(lights_use_linear_intensity=False),
 }
 
 

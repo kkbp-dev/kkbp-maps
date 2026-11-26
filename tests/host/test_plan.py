@@ -5,7 +5,7 @@ import uuid
 
 import pytest
 
-from bundle_builder import MapBundleBuilder
+from bundle_builder import MapBundleBuilder, edit_json, refresh_manifest
 from kkbp_maps.bundle import read
 from kkbp_maps.builder.catalogs import catalog_file, catalog_uuid
 from kkbp_maps.builder.names import NameTables
@@ -55,7 +55,10 @@ def test_a_thumbnail_for_any_time_of_day_is_used(tmp_path):
 
 def test_assets_are_kept_once_across_maps_and_tagged_with_each(tmp_path):
     a = bundle(tmp_path)
-    b = bundle(tmp_path, key="map/scene/b", name="b", change=lambda x: x.map.update(outdoor=True))
+    def other_room(x):   # another Map: the same Props, a room placed elsewhere
+        x.map.update(outdoor=True)
+        x.nodes[ROOM]["translation"] = [0.0, 0.0, 1.0]
+    b = bundle(tmp_path, key="map/scene/b", name="b", change=other_room)
     p = plan_library([a, b], TABLES)
     assert len(p.assets) == 3
     desk = next(x for x in p.assets.values() if x.name == "Desk 00")
@@ -186,3 +189,48 @@ def test_the_report_lists_the_maps_a_build_left_out(tmp_path):
     text = markdown(report)
     assert "and 1 Maps not built" in text and "## Not built" in text and "it passed 3.0 GB" in text
     assert build_report(p)["not_built"] == [] and "Not built" not in markdown(build_report(p))
+
+
+# --- KKS: trilight ambient and the Map's own camera fog ----------------------------------------------
+
+def test_a_uniform_trilight_is_its_colour_everywhere():
+    from kkbp_maps.builder.plan import trilight_sh
+    grey = [0.5, 0.5, 0.5, 1.0]
+    sh = trilight_sh({"mode": "trilight", "intensity": 1.0, "sky_color": grey, "equator_color": grey, "ground_color": grey})
+    lin = ((0.5 + 0.055) / 1.055) ** 2.4
+    for c in range(3):
+        k = sh[9 * c:9 * c + 9]
+        assert abs(k[0] - lin) < 1e-3 and abs(k[2]) < 1e-4 and abs(k[6]) < 1e-4
+
+
+def test_a_trilight_is_brighter_facing_its_sky():
+    from kkbp_maps.builder.plan import trilight_sh
+    sh = trilight_sh({"mode": "trilight", "intensity": 1.0, "sky_color": [1.0, 1.0, 1.0, 1.0],
+                      "equator_color": [0.5, 0.5, 0.5, 1.0], "ground_color": [0.0, 0.0, 0.0, 1.0]})
+    up = sh[0] + sh[2] + 2 * sh[6]
+    down = sh[0] - sh[2] + 2 * sh[6]
+    assert up > sh[0] > down > 0
+
+
+def test_a_map_with_another_maps_geometry_is_that_map(tmp_path):
+    """D22: a Studio Map whose geometry hash is its story Map's is one Map."""
+    a = bundle(tmp_path)
+    b = bundle(tmp_path, key="studio/map/a_studio", name="s", change=lambda x: x.map.update(outdoor=True))
+    p = plan_library([a, b], TABLES)
+    assert [m.key for m in p.maps] == ["map/scene/a"] and p.maps[0].twins == ["studio/map/a_studio"]
+
+
+def test_batched_copies_in_another_map_are_the_same_prop(tmp_path):
+    """ADR 0034: a Map's batched vase matches another Map's unbatched one within the tolerance."""
+    def nudged(x):
+        x.nodes[ROOM]["translation"] = [0.0, 0.0, 1.0]
+        q = x.meshes["slab"]["attributes"]
+        x.meshes["slab"]["attributes"] = dict(q, position=[[px + 3e-6, py, pz] for px, py, pz in q["position"]])
+    a = bundle(tmp_path)
+    b = bundle(tmp_path, key="map/scene/b", name="b", change=nudged)
+    edit_json(b.root, "meshes", lambda d: next(m for m in d["meshes"] if m["name"] == "desk_top").update(batched=True))
+    refresh_manifest(b.root)
+    b = read(b.root)
+    p = plan_library([a, b], TABLES)
+    vase = next(x for x in p.assets.values() if x.name == "Vase 00")
+    assert vase.maps == ["map/scene/a", "map/scene/b"] and vase.source[0] == "map/scene/a"

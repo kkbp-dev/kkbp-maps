@@ -12,6 +12,10 @@ import numpy as np
 from .materials import PROP_HASH, UV0, UV1
 
 UV_NAMES = {"uv0": UV0, "uv1": UV1}
+# The other channels (Map Bundle 0.10) become point attributes of their own name: the vertex colour, and
+# SpeedTree's data (for its wind). Four floats are kept as a FLOAT_COLOR, the _zw halves as FLOAT2.
+EXTRA = {"color0": ("FLOAT_COLOR", 4), "uv0_zw": ("FLOAT2", 2), "uv1_zw": ("FLOAT2", 2),
+         "uv2": ("FLOAT_COLOR", 4), "uv3": ("FLOAT_COLOR", 4)}
 
 
 class Meshes:
@@ -60,6 +64,11 @@ class Meshes:
                 layer.uv.foreach_set("vector", uv[loops].ravel())
         if me.uv_layers:
             me.uv_layers.active = me.uv_layers[UV0] if UV0 in me.uv_layers else me.uv_layers[0]
+        for attr, (kind, width) in EXTRA.items():
+            if attr in buf.attributes:
+                values = np.frombuffer(buf.attributes[attr], dtype=np.float32).reshape(n, width)
+                a = me.attributes.new(attr, kind, "POINT")
+                a.data.foreach_set("color" if kind == "FLOAT_COLOR" else "vector", values.ravel())
         me.shade_smooth()
         me.normals_split_custom_set_from_vertices(normals)
         for _ in buf.submeshes:

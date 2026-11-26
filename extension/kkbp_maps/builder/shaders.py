@@ -22,10 +22,11 @@ class Tier:
     double_sided: bool = False
     tint: str | None = None   # an unlit model's colour property
     tint_scale: float = 1.0   # Unity's particle shaders double their tint
+    vertex_color: bool = False   # the albedo is multiplied by the mesh's color0
 
 
-def _standard(level=REBUILT, reason="", double_sided=False):
-    return Tier("standard", level, reason, double_sided)
+def _standard(level=REBUILT, reason="", double_sided=False, vertex_color=False):
+    return Tier("standard", level, reason, double_sided, vertex_color=vertex_color)
 
 
 def _unlit(level=REBUILT, reason="", tint=None, tint_scale=1.0):
@@ -63,6 +64,23 @@ TIERS: dict[str, Tier] = {
     "Shader Forge/electricLight": _skip("volumetric light"),
     "Unlit/MosaicTexture": _skip("mosaic"),
     "Custom/Silhouette": _skip("silhouette"),
+    # KKS (kks-spike.md, section 9).
+    "Nature/SpeedTree": _standard(APPROXIMATED, "hue variation and wind aren't drawn"),
+    "Koikano/main_item_map": _standard(APPROXIMATED, "no Game Shader Model yet"),
+    "Koikano/sub_texture_cutout": _standard(APPROXIMATED, "Koikano drawn as Standard"),
+    "Koikano/sub_texture_subblendcutout": _standard(APPROXIMATED, "Koikano drawn as Standard"),
+    "Koikano/sub_add_cullfront": _standard(APPROXIMATED, "Koikano drawn as Standard"),
+    "Koikano/main_clothes_item": _standard(APPROXIMATED, "Koikano drawn as Standard"),
+    "Koikano/main_clothes_item_glasses": _standard(APPROXIMATED, "Koikano drawn as Standard"),
+    "ProBuilder/Standard Vertex Color": _standard(vertex_color=True),
+    "Lux Water/WaterSurface": _standard(APPROXIMATED, "water drawn as Standard"),
+    "Lux Water/WaterSurface Tessellation": _standard(APPROXIMATED, "water drawn as Standard"),
+    "NatureManufacture Shaders/Water/Water River Mobile": _standard(APPROXIMATED, "water drawn as Standard"),
+    "NatureManufacture Shaders/Water/Water River Tesseled": _standard(APPROXIMATED, "water drawn as Standard"),
+    "NatureManufacture Shaders/Water/Water River Tesseled Vertex Color": _standard(APPROXIMATED, "water drawn as Standard"),
+    "Legacy Shaders/Particles/VertexLit Blended": _unlit(APPROXIMATED, "drawn unlit", tint="_EmisColor"),
+    "FX/MirrorReflection": _skip("mirror"),
+    "Custom/MiniMapRoad": _skip("mini-map overlay"),
 }
 
 UNKNOWN = _skip("no Shader Tier for this shader")

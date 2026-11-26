@@ -222,9 +222,10 @@ def _lut_lookup(g: Graph, image, color):
     return g.mix(frac, texels[0], texels[1])
 
 
-def grade_group(name: str, lut_image) -> bpy.types.ShaderNodeTree:
+def grade_group(name: str, lut_image, blend_image=None, amount: float = 0.0) -> bpy.types.ShaderNodeTree:
     """`.KKM Grade <LUT>`: AmplifyColor on a linear colour, with no tonemapper and exposure 1 (the assumed
-    Camera Profile, ADR 0010): sRGB-encode, look up the LUT, decode."""
+    Camera Profile, ADR 0010): sRGB-encode, look up the LUT, decode. With a blend LUT (KKS, Map Bundle
+    0.7) both are looked up and mixed by `amount`, as AmplifyColor does when its BlendAmount isn't 0."""
     tree = bpy.data.node_groups.get(name)
     if tree is not None:
         return tree
@@ -233,6 +234,8 @@ def grade_group(name: str, lut_image) -> bpy.types.ShaderNodeTree:
     g, i, o = io(tree)
     enc = _srgb_encode(g, (i, "Color"))
     graded = _lut_lookup(g, lut_image, enc)
+    if blend_image is not None and amount > 0:
+        graded = g.mix(amount, graded, _lut_lookup(g, blend_image, enc))
     g.link(_srgb_decode(g, graded), (o, "Color"))
     return tree
 
@@ -259,7 +262,7 @@ def base_material(bundle, material_id: str, images: Images) -> bpy.types.ShaderN
     if tier.model == "unlit":
         _unlit(g, out, bundle, m, tier, images)
     else:
-        _standard(g, out, bundle, m, images)
+        _standard(g, out, bundle, m, images, vertex_color=tier.vertex_color)
     return tree
 
 
@@ -279,9 +282,10 @@ def _uv(g, name=UV0):
     return (g.node("ShaderNodeUVMap", uv_map=name), "UV")
 
 
-def _standard(g: Graph, out, bundle, m, images):
+def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
     """Unity's Standard shader by its fixed rules (D13): metallic setup, albedo alpha or metallic alpha
-    smoothness, normal and detail maps, occlusion, emission, cutout. Parallax is left out."""
+    smoothness, normal and detail maps, occlusion, emission, cutout. Parallax is left out. With
+    `vertex_color` (ProBuilder's Standard Vertex Color) the albedo is multiplied by the mesh's colour."""
     kw = set(m["keywords"])
     fl, co = m["floats"], m["colors"]
     uv = _uv(g)
@@ -290,6 +294,9 @@ def _standard(g: Graph, out, bundle, m, images):
     albedo = g.rgb(linear_rgb(color))
     if main is not None:
         albedo = g.mix(1.0, albedo, (main, "Color"), blend_type="MULTIPLY")
+    if vertex_color:   # the colour as stored; the look check says whether ProBuilder decodes it
+        vc = g.node("ShaderNodeAttribute", attribute_type="GEOMETRY", attribute_name="color0")
+        albedo = g.mix(1.0, albedo, (vc, "Color"), blend_type="MULTIPLY")
     smooth_from_albedo = fl.get("_SmoothnessTextureChannel", 0.0) >= 0.5
     if main is not None and not smooth_from_albedo:
         alpha = g.math("MULTIPLY", (main, "Alpha"), float(color[3]))
@@ -727,6 +734,26 @@ def left_out_material() -> bpy.types.Material:
         mat.surface_render_method = "DITHERED"
         mat["kkbp_maps_left_out"] = True
     return mat
+
+
+def unity_light_rgb(color, intensity: float, lights_use_linear_intensity: bool) -> list[float]:
+    """A Unity light's colour as the shader receives it, linear."""
+    if lights_use_linear_intensity:
+        return [linear(c) * intensity for c in color[:3]]
+    return [linear(c * intensity) for c in color[:3]]
+
+
+def point_power(color, intensity: float, light_range: float, convention) -> tuple[tuple, float]:
+    """A Unity point or spot light as a Blender light's (colour, watts). A Blender light of P watts lights
+    a white diffuse surface at distance d to P / (4π² d²) (measured in both renderers); Unity's to
+    colour · 1 / (1 + 25 (d/range)²). They agree at d = point_reference · range."""
+    rgb = unity_light_rgb(color, intensity, convention.lights_use_linear_intensity)
+    peak = max(rgb)
+    if peak <= 0 or light_range <= 0:
+        return (1.0, 1.0, 1.0), 0.0
+    d = convention.point_reference * light_range
+    falloff = 1.0 / (1.0 + 25.0 * convention.point_reference ** 2)
+    return tuple(c / peak for c in rgb), 4.0 * math.pi ** 2 * d * d * falloff * peak
 
 
 def sun_strength(color, intensity: float, lights_use_linear_intensity: bool):

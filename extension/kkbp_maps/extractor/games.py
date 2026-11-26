@@ -113,7 +113,7 @@ KKS = Game(
     normal_x_from_alpha=False,
     dependency_folders=("map/materials", "map/common", "studio/map/materials", "studio/map/common", "studio/map/00"),
     sun_lists="hide_then_show",
-    vertex_data_shaders=("Nature/SpeedTree",),
+    vertex_data_shaders=("Nature/SpeedTree", "ProBuilder/Standard Vertex Color"),
     replays_visible_change=False,
     visible_state=0,
 )

@@ -1,0 +1,646 @@
+# The Name Tables for KKS (D14): curated names, not game data, so they live in the repository (ADR 0007).
+# The sections are KK.toml's. Story Maps are named after the map list's DisplayName; Studio's KK ports
+# keep KK's names, and Studio's own builds of KKS Maps add " (Studio)", since they are Maps of their own
+# wherever their geometry differs (D22).
+
+[times_of_day]
+morning = "Morning"
+day = "Day"
+evening = "Evening"
+night = "Night"
+
+[naming]
+# Regular expressions removed from a game name, repeatedly, in this order: prefixes, and SpeedTree's
+# level-of-detail suffix. A '20_' left from a set number goes too.
+strip = ['^p_', '^mo_', '^o_', '^ks_', '^kn_', '^koi_', '^toon_', '^[mr]\d+_?', '^map\d+_', '^\d+_', '_LOD\d+$']
+default_category = "Other"
+english = ["air", "arch", "arm", "back", "ball", "bar", "basket", "beat", "bed", "bench", "black", "blue", "book", "booth", "box", "bush", "candy", "caution", "center", "chair", "cloth", "colors", "cookie", "counter", "curtain", "dining", "door", "far", "fence", "floor", "flower", "football", "frame", "front", "gate", "glass", "glow", "goal", "grass", "green", "heart", "inner", "lamp", "left", "light", "line", "lives", "lounge", "main", "mat", "memo", "menu", "mid", "mirror", "monitor", "near", "neon", "outer", "over", "palm", "parasol", "parts", "pen", "pink", "planter", "plate", "pool", "pot", "rack", "red", "reel", "register", "right", "rock", "roof", "room", "screen", "sea", "shelf", "shop", "shower", "side", "sign", "sky", "sofa", "stage", "step", "sun", "table", "time", "toilet", "towel", "tree", "truss", "umbrella", "upper", "wall", "window", "wing"]
+drop = ["geo", "kois", "mi", "ei"]
+
+
+[maps."map/scene/aquariuminside"]
+name = "Aquarium Reception"
+area = "Aquarium"
+
+[maps."studio/map/aquariuminside_studio"]
+name = "Aquarium Reception (Studio)"
+area = "Aquarium"
+
+[maps."map/scene/aquariumoutside"]
+name = "Aquarium"
+area = "Aquarium"
+
+[maps."studio/map/aquariumoutside_studio"]
+name = "Aquarium (Studio)"
+area = "Aquarium"
+
+[maps."map/scene/bathroom"]
+name = "Hotel Bath"
+area = "Hotel"
+
+[maps."studio/map/bathroom_studio"]
+name = "Hotel Bath (Studio)"
+area = "Hotel"
+
+[maps."map/scene/beach"]
+name = "Beach"
+area = "Island"
+
+[maps."studio/map/beach_studio"]
+name = "Beach (Studio)"
+area = "Island"
+
+[maps."map/scene/beachkouisitu"]
+name = "Beach Changing Room"
+area = "Island"
+
+[maps."studio/map/beachkouisitu_studio"]
+name = "Beach Changing Room (Studio)"
+area = "Island"
+
+[maps."map/scene/estheticroom"]
+name = "Hotel Esthetic Salon"
+area = "Hotel"
+
+[maps."studio/map/estheticroom_studio"]
+name = "Hotel Esthetic Salon (Studio)"
+area = "Hotel"
+
+[maps."map/scene/fittingroom"]
+name = "Clothes Shop Fitting Room"
+area = "Shops"
+
+[maps."studio/map/fittingroom_studio"]
+name = "Clothes Shop Fitting Room (Studio)"
+area = "Shops"
+
+[maps."map/scene/forest"]
+name = "Nature Park"
+area = "Island"
+
+[maps."studio/map/forest_studio"]
+name = "Nature Park (Studio)"
+area = "Island"
+
+[maps."map/scene/gassyukulobby"]
+name = "Training Camp Lobby"
+area = "Training Camp"
+
+[maps."studio/map/gassyukulobby_studio"]
+name = "Training Camp Lobby (Studio)"
+area = "Training Camp"
+
+[maps."map/scene/gassyukuoutside"]
+name = "Training Camp"
+area = "Training Camp"
+
+[maps."studio/map/gassyukuoutside_studio"]
+name = "Training Camp (Studio)"
+area = "Training Camp"
+
+[maps."map/scene/gasyukumyroom"]
+name = "Training Camp Room"
+area = "Training Camp"
+
+[maps."studio/map/gasyukumyroom_studio"]
+name = "Training Camp Room (Studio)"
+area = "Training Camp"
+
+[maps."map/scene/harbor"]
+name = "Harbor"
+area = "Island"
+
+[maps."studio/map/harbor_studio"]
+name = "Harbor (Studio)"
+area = "Island"
+
+[maps."map/scene/hotelkouisitu"]
+name = "Hotel Changing Room"
+area = "Hotel"
+
+[maps."studio/map/hotelkouisitu_studio"]
+name = "Hotel Changing Room (Studio)"
+area = "Hotel"
+
+[maps."map/scene/hotellobby"]
+name = "Hotel Lobby"
+area = "Hotel"
+
+[maps."studio/map/hotellobby_studio"]
+name = "Hotel Lobby (Studio)"
+area = "Hotel"
+
+[maps."map/scene/hotelmyroom"]
+name = "Hotel Room"
+area = "Hotel"
+
+[maps."studio/map/hotelmyroom_studio"]
+name = "Hotel Room (Studio)"
+area = "Hotel"
+
+[maps."map/scene/hoteloutside"]
+name = "Hotel"
+area = "Hotel"
+
+[maps."studio/map/hoteloutside_studio"]
+name = "Hotel (Studio)"
+area = "Hotel"
+
+[maps."map/scene/hotelsuite"]
+name = "Suite Room"
+area = "Hotel"
+
+[maps."studio/map/hotelsuite_studio"]
+name = "Suite Room (Studio)"
+area = "Hotel"
+
+[maps."map/scene/hukuya"]
+name = "Clothes Shop"
+area = "Shops"
+
+[maps."studio/map/hukuya_studio"]
+name = "Clothes Shop (Studio)"
+area = "Shops"
+
+[maps."map/scene/ishigaki"]
+name = "Stone Wall Path"
+area = "Island"
+
+[maps."studio/map/ishigaki_studio"]
+name = "Stone Wall Path (Studio)"
+area = "Island"
+
+[maps."map/scene/lighthouse"]
+name = "Lighthouse"
+area = "Island"
+
+[maps."studio/map/lighthouse_studio"]
+name = "Lighthouse (Studio)"
+area = "Island"
+
+[maps."map/scene/minsyukulobby"]
+name = "Guesthouse Dining Room"
+area = "Guesthouse"
+
+[maps."studio/map/minsyukulobby_studio"]
+name = "Guesthouse Dining Room (Studio)"
+area = "Guesthouse"
+
+[maps."map/scene/minsyukumyroom"]
+name = "Guesthouse Room"
+area = "Guesthouse"
+
+[maps."studio/map/minsyukumyroom_studio"]
+name = "Guesthouse Room (Studio)"
+area = "Guesthouse"
+
+[maps."map/scene/minsyukuoutside"]
+name = "Guesthouse"
+area = "Guesthouse"
+
+[maps."studio/map/minsyukuoutside_studio"]
+name = "Guesthouse (Studio)"
+area = "Guesthouse"
+
+[maps."map/scene/omiyageya"]
+name = "Souvenir Shop"
+area = "Shops"
+
+[maps."studio/map/omiyageya_studio"]
+name = "Souvenir Shop (Studio)"
+area = "Shops"
+
+[maps."map/scene/publictoilet"]
+name = "Nature Park Toilet"
+area = "Island"
+
+[maps."studio/map/publictoilet_studio"]
+name = "Nature Park Toilet (Studio)"
+area = "Island"
+
+[maps."map/scene/publictoilethama"]
+name = "Beach Toilet"
+area = "Island"
+
+[maps."studio/map/publictoilethama_studio"]
+name = "Beach Toilet (Studio)"
+area = "Island"
+
+[maps."map/scene/publictoiletsui"]
+name = "Aquarium Toilet"
+area = "Aquarium"
+
+[maps."studio/map/publictoiletsui_studio"]
+name = "Aquarium Toilet (Studio)"
+area = "Aquarium"
+
+[maps."map/scene/seacretbeach"]
+name = "Secret Beach"
+area = "Island"
+
+[maps."studio/map/seacretbeach_studio"]
+name = "Secret Beach (Studio)"
+area = "Island"
+
+[maps."map/scene/showerroom"]
+name = "Hotel Shower Room"
+area = "Hotel"
+
+[maps."studio/map/showerroom_studio"]
+name = "Hotel Shower Room (Studio)"
+area = "Hotel"
+
+[maps."map/scene/showerroomnozoki"]
+name = "Hotel Shower Stall"
+area = "Hotel"
+
+[maps."studio/map/showerroomnozoki_studio"]
+name = "Hotel Shower Stall (Studio)"
+area = "Hotel"
+
+[maps."map/scene/toiletnozoki"]
+name = "Toilet Stall"
+area = "Island"
+
+[maps."studio/map/toiletnozoki_studio"]
+name = "Toilet Stall (Studio)"
+area = "Island"
+
+[maps."studio/map/1-1"]
+name = "Classroom 1-1"
+area = "School"
+
+[maps."studio/map/1f"]
+name = "School 1F"
+area = "School"
+
+[maps."studio/map/1ftoilet"]
+name = "1F Girls' Toilet"
+area = "School"
+
+[maps."studio/map/2-1"]
+name = "Classroom 2-1"
+area = "School"
+
+[maps."studio/map/2-2"]
+name = "Classroom 2-2"
+area = "School"
+
+[maps."studio/map/2f"]
+name = "School 2F"
+area = "School"
+
+[maps."studio/map/2ftoilet"]
+name = "2F Girls' Toilet"
+area = "School"
+
+[maps."studio/map/3-1"]
+name = "Classroom 3-1"
+area = "School"
+
+[maps."studio/map/3f"]
+name = "School 3F"
+area = "School"
+
+[maps."studio/map/3ftoilet"]
+name = "3F Girls' Toilet"
+area = "School"
+
+[maps."studio/map/backyard"]
+name = "Backyard"
+area = "School"
+
+[maps."studio/map/church"]
+name = "Church"
+area = "Town"
+
+[maps."studio/map/church_volumelight"]
+name = "Church Event"
+area = "Town"
+
+[maps."studio/map/courtyard"]
+name = "Courtyard"
+area = "School"
+
+[maps."studio/map/diningroom"]
+name = "Cafeteria"
+area = "School"
+
+[maps."studio/map/ground"]
+name = "Sports Ground"
+area = "School"
+
+[maps."studio/map/gymnasium"]
+name = "Gymnasium"
+area = "School"
+
+[maps."studio/map/gymnasiumlive"]
+name = "Gymnasium Live"
+area = "School"
+
+[maps."studio/map/gymnasiumwarehouse"]
+name = "Gym Storeroom"
+area = "School"
+
+[maps."studio/map/healthroom"]
+name = "Nurse's Office"
+area = "School"
+
+[maps."studio/map/japanesestyleroom"]
+name = "Japanese-Style Room"
+area = "School"
+
+[maps."studio/map/karaoke"]
+name = "Karaoke"
+area = "Town"
+
+[maps."studio/map/libraryroom"]
+name = "Library"
+area = "School"
+
+[maps."studio/map/livestage_s"]
+name = "Live Stage"
+area = "Studio"
+
+[maps."studio/map/lockerroom"]
+name = "Locker Room"
+area = "School"
+
+[maps."studio/map/lockerroompeep"]
+name = "Locker Room Stall"
+area = "School"
+
+[maps."studio/map/lovehotel"]
+name = "Love Hotel"
+area = "Town"
+
+[maps."studio/map/myroom"]
+name = "My Room"
+area = "Home"
+
+[maps."studio/map/park"]
+name = "Park"
+area = "Town"
+
+[maps."studio/map/pool"]
+name = "Pool"
+area = "School"
+
+[maps."studio/map/rooftop"]
+name = "Rooftop"
+area = "School"
+
+[maps."studio/map/shawerroom"]
+name = "Shower Room"
+area = "School"
+
+[maps."studio/map/shawerroompeep"]
+name = "Shower Room Stall"
+area = "School"
+
+[maps."studio/map/staffadultroom"]
+name = "Staff Room"
+area = "School"
+
+[maps."studio/map/staffcomicresearchroom"]
+name = "Manga Club Room"
+area = "School"
+
+[maps."studio/map/staffroom"]
+name = "Club Room"
+area = "School"
+
+[maps."studio/map/toiletmale"]
+name = "Staff Toilet (Men)"
+area = "School"
+
+[maps."studio/map/toiletpeep"]
+name = "Girls' Toilet Stall"
+area = "School"
+
+[maps."studio/map/train"]
+name = "Train"
+area = "Town"
+
+[maps."studio/map/traincrowded"]
+name = "Crowded Train"
+area = "Town"
+
+[maps."studio/map/warehouse"]
+name = "Supply Storeroom"
+area = "School"
+
+[maps."studio/map/akikyoushitu"]
+name = "Empty Classroom"
+area = "School"
+
+[maps."studio/map/bushitu"]
+name = "Empty Club Room"
+area = "School"
+
+[words]
+acs = "Accessory"
+bachi = "Plectrum"
+baketu = "Bucket"
+bike = "Bike"
+chinsukou = "Chinsuko"
+crif = "Cliff"
+day = "Day"
+doro = "Road"
+este = "Esthetic"
+eve = "Evening"
+farm = "Farm"
+gaito = "Street Lamp"
+gakuhu = "Sheet Music"
+hitode = "Starfish"
+house = "House"
+hyosiki = "Sign"
+inside = "Inside"
+nehuda = "Price Tag"
+nig = "Night"
+nuigurumi = "Plush Toy"
+rock = "Rock"
+rosoku = "Candle"
+sango = "Coral"
+seet = "Seat"
+shisa = "Shisa"
+shoulder = "Shoulder"
+sound = "Sound"
+tropical = "Tropical"
+alfa = "Alpha"
+ami = "Net"
+aqua = "Aquarium"
+balckback = "Black Back"
+bord = "Board"
+bushitu = "Club Room"
+ceil = "Ceiling"
+centerbase = "Center Base"
+compo = "Stereo"
+corn = "Traffic Cone"
+cyurin = "Bicycle Parking"
+dai = "Stand"
+dan = "Step"
+dentyu = "Utility Pole"
+denwa = "Phone"
+desk = "Desk"
+doa = "Door"
+enkei = "Backdrop"
+fensu = "Fence"
+fish = "Fish"
+flowerframe = "Flower Frame"
+flushing = "Flushing"
+fuda = "Sign"
+gaiheki = "Outer Wall"
+gaitou = "Street Lamp"
+galss = "Glass"
+genkan = "Entrance"
+geol = "L"
+geor = "R"
+gingerman = "Gingerbread Man"
+gomibako = "Bin"
+gura = "Ground"
+ha = "Leaves"
+hanga = "Hanger"
+hardle = "Hurdle"
+hasira = "Pillar"
+hei = "Wall"
+heikin = "Balance Beam"
+highwall = "High Wall"
+highyuka = "High Floor"
+hon = "Book"
+hotel = "Hotel"
+hunnsui = "Fountain"
+hunsui = "Fountain"
+husen = "Balloon"
+ie = "House"
+ikegaki = "Hedge"
+isigaki = "Stone Wall"
+islandbase = "Island Base"
+islandstage = "Island Stage"
+iso = "Rocky Shore"
+isu = "Chair"
+kabe = "Wall"
+kadan = "Flower Bed"
+kagami = "Mirror"
+kagamiwaku = "Mirror Frame"
+kage = "Shadow"
+kago = "Basket"
+kaidan = "Stairs"
+kaidanparts = "Stair Parts"
+kakiwari = "Flat"
+kanban = "Signboard"
+kane = "Bell"
+karten = "Medical Chart"
+kaudan = "Stairs"
+kenbai = "Ticket Machine"
+ki = "Tree"
+kmichi = "Path"
+komono = "Small Items"
+kouen = "Park"
+kousya = "School Building"
+koya = "Hut"
+kuma = "Bear"
+kuro = "Black"
+kusa = "Grass"
+kyoutaku = "Lectern"
+kyusui = "Drinking Fountain"
+lighthouse = "Lighthouse"
+livekurokabe = "Live Black Wall"
+mado = "Window"
+mainstage = "Main Stage"
+makaron = "Macaron"
+makura = "Pillow"
+manken = "Manga Club"
+mato = "Target"
+mike = "Mic"
+minoutside = "Guesthouse"
+mise = "Shop"
+mon = "Gate"
+nagaisu = "Long Bench"
+naka = "Middle"
+omiyage = "Souvenir"
+onpu = "Note"
+orenge = "Orange"
+outview = "Outside View"
+pan = "Panel"
+parti = "Partition"
+partion = "Partition"
+pole = "Pole"
+pool = "Pool"
+purabako = "Plastic Crate"
+reizo = "Fridge"
+renzi = "Microwave"
+ribon = "Ribbon"
+road = "Road"
+saku = "Fence"
+sansin = "Sanshin"
+sara = "Plate"
+seimon = "Main Gate"
+sen = "Line"
+senasi = "Backrest"
+shadow = "Shadow"
+shitugaiki = "Outdoor Unit"
+sibahu = "Lawn"
+soto = "Outside"
+sotokabe = "Outer Wall"
+souzi = "Cleaning Tools"
+speakerbig = "Big Speaker"
+speakerlarge = "Large Speaker"
+speakersmall = "Small Speaker"
+spotlaser = "Spot Laser"
+spotlight = "Spotlight"
+suiso = "Water Tank"
+suna = "Sand"
+syakou = "Shade"
+syamen = "Slope"
+syokki = "Tableware"
+syoruiire = "Document Tray"
+syougi = "Shogi"
+syouka = "Fire Extinguisher"
+tana = "Shelf"
+tatami = "Tatami"
+tatemono = "Building"
+ten = "Ceiling"
+tobibako = "Vaulting Box"
+toire = "Toilet"
+tokuten = "Scoreboard"
+tukue = "Desk"
+tuti = "Soil"
+tv = "TV"
+tvset = "TV Set"
+tyawan = "Rice Bowl"
+tyoumi = "Seasoning"
+ueki = "Shrubs"
+waku = "Frame"
+wall = "Wall"
+watari = "Walkway"
+water = "Water"
+wrouka = "Walkway"
+yane = "Roof"
+yatai = "Stall"
+yuka = "Floor"
+zihan = "Vending Machine"
+zikanwari = "Timetable"
+
+[[categories]]
+category = "Furniture"
+words = ["bed", "chair", "desk", "isu", "nagaisu", "nisu", "sofa", "table", "tana", "tukue"]
+
+[[categories]]
+category = "Plants"
+words = ["bush", "grass", "ikegaki", "kadan", "ki", "kusa", "palm", "tree", "ueki"]
+
+[[categories]]
+category = "Street"
+words = ["corn", "gaitou", "gomibako", "pole", "saku", "zihan"]
+
+[[categories]]
+category = "Fixtures"
+words = ["souzi", "syouka", "water"]
+
+# SpeedTree vegetation (toon_*) has no Candidate prefix, so it comes out as unprefixed Structures; trees
+# and plants are movable furnishings.
+[[overrides]]
+match = '^toon_'
+kind = "prop"
+category = "Plants"

@@ -3,7 +3,8 @@
  "maps": [
   "map/scene/aquariuminside",
   "map/scene/hoteloutside",
-  "map/scene/minsyukulobby"
+  "map/scene/minsyukulobby",
+  "studio/map/minsyukulobby_studio"
  ],
  "width": 1280,
  "height": 720,
@@ -49,6 +50,17 @@
  ],
  "cameras": {
   "game": {
+   "maps": [
+    "map/scene/aquariuminside",
+    "map/scene/hoteloutside",
+    "map/scene/minsyukulobby"
+   ],
+   "accepted": {}
+  },
+  "studio": {
+   "maps": [
+    "studio/map/minsyukulobby_studio"
+   ],
    "accepted": {}
   }
  }

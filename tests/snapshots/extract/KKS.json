@@ -247,5 +247,83 @@
     ]
    }
   ]
+ },
+ "studio/map/minsyukulobby_studio": {
+  "camera": "studio",
+  "candidates": {
+   "o_prefix": {
+    "candidates": 19,
+    "placements": 19
+   },
+   "p_prefix": {
+    "candidates": 36,
+    "placements": 71
+   }
+  },
+  "contents": {
+   "candidates": 55,
+   "lightmap_sets": 0,
+   "materials": 60,
+   "meshes": 71,
+   "nodes": 228,
+   "placements": 90,
+   "textures": 73,
+   "variants": 4
+  },
+  "geometry_hash": "f473df0c7625e79e2fc96ae3eebe01fa",
+  "lightmaps": [],
+  "outdoor": false,
+  "skipped": {},
+  "thumbnails": [],
+  "variants": [
+   {
+    "grade": true,
+    "hidden": 6,
+    "lights": 5,
+    "probes": 1,
+    "reflection": "custom",
+    "sky": "material/skystudio",
+    "sun_shafts": true,
+    "times_of_day": [
+     "morning"
+    ]
+   },
+   {
+    "grade": true,
+    "hidden": 6,
+    "lights": 5,
+    "probes": 1,
+    "reflection": "custom",
+    "sky": "material/skystudio",
+    "sun_shafts": true,
+    "times_of_day": [
+     "day"
+    ]
+   },
+   {
+    "grade": true,
+    "hidden": 6,
+    "lights": 5,
+    "probes": 1,
+    "reflection": "custom",
+    "sky": "material/skystudio",
+    "sun_shafts": true,
+    "times_of_day": [
+     "evening"
+    ]
+   },
+   {
+    "grade": true,
+    "hidden": 6,
+    "lights": 5,
+    "probes": 1,
+    "reflection": "custom",
+    "sky": "material/skystudio",
+    "sun_shafts": true,
+    "times_of_day": [
+     "night"
+    ]
+   }
+  ]
  }
 }

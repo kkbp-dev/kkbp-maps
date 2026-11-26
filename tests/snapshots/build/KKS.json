@@ -1407,6 +1407,1516 @@
     }
    }
   },
+  "Maps/Guesthouse Dining Room (Studio).blend": {
+   "assets": {
+    "Collection Guesthouse Dining Room (Studio), Day": {
+     "catalog": "Maps/Guesthouse",
+     "preview": false,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
+      "Day",
+      "Indoor"
+     ],
+     "type": "Collection"
+    },
+    "Collection Guesthouse Dining Room (Studio), Evening": {
+     "catalog": "Maps/Guesthouse",
+     "preview": false,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
+      "Evening",
+      "Indoor"
+     ],
+     "type": "Collection"
+    },
+    "Collection Guesthouse Dining Room (Studio), Morning": {
+     "catalog": "Maps/Guesthouse",
+     "preview": false,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
+      "Morning",
+      "Indoor"
+     ],
+     "type": "Collection"
+    },
+    "Collection Guesthouse Dining Room (Studio), Night": {
+     "catalog": "Maps/Guesthouse",
+     "preview": false,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
+      "Night",
+      "Indoor"
+     ],
+     "type": "Collection"
+    },
+    "World Guesthouse Dining Room (Studio), Day": {
+     "catalog": "Maps/Guesthouse",
+     "preview": false,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
+      "Day",
+      "Indoor"
+     ],
+     "type": "World"
+    },
+    "World Guesthouse Dining Room (Studio), Evening": {
+     "catalog": "Maps/Guesthouse",
+     "preview": false,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
+      "Evening",
+      "Indoor"
+     ],
+     "type": "World"
+    },
+    "World Guesthouse Dining Room (Studio), Morning": {
+     "catalog": "Maps/Guesthouse",
+     "preview": false,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
+      "Morning",
+      "Indoor"
+     ],
+     "type": "World"
+    },
+    "World Guesthouse Dining Room (Studio), Night": {
+     "catalog": "Maps/Guesthouse",
+     "preview": false,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
+      "Night",
+      "Indoor"
+     ],
+     "type": "World"
+    }
+   },
+   "base_materials": [
+    [
+     "023fbbad7c4ee4243b6352165f857291",
+     "rebuilt",
+     "a748e02d323e94d6"
+    ],
+    [
+     "055630019dfbd59b0932c464991d8b66",
+     "rebuilt",
+     "98f246a4480cf296"
+    ],
+    [
+     "05602dff07854fa787de4ba5f16c1af1",
+     "rebuilt",
+     "2c3b03e95eea3d6f"
+    ],
+    [
+     "1d38f560dac28a9f064306caa4f7e333",
+     "rebuilt",
+     "97779a47b92fcd24"
+    ],
+    [
+     "2011d79d8f6d1ddfa72a8873787ea817",
+     "rebuilt",
+     "fcf6c06420487bb1"
+    ],
+    [
+     "201ee410bb605875e4d948661bb14f53",
+     "rebuilt",
+     "db536d789046730e"
+    ],
+    [
+     "25f4d2327ea7ef560a74236b93bf8d10",
+     "rebuilt",
+     "d02886626a4cdb45"
+    ],
+    [
+     "2ca7c55d78fa8b9afdc3ef8d33dd0beb",
+     "rebuilt",
+     "4b45c26a36f8e151"
+    ],
+    [
+     "2cc162f6c2e83ecb7bb1a0bdcbeed20e",
+     "rebuilt",
+     "4e51d0bf4366eaba"
+    ],
+    [
+     "31163d45372bbefb6ca128772e8373c2",
+     "rebuilt",
+     "4f6234e1999101d6"
+    ],
+    [
+     "3586d23816145f2bdbfbaed2b1cc07b4",
+     "rebuilt",
+     "b41a21cd2edb81f6"
+    ],
+    [
+     "37ffc286f32bc62da8b1d38510be93a6",
+     "rebuilt",
+     "d5afb0d84947e757"
+    ],
+    [
+     "3a8bcd77dbf0ce581647e1a9105ebde6",
+     "rebuilt",
+     "04d83924b0865f69"
+    ],
+    [
+     "4001d7d8e3f1d08fe4829574572debd6",
+     "rebuilt",
+     "3f25b88b15dc3bec"
+    ],
+    [
+     "44dcbd3a3243340c38f7dd2576fe7fae",
+     "rebuilt",
+     "d1c18b0b4c15e61b"
+    ],
+    [
+     "48a0249c950decbb419f69b37ab3d9f4",
+     "rebuilt",
+     "0440638b606662e2"
+    ],
+    [
+     "4dd0152ab108698bf452fb33599b92de",
+     "rebuilt",
+     "0294c32dcd978c9c"
+    ],
+    [
+     "4f98da9519b112aa1826d5f66b988d29",
+     "rebuilt",
+     "6305f67c705567e0"
+    ],
+    [
+     "4fb14f12c14cadad4c578a2ce05f7e32",
+     "rebuilt",
+     "7e91bb23889df77b"
+    ],
+    [
+     "59ba498991baf64e56c6df30ba818003",
+     "rebuilt",
+     "b1494f5bb095f8b7"
+    ],
+    [
+     "697bb2bc397eb3d38285794ec09dc178",
+     "rebuilt",
+     "49af78b130ce30bf"
+    ],
+    [
+     "699cd27bdb633a60a79a6da835865251",
+     "rebuilt",
+     "b5a55f49b2a518d0"
+    ],
+    [
+     "7c437b6d8fa86a61ca0be9d39df8ebe6",
+     "rebuilt",
+     "825814ee81daa76d"
+    ],
+    [
+     "8241e4d51ccf7dc165572f8ef884efe8",
+     "rebuilt",
+     "7ab93ed5995ac968"
+    ],
+    [
+     "84b5bbe549600fa3ee715ff4a43509a6",
+     "rebuilt",
+     "a97166ea99d50d88"
+    ],
+    [
+     "8855b83bf5ada2938f32a7806a62fd7c",
+     "rebuilt",
+     "0436f6db57896da7"
+    ],
+    [
+     "8ae76c2cfa5d4adb46964d0ddf78931a",
+     "rebuilt",
+     "a29d1468336ab47c"
+    ],
+    [
+     "973b7fee8c06621dbb6ed473f5b16425",
+     "rebuilt",
+     "a9e94c1451a2dfe5"
+    ],
+    [
+     "9a6ef12947a29d4497292989ae69645e",
+     "rebuilt",
+     "548c0b2bf0f746c8"
+    ],
+    [
+     "9c733f909fa4894237c0fb8134e6ee05",
+     "rebuilt",
+     "29ff90c47de09190"
+    ],
+    [
+     "a0fa38cac4dedde114cc10aae4506450",
+     "rebuilt",
+     "a9cc3684c6c722cd"
+    ],
+    [
+     "a1b8ffc1bfec499bc13f490576ad7300",
+     "rebuilt",
+     "d7b9a7b906cc2e2a"
+    ],
+    [
+     "a3c2f605c16e0dfd660d447bec64f23d",
+     "approximated",
+     "fab37b5165767caa"
+    ],
+    [
+     "a752869b16b3673e86d73cdf29faad43",
+     "rebuilt",
+     "c7a07f50dbd709d8"
+    ],
+    [
+     "aa6fbfee2a91c245b4e2e2c0dfd2fd39",
+     "rebuilt",
+     "5ed71dde9502d9d6"
+    ],
+    [
+     "ace9a0eef7501659c13365d08d8325c7",
+     "rebuilt",
+     "5d8767ef98a7b27a"
+    ],
+    [
+     "b97c92c63ce8c7a2ea70c3ffb68b2cf6",
+     "approximated",
+     "0b5df3f8c9622980"
+    ],
+    [
+     "be430a73b5fb18e67e3b1544f6699004",
+     "rebuilt",
+     "6a911c18b6cf779b"
+    ],
+    [
+     "befb801a660632a8c05a37cb1f470a56",
+     "rebuilt",
+     "fe33813bd6652370"
+    ],
+    [
+     "c10b1fd36b7d72821ac43259daa0394a",
+     "rebuilt",
+     "94d2145dc3ee012b"
+    ],
+    [
+     "c12238fc5c20ee304423d26def9f41ce",
+     "rebuilt",
+     "75740cac4f96f7e8"
+    ],
+    [
+     "c4a8897f8156413347e2bd6a3b94a953",
+     "rebuilt",
+     "fb518cf737800963"
+    ],
+    [
+     "c6e2e76e4350670d1d5cadbadb3a1895",
+     "rebuilt",
+     "c6deff5617d10ecb"
+    ],
+    [
+     "c890c4a01cb9eff6ceb1c31dfa0ec8d1",
+     "rebuilt",
+     "a4b7fc4610fcdcb5"
+    ],
+    [
+     "cb182b52c3c3a8172d7a587f5f6f664f",
+     "rebuilt",
+     "96c60c6ed90c662a"
+    ],
+    [
+     "ce3d585121f2b9882ff0eb07bc2e5e1c",
+     "rebuilt",
+     "394c7ad98ece83b3"
+    ],
+    [
+     "ceb09d4151841f021ea11215069cc9d9",
+     "rebuilt",
+     "1eea99dc7dc69640"
+    ],
+    [
+     "cf07f0ad1567b593797120b895a86cfb",
+     "rebuilt",
+     "4e723fd74e52ce9d"
+    ],
+    [
+     "cf27d8d7cdf1f4ed4dbecb75752f4891",
+     "rebuilt",
+     "291f3756f12e7842"
+    ],
+    [
+     "d30fa2fcd46d2c69968f4a347ea46e5d",
+     "rebuilt",
+     "2d6d5ba101ed56b6"
+    ],
+    [
+     "d442683262c352a77a2ffb3ec0af270e",
+     "rebuilt",
+     "1d801fd184feaa57"
+    ],
+    [
+     "d4e11841ade26041477cb844cd5be76b",
+     "rebuilt",
+     "0cb6c906c0cf794d"
+    ],
+    [
+     "ded7f4e87525edd5ba1e59918bc5f6a4",
+     "rebuilt",
+     "e2cd5d056d3f35de"
+    ],
+    [
+     "e045666a9b09d6588909a3e6f328eb41",
+     "rebuilt",
+     "12844ae1f64e743a"
+    ],
+    [
+     "eba689a102bb0f4de67ae3f063c5f86a",
+     "approximated",
+     "e4124c0a3a3a9742"
+    ],
+    [
+     "ef2cdede2b329f1e881d6e4dbc826dd1",
+     "rebuilt",
+     "3d8f9cc8a34ca884"
+    ],
+    [
+     "f4885ae5d35fc1add9da0755fe2c3b89",
+     "rebuilt",
+     "da6f9b7f585bfed1"
+    ],
+    [
+     "f73c5346bd72251f9e1d0b9ad4ccad52",
+     "rebuilt",
+     "b0caa6437bc3965c"
+    ],
+    [
+     "f97ada3751c38131cb6456fb29aea250",
+     "rebuilt",
+     "34a8850926d35128"
+    ],
+    [
+     "ffd54379f07f70f306b6bd54c1983f3b",
+     "rebuilt",
+     "d8a009b4d70777fa"
+    ]
+   ],
+   "collections": {
+    "Guesthouse Dining Room (Studio), Day": {
+     "in_probe": 142,
+     "lightmapped": 0,
+     "meshes": [
+      "00c82724c282c7bd64a6f5436b4cb6b0",
+      "00f7387ff86c6f419d4f66edd7b3149c",
+      "02c48f8eb756e7065bd4fd91fdfa6c47",
+      "0908173e5d9c40e87835e978dbfdccb1",
+      "0e1d9cfb9b54e5679e3060f7b90f9bed",
+      "122190f77d87aabee68e094473cc04b9",
+      "14e5b7aae0aa76f12874c768891d815a",
+      "17acdb63ab636be484eb486c26d800b7",
+      "186508eb29c91b45ee75a4608363735f",
+      "1aa7cc95ef46077806545fc75ae0194c",
+      "1cab6e2cb5467068a14543c1bc104e3e",
+      "1d9996dfc5f2a6ab97566ca5d09a3d5e",
+      "1e356969792e25162b5a4c62cbff79a4",
+      "212378e93a83dcb43b124b90c752bc56",
+      "22ddb14ff5b7f71d3aef973c5b6274db",
+      "23c1d377a3b25229f73d618dc96fa957",
+      "28b84ed10412f6270ed720710b9ffb8e",
+      "29c70ac9f857e396397aae55a334c158",
+      "2dd54e8479e5e965ff4e723ae4e457a9",
+      "2f57e7b1d48294ef769df6d90ca73950",
+      "3152d00edbd9c9c20d34813c239ae522",
+      "405102b10a97b08c81b5dedd2702d155",
+      "4379f79347cfbde37df59c7694d527fd",
+      "49ad616e9026de471b422a6802330c7b",
+      "49ccd63f6728cd6128a269ebd59874e7",
+      "4a1fc568aef3a04c5f85edeb04a6073b",
+      "4d69daf77adad06c023da5642b5e49a4",
+      "4e93705732a7de5f327afce6002909e1",
+      "4efeeb5a4fd4522c5e99146828ecee2d",
+      "5559ae9268e15b9fcf84dac74bb90816",
+      "567c3dbe03d7117bae71182988fa204f",
+      "58b199054426e3914d874b40ac8b0b36",
+      "5add57f44dba36da166f127bda0f6766",
+      "5e27a2056e97a5eb77177d88a22695e5",
+      "5fae0a014e5d23b2d7b33eb18de91116",
+      "69d644dd3d990eca0c83eddb95ff1601",
+      "6e34e83c0df817e1ee5a3b6c3043deca",
+      "707a7355a955627f66b319ba243e5a6d",
+      "70bce6b81327f50868cabf793effd43d",
+      "719a7b6e04b21cec5cc222ae6882bea3",
+      "71ca904e72ca7aeeaa4386497c823197",
+      "729a6f57b84a687a51c8f11b91ee9c00",
+      "72c6f87812ede5a8edea658bd0e97174",
+      "75bc4706de5b3342a112f50f0ecf10d4",
+      "783a2c4ee0917af29df356158878730b",
+      "789434915139d673531514055b98821d",
+      "8670b446b10b490fe2fc741799c65326",
+      "8a42feb505601f6684028b69fd11254d",
+      "9048c385ac6453e9f7219ab59f05371a",
+      "923332127f48277c02c0f7e8db40381a",
+      "9293a4249712442d01fae5cfd0b81c3a",
+      "962511a7ca54c07906d6a725bfb9e648",
+      "963c0c32bc36fb3c159a7d3623c798ba",
+      "aa8d3a807feaf36a9a95cdf838f34cc2",
+      "abdcdb68b42be8967f44cb11a85128e1",
+      "ae88c34f9712162b5567fa89d91d598a",
+      "c14e37a0759e506d998b6ecaac07fd2c",
+      "c2a8a1e0069f20e6e359d8e134881a68",
+      "c780baebf0c538ff3aec5fd651f7417d",
+      "cfbc6a2e64ea8fbf6934a1db92860143",
+      "d2e61f896326e07fccec9b94d0e4b2fe",
+      "d5140a8893238f268437b61ad5da3f9b",
+      "d792dfeae5fe292d37a7886fc211e406",
+      "df2074a06a3fe09287965e8c611b5f0b",
+      "e0512c53ebe4d99d8aa5f1e780bb3765",
+      "e65fb61f2c45c0c6c77a5a9c4505a75a",
+      "eb37477b272b918412be89df46f51b30",
+      "ed1d74814e0b1fe7b7d90ad9a47e1489",
+      "f0c5e03618c49723e167f48b6922333b",
+      "f4e6391b4d937c08d2f17d657032d979",
+      "fa4b38cc8480bb150b05cbe8a76f69a9"
+     ],
+     "no_shadow": 10,
+     "objects": {
+      "EMPTY": 69,
+      "LIGHT": 5,
+      "MESH": 144
+     },
+     "placements": 87,
+     "slots": {
+      "material": 173
+     }
+    },
+    "Guesthouse Dining Room (Studio), Evening": {
+     "in_probe": 142,
+     "lightmapped": 0,
+     "meshes": [
+      "00c82724c282c7bd64a6f5436b4cb6b0",
+      "00f7387ff86c6f419d4f66edd7b3149c",
+      "02c48f8eb756e7065bd4fd91fdfa6c47",
+      "0908173e5d9c40e87835e978dbfdccb1",
+      "0e1d9cfb9b54e5679e3060f7b90f9bed",
+      "122190f77d87aabee68e094473cc04b9",
+      "14e5b7aae0aa76f12874c768891d815a",
+      "17acdb63ab636be484eb486c26d800b7",
+      "186508eb29c91b45ee75a4608363735f",
+      "1aa7cc95ef46077806545fc75ae0194c",
+      "1cab6e2cb5467068a14543c1bc104e3e",
+      "1d9996dfc5f2a6ab97566ca5d09a3d5e",
+      "1e356969792e25162b5a4c62cbff79a4",
+      "212378e93a83dcb43b124b90c752bc56",
+      "22ddb14ff5b7f71d3aef973c5b6274db",
+      "23c1d377a3b25229f73d618dc96fa957",
+      "28b84ed10412f6270ed720710b9ffb8e",
+      "29c70ac9f857e396397aae55a334c158",
+      "2dd54e8479e5e965ff4e723ae4e457a9",
+      "2f57e7b1d48294ef769df6d90ca73950",
+      "3152d00edbd9c9c20d34813c239ae522",
+      "405102b10a97b08c81b5dedd2702d155",
+      "4379f79347cfbde37df59c7694d527fd",
+      "49ad616e9026de471b422a6802330c7b",
+      "49ccd63f6728cd6128a269ebd59874e7",
+      "4a1fc568aef3a04c5f85edeb04a6073b",
+      "4d69daf77adad06c023da5642b5e49a4",
+      "4e93705732a7de5f327afce6002909e1",
+      "4efeeb5a4fd4522c5e99146828ecee2d",
+      "5559ae9268e15b9fcf84dac74bb90816",
+      "567c3dbe03d7117bae71182988fa204f",
+      "58b199054426e3914d874b40ac8b0b36",
+      "5add57f44dba36da166f127bda0f6766",
+      "5e27a2056e97a5eb77177d88a22695e5",
+      "5fae0a014e5d23b2d7b33eb18de91116",
+      "69d644dd3d990eca0c83eddb95ff1601",
+      "6e34e83c0df817e1ee5a3b6c3043deca",
+      "707a7355a955627f66b319ba243e5a6d",
+      "70bce6b81327f50868cabf793effd43d",
+      "719a7b6e04b21cec5cc222ae6882bea3",
+      "71ca904e72ca7aeeaa4386497c823197",
+      "729a6f57b84a687a51c8f11b91ee9c00",
+      "72c6f87812ede5a8edea658bd0e97174",
+      "75bc4706de5b3342a112f50f0ecf10d4",
+      "783a2c4ee0917af29df356158878730b",
+      "789434915139d673531514055b98821d",
+      "8670b446b10b490fe2fc741799c65326",
+      "8a42feb505601f6684028b69fd11254d",
+      "9048c385ac6453e9f7219ab59f05371a",
+      "923332127f48277c02c0f7e8db40381a",
+      "9293a4249712442d01fae5cfd0b81c3a",
+      "962511a7ca54c07906d6a725bfb9e648",
+      "963c0c32bc36fb3c159a7d3623c798ba",
+      "aa8d3a807feaf36a9a95cdf838f34cc2",
+      "abdcdb68b42be8967f44cb11a85128e1",
+      "ae88c34f9712162b5567fa89d91d598a",
+      "c14e37a0759e506d998b6ecaac07fd2c",
+      "c2a8a1e0069f20e6e359d8e134881a68",
+      "c780baebf0c538ff3aec5fd651f7417d",
+      "cfbc6a2e64ea8fbf6934a1db92860143",
+      "d2e61f896326e07fccec9b94d0e4b2fe",
+      "d5140a8893238f268437b61ad5da3f9b",
+      "d792dfeae5fe292d37a7886fc211e406",
+      "df2074a06a3fe09287965e8c611b5f0b",
+      "e0512c53ebe4d99d8aa5f1e780bb3765",
+      "e65fb61f2c45c0c6c77a5a9c4505a75a",
+      "eb37477b272b918412be89df46f51b30",
+      "ed1d74814e0b1fe7b7d90ad9a47e1489",
+      "f0c5e03618c49723e167f48b6922333b",
+      "f4e6391b4d937c08d2f17d657032d979",
+      "fa4b38cc8480bb150b05cbe8a76f69a9"
+     ],
+     "no_shadow": 10,
+     "objects": {
+      "EMPTY": 69,
+      "LIGHT": 5,
+      "MESH": 144
+     },
+     "placements": 87,
+     "slots": {
+      "material": 173
+     }
+    },
+    "Guesthouse Dining Room (Studio), Morning": {
+     "in_probe": 142,
+     "lightmapped": 0,
+     "meshes": [
+      "00c82724c282c7bd64a6f5436b4cb6b0",
+      "00f7387ff86c6f419d4f66edd7b3149c",
+      "02c48f8eb756e7065bd4fd91fdfa6c47",
+      "0908173e5d9c40e87835e978dbfdccb1",
+      "0e1d9cfb9b54e5679e3060f7b90f9bed",
+      "122190f77d87aabee68e094473cc04b9",
+      "14e5b7aae0aa76f12874c768891d815a",
+      "17acdb63ab636be484eb486c26d800b7",
+      "186508eb29c91b45ee75a4608363735f",
+      "1aa7cc95ef46077806545fc75ae0194c",
+      "1cab6e2cb5467068a14543c1bc104e3e",
+      "1d9996dfc5f2a6ab97566ca5d09a3d5e",
+      "1e356969792e25162b5a4c62cbff79a4",
+      "212378e93a83dcb43b124b90c752bc56",
+      "22ddb14ff5b7f71d3aef973c5b6274db",
+      "23c1d377a3b25229f73d618dc96fa957",
+      "28b84ed10412f6270ed720710b9ffb8e",
+      "29c70ac9f857e396397aae55a334c158",
+      "2dd54e8479e5e965ff4e723ae4e457a9",
+      "2f57e7b1d48294ef769df6d90ca73950",
+      "3152d00edbd9c9c20d34813c239ae522",
+      "405102b10a97b08c81b5dedd2702d155",
+      "4379f79347cfbde37df59c7694d527fd",
+      "49ad616e9026de471b422a6802330c7b",
+      "49ccd63f6728cd6128a269ebd59874e7",
+      "4a1fc568aef3a04c5f85edeb04a6073b",
+      "4d69daf77adad06c023da5642b5e49a4",
+      "4e93705732a7de5f327afce6002909e1",
+      "4efeeb5a4fd4522c5e99146828ecee2d",
+      "5559ae9268e15b9fcf84dac74bb90816",
+      "567c3dbe03d7117bae71182988fa204f",
+      "58b199054426e3914d874b40ac8b0b36",
+      "5add57f44dba36da166f127bda0f6766",
+      "5e27a2056e97a5eb77177d88a22695e5",
+      "5fae0a014e5d23b2d7b33eb18de91116",
+      "69d644dd3d990eca0c83eddb95ff1601",
+      "6e34e83c0df817e1ee5a3b6c3043deca",
+      "707a7355a955627f66b319ba243e5a6d",
+      "70bce6b81327f50868cabf793effd43d",
+      "719a7b6e04b21cec5cc222ae6882bea3",
+      "71ca904e72ca7aeeaa4386497c823197",
+      "729a6f57b84a687a51c8f11b91ee9c00",
+      "72c6f87812ede5a8edea658bd0e97174",
+      "75bc4706de5b3342a112f50f0ecf10d4",
+      "783a2c4ee0917af29df356158878730b",
+      "789434915139d673531514055b98821d",
+      "8670b446b10b490fe2fc741799c65326",
+      "8a42feb505601f6684028b69fd11254d",
+      "9048c385ac6453e9f7219ab59f05371a",
+      "923332127f48277c02c0f7e8db40381a",
+      "9293a4249712442d01fae5cfd0b81c3a",
+      "962511a7ca54c07906d6a725bfb9e648",
+      "963c0c32bc36fb3c159a7d3623c798ba",
+      "aa8d3a807feaf36a9a95cdf838f34cc2",
+      "abdcdb68b42be8967f44cb11a85128e1",
+      "ae88c34f9712162b5567fa89d91d598a",
+      "c14e37a0759e506d998b6ecaac07fd2c",
+      "c2a8a1e0069f20e6e359d8e134881a68",
+      "c780baebf0c538ff3aec5fd651f7417d",
+      "cfbc6a2e64ea8fbf6934a1db92860143",
+      "d2e61f896326e07fccec9b94d0e4b2fe",
+      "d5140a8893238f268437b61ad5da3f9b",
+      "d792dfeae5fe292d37a7886fc211e406",
+      "df2074a06a3fe09287965e8c611b5f0b",
+      "e0512c53ebe4d99d8aa5f1e780bb3765",
+      "e65fb61f2c45c0c6c77a5a9c4505a75a",
+      "eb37477b272b918412be89df46f51b30",
+      "ed1d74814e0b1fe7b7d90ad9a47e1489",
+      "f0c5e03618c49723e167f48b6922333b",
+      "f4e6391b4d937c08d2f17d657032d979",
+      "fa4b38cc8480bb150b05cbe8a76f69a9"
+     ],
+     "no_shadow": 10,
+     "objects": {
+      "EMPTY": 70,
+      "LIGHT": 5,
+      "MESH": 144
+     },
+     "placements": 87,
+     "slots": {
+      "material": 173
+     }
+    },
+    "Guesthouse Dining Room (Studio), Night": {
+     "in_probe": 142,
+     "lightmapped": 0,
+     "meshes": [
+      "00c82724c282c7bd64a6f5436b4cb6b0",
+      "00f7387ff86c6f419d4f66edd7b3149c",
+      "02c48f8eb756e7065bd4fd91fdfa6c47",
+      "0908173e5d9c40e87835e978dbfdccb1",
+      "0e1d9cfb9b54e5679e3060f7b90f9bed",
+      "122190f77d87aabee68e094473cc04b9",
+      "14e5b7aae0aa76f12874c768891d815a",
+      "17acdb63ab636be484eb486c26d800b7",
+      "186508eb29c91b45ee75a4608363735f",
+      "1aa7cc95ef46077806545fc75ae0194c",
+      "1cab6e2cb5467068a14543c1bc104e3e",
+      "1d9996dfc5f2a6ab97566ca5d09a3d5e",
+      "1e356969792e25162b5a4c62cbff79a4",
+      "212378e93a83dcb43b124b90c752bc56",
+      "22ddb14ff5b7f71d3aef973c5b6274db",
+      "23c1d377a3b25229f73d618dc96fa957",
+      "28b84ed10412f6270ed720710b9ffb8e",
+      "29c70ac9f857e396397aae55a334c158",
+      "2dd54e8479e5e965ff4e723ae4e457a9",
+      "2f57e7b1d48294ef769df6d90ca73950",
+      "3152d00edbd9c9c20d34813c239ae522",
+      "405102b10a97b08c81b5dedd2702d155",
+      "4379f79347cfbde37df59c7694d527fd",
+      "49ad616e9026de471b422a6802330c7b",
+      "49ccd63f6728cd6128a269ebd59874e7",
+      "4a1fc568aef3a04c5f85edeb04a6073b",
+      "4d69daf77adad06c023da5642b5e49a4",
+      "4e93705732a7de5f327afce6002909e1",
+      "4efeeb5a4fd4522c5e99146828ecee2d",
+      "5559ae9268e15b9fcf84dac74bb90816",
+      "567c3dbe03d7117bae71182988fa204f",
+      "58b199054426e3914d874b40ac8b0b36",
+      "5add57f44dba36da166f127bda0f6766",
+      "5e27a2056e97a5eb77177d88a22695e5",
+      "5fae0a014e5d23b2d7b33eb18de91116",
+      "69d644dd3d990eca0c83eddb95ff1601",
+      "6e34e83c0df817e1ee5a3b6c3043deca",
+      "707a7355a955627f66b319ba243e5a6d",
+      "70bce6b81327f50868cabf793effd43d",
+      "719a7b6e04b21cec5cc222ae6882bea3",
+      "71ca904e72ca7aeeaa4386497c823197",
+      "729a6f57b84a687a51c8f11b91ee9c00",
+      "72c6f87812ede5a8edea658bd0e97174",
+      "75bc4706de5b3342a112f50f0ecf10d4",
+      "783a2c4ee0917af29df356158878730b",
+      "789434915139d673531514055b98821d",
+      "8670b446b10b490fe2fc741799c65326",
+      "8a42feb505601f6684028b69fd11254d",
+      "9048c385ac6453e9f7219ab59f05371a",
+      "923332127f48277c02c0f7e8db40381a",
+      "9293a4249712442d01fae5cfd0b81c3a",
+      "962511a7ca54c07906d6a725bfb9e648",
+      "963c0c32bc36fb3c159a7d3623c798ba",
+      "aa8d3a807feaf36a9a95cdf838f34cc2",
+      "abdcdb68b42be8967f44cb11a85128e1",
+      "ae88c34f9712162b5567fa89d91d598a",
+      "c14e37a0759e506d998b6ecaac07fd2c",
+      "c2a8a1e0069f20e6e359d8e134881a68",
+      "c780baebf0c538ff3aec5fd651f7417d",
+      "cfbc6a2e64ea8fbf6934a1db92860143",
+      "d2e61f896326e07fccec9b94d0e4b2fe",
+      "d5140a8893238f268437b61ad5da3f9b",
+      "d792dfeae5fe292d37a7886fc211e406",
+      "df2074a06a3fe09287965e8c611b5f0b",
+      "e0512c53ebe4d99d8aa5f1e780bb3765",
+      "e65fb61f2c45c0c6c77a5a9c4505a75a",
+      "eb37477b272b918412be89df46f51b30",
+      "ed1d74814e0b1fe7b7d90ad9a47e1489",
+      "f0c5e03618c49723e167f48b6922333b",
+      "f4e6391b4d937c08d2f17d657032d979",
+      "fa4b38cc8480bb150b05cbe8a76f69a9"
+     ],
+     "no_shadow": 10,
+     "objects": {
+      "EMPTY": 69,
+      "LIGHT": 5,
+      "MESH": 144
+     },
+     "placements": 87,
+     "slots": {
+      "material": 173
+     }
+    }
+   },
+   "counts": {
+    "images": 77,
+    "materials": 220,
+    "meshes": 72,
+    "node_groups": 69,
+    "objects": 873
+   },
+   "groups": {
+    ".KKM Grade Lut_Amount": "5e2349814b900b4b",
+    ".KKM Light Guesthouse Dining Room (Studio), Day": "f318c872319fe292",
+    ".KKM Light Guesthouse Dining Room (Studio), Evening": "1e8d43c4530af3ae",
+    ".KKM Light Guesthouse Dining Room (Studio), Morning": "f318c872319fe292",
+    ".KKM Light Guesthouse Dining Room (Studio), Night": "65b09adf47a957c8",
+    ".KKM Sky Guesthouse Dining Room (Studio), Day": "76321269681afb3e",
+    ".KKM Sky Guesthouse Dining Room (Studio), Evening": "d07ef34d060eed81",
+    ".KKM Sky Guesthouse Dining Room (Studio), Morning": "76321269681afb3e",
+    ".KKM Sky Guesthouse Dining Room (Studio), Night": "f544a31bc0ae4966"
+   },
+   "images": [
+    {
+     "colorspace": "Non-Color",
+     "name": "012fd3acaa8ec4539a460c94bf8d8b61",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "061e940585cbb0de89ee7b3636fe0ca8",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "07523669ebd1e1853fe278bff56ea447",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "07d022802be24e05e3684ac0c82b3c81",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "0e6357cd18c8ba721b3485995f47d325",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "1461dfe1f625f0fe905babd7a5c8cbbf",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "198393a3bd77f47f2b4c7a95bd95bbe2",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "1b7029da9e710764d7ce561ffe85fb2f",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "1e745f73fb7beb8d6e9f08c902314663",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "21ad81e38032829f36adf81e315cd276",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "22a2f058bf77b80c2ca58a2310ca37c4",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "304fb34323352fbdd936e129f19a8082",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "3362b218ea549fcdf7db39c8bf245c5d",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "3887380eebfc5e82e0ddedd545cd3526",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "3adff2476ab309ddbfdf5e6777d3c75c",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "3c087e35d6500c1aa11ac4bbd622ae51",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "459c7f197b47183f51424d91b8a7bd7e",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "4caabd86ad098c2074377078197251a3",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "4e67c80c92696576c07dfc3667a316b6",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "5201ffa1b0910cad1baddd2c1d869650",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "5cc47bd0095f6ff4302a10b1146d7c5a",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "5cc47bd0095f6ff4302a10b1146d7c5a.mip1",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "5cc47bd0095f6ff4302a10b1146d7c5a.mip2",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "5cc47bd0095f6ff4302a10b1146d7c5a.mip3",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "5cc47bd0095f6ff4302a10b1146d7c5a.mip4",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "5cc47bd0095f6ff4302a10b1146d7c5a.mip5",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "5cc47bd0095f6ff4302a10b1146d7c5a.mip6",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "5dbfa8e48aa219452a20d3727ab159b8",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "5e8d2900b07c259e2a253e2dd90c3cb6",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "641996ab682578fcb58f71a4a439a7a1",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "682403e43e2cee91a86b5b0b4e12c7eb",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "6c3f8cedcd3bddeccf7e29ac04a35e75",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "72a9fadd7e12a8fabd8f0c43c88d5c1c",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "760ddc530dd0f6b792d0def79bbeb469",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "7bf80727eac5de05d5f29a19a0b442f7",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "7f134ae83a9936f2da0b6ac6e92ab2a0",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "83cea34b9d138c81de4d3402cd4a6126",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "84626c83630882ca53c3c276b0d62877",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "8848cbe45c72e7e8b17eb10e59cbe807",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "8aae9f248f4f7af9b0db7906c5884c7b",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "8e3e3fa54e39b923ff413fcd5246eedf",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "909b81c655147b71dd1914ec71a16b58",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "90ae81a1ccefc1c0d520565c7e2809af",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "98f4cc46c670091be9bffc6a6240c190",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "9b608bd545477301b74610fee896dc72",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "9faaad03adba83326ca4ac7d855267ca",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "a7dc40c43fa413004500d43643801357",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "b11d21f651b759f5d3aa98fe9e69dc3a",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "b4b37fde00db56e0e11d017ad70be0b9",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "b6b8500a98cb9135c569afd68e52f0bb",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "b6ea868113f7be6917dcc4741cb8c70e",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "b96af71e60face65ea189da12c4f0894",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "b9ddfea3a00a840eacb053c27c8bee81",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "bb4e65012d38b8ec6ced0b5e146de317",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "bc99fcbe203f470e66ccc19172b5a8cb",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "bf6875655b47028e8b1603b76d7effa5",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "c1f6c92efb21fbfd22564726e400b920",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "c4014fa2a21e20a2b29659cf70f79490",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "c4d826ccafa4096e9a8a91f235dfae78",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "cada6d2aaeb45d5382a65affb6336bf2",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "d11210c3cf39f69d3b87e8968668e681",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "d6a0044a60f937499802d38d62e75edd",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "d8270e393465e8cf354673e9a27a1da8",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "dae1073c38f0e064a92de3e54618c020",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "dca496e723f89eb7cb49717d735bceb2",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "dfba007b9bb411978e368ce9bcca0ed7",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "e1e345d0fd3c14bdf4ac7a4fd6fc17df",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "e34acbbe1b1aa8cf53c617d3d230a90f",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "e6f1e610b71cd22788d439eee133b40f",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "e74f9456d68f2c87b4af560c784e294d",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "eb1ef65e977aaf6fcadc0083177629d3",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "f41625ea3dd583ea2f97abcad8bae4f6",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "f83e7bbf41d2ef66fa75467fab1d4a34",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "fcf99c8954d687b26a573b6d3e6ea50d",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "fe7050712faebc7cf80ad51f027d4af2",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "ff75a7e14181f667ce2c20d65946e2f8",
+     "relative": true
+    },
+    {
+     "colorspace": "sRGB",
+     "name": "ffe1b868eac36a02bce15e776611e1d4",
+     "relative": true
+    }
+   ],
+   "lights": [
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "POINT shadow=False",
+    "SPOT shadow=True",
+    "SPOT shadow=True",
+    "SPOT shadow=True",
+    "SPOT shadow=True",
+    "SUN shadow=True",
+    "SUN shadow=True",
+    "SUN shadow=True",
+    "SUN shadow=True"
+   ],
+   "materials": [
+    [
+     "023fbbad7c4ee4243b6352165f857291",
+     4
+    ],
+    [
+     "055630019dfbd59b0932c464991d8b66",
+     4
+    ],
+    [
+     "05602dff07854fa787de4ba5f16c1af1",
+     4
+    ],
+    [
+     "1d38f560dac28a9f064306caa4f7e333",
+     4
+    ],
+    [
+     "2011d79d8f6d1ddfa72a8873787ea817",
+     4
+    ],
+    [
+     "201ee410bb605875e4d948661bb14f53",
+     2
+    ],
+    [
+     "25f4d2327ea7ef560a74236b93bf8d10",
+     4
+    ],
+    [
+     "2ca7c55d78fa8b9afdc3ef8d33dd0beb",
+     1
+    ],
+    [
+     "2cc162f6c2e83ecb7bb1a0bdcbeed20e",
+     1
+    ],
+    [
+     "31163d45372bbefb6ca128772e8373c2",
+     4
+    ],
+    [
+     "3586d23816145f2bdbfbaed2b1cc07b4",
+     2
+    ],
+    [
+     "37ffc286f32bc62da8b1d38510be93a6",
+     4
+    ],
+    [
+     "3a8bcd77dbf0ce581647e1a9105ebde6",
+     4
+    ],
+    [
+     "4001d7d8e3f1d08fe4829574572debd6",
+     4
+    ],
+    [
+     "44dcbd3a3243340c38f7dd2576fe7fae",
+     4
+    ],
+    [
+     "48a0249c950decbb419f69b37ab3d9f4",
+     4
+    ],
+    [
+     "4dd0152ab108698bf452fb33599b92de",
+     4
+    ],
+    [
+     "4f98da9519b112aa1826d5f66b988d29",
+     4
+    ],
+    [
+     "4fb14f12c14cadad4c578a2ce05f7e32",
+     4
+    ],
+    [
+     "59ba498991baf64e56c6df30ba818003",
+     4
+    ],
+    [
+     "697bb2bc397eb3d38285794ec09dc178",
+     4
+    ],
+    [
+     "699cd27bdb633a60a79a6da835865251",
+     4
+    ],
+    [
+     "7c437b6d8fa86a61ca0be9d39df8ebe6",
+     4
+    ],
+    [
+     "8241e4d51ccf7dc165572f8ef884efe8",
+     4
+    ],
+    [
+     "84b5bbe549600fa3ee715ff4a43509a6",
+     1
+    ],
+    [
+     "8855b83bf5ada2938f32a7806a62fd7c",
+     4
+    ],
+    [
+     "8ae76c2cfa5d4adb46964d0ddf78931a",
+     4
+    ],
+    [
+     "973b7fee8c06621dbb6ed473f5b16425",
+     4
+    ],
+    [
+     "9a6ef12947a29d4497292989ae69645e",
+     4
+    ],
+    [
+     "9c733f909fa4894237c0fb8134e6ee05",
+     4
+    ],
+    [
+     "a0fa38cac4dedde114cc10aae4506450",
+     4
+    ],
+    [
+     "a1b8ffc1bfec499bc13f490576ad7300",
+     4
+    ],
+    [
+     "a3c2f605c16e0dfd660d447bec64f23d",
+     4
+    ],
+    [
+     "a752869b16b3673e86d73cdf29faad43",
+     4
+    ],
+    [
+     "aa6fbfee2a91c245b4e2e2c0dfd2fd39",
+     4
+    ],
+    [
+     "ace9a0eef7501659c13365d08d8325c7",
+     3
+    ],
+    [
+     "b97c92c63ce8c7a2ea70c3ffb68b2cf6",
+     4
+    ],
+    [
+     "be430a73b5fb18e67e3b1544f6699004",
+     4
+    ],
+    [
+     "befb801a660632a8c05a37cb1f470a56",
+     4
+    ],
+    [
+     "c10b1fd36b7d72821ac43259daa0394a",
+     4
+    ],
+    [
+     "c12238fc5c20ee304423d26def9f41ce",
+     4
+    ],
+    [
+     "c4a8897f8156413347e2bd6a3b94a953",
+     4
+    ],
+    [
+     "c6e2e76e4350670d1d5cadbadb3a1895",
+     4
+    ],
+    [
+     "c890c4a01cb9eff6ceb1c31dfa0ec8d1",
+     4
+    ],
+    [
+     "cb182b52c3c3a8172d7a587f5f6f664f",
+     1
+    ],
+    [
+     "ce3d585121f2b9882ff0eb07bc2e5e1c",
+     4
+    ],
+    [
+     "ceb09d4151841f021ea11215069cc9d9",
+     4
+    ],
+    [
+     "cf07f0ad1567b593797120b895a86cfb",
+     1
+    ],
+    [
+     "cf27d8d7cdf1f4ed4dbecb75752f4891",
+     4
+    ],
+    [
+     "d30fa2fcd46d2c69968f4a347ea46e5d",
+     4
+    ],
+    [
+     "d442683262c352a77a2ffb3ec0af270e",
+     4
+    ],
+    [
+     "d4e11841ade26041477cb844cd5be76b",
+     4
+    ],
+    [
+     "ded7f4e87525edd5ba1e59918bc5f6a4",
+     4
+    ],
+    [
+     "e045666a9b09d6588909a3e6f328eb41",
+     4
+    ],
+    [
+     "eba689a102bb0f4de67ae3f063c5f86a",
+     4
+    ],
+    [
+     "ef2cdede2b329f1e881d6e4dbc826dd1",
+     4
+    ],
+    [
+     "f4885ae5d35fc1add9da0755fe2c3b89",
+     4
+    ],
+    [
+     "f73c5346bd72251f9e1d0b9ad4ccad52",
+     4
+    ],
+    [
+     "f97ada3751c38131cb6456fb29aea250",
+     4
+    ],
+    [
+     "ffd54379f07f70f306b6bd54c1983f3b",
+     4
+    ]
+   ],
+   "meshes": [
+    "00c82724c282c7bd64a6f5436b4cb6b0",
+    "00f7387ff86c6f419d4f66edd7b3149c",
+    "02c48f8eb756e7065bd4fd91fdfa6c47",
+    "0908173e5d9c40e87835e978dbfdccb1",
+    "0e1d9cfb9b54e5679e3060f7b90f9bed",
+    "122190f77d87aabee68e094473cc04b9",
+    "14e5b7aae0aa76f12874c768891d815a",
+    "17acdb63ab636be484eb486c26d800b7",
+    "186508eb29c91b45ee75a4608363735f",
+    "1aa7cc95ef46077806545fc75ae0194c",
+    "1cab6e2cb5467068a14543c1bc104e3e",
+    "1d9996dfc5f2a6ab97566ca5d09a3d5e",
+    "1e356969792e25162b5a4c62cbff79a4",
+    "212378e93a83dcb43b124b90c752bc56",
+    "22ddb14ff5b7f71d3aef973c5b6274db",
+    "22ddb14ff5b7f71d3aef973c5b6274db",
+    "23c1d377a3b25229f73d618dc96fa957",
+    "28b84ed10412f6270ed720710b9ffb8e",
+    "29c70ac9f857e396397aae55a334c158",
+    "2dd54e8479e5e965ff4e723ae4e457a9",
+    "2f57e7b1d48294ef769df6d90ca73950",
+    "3152d00edbd9c9c20d34813c239ae522",
+    "405102b10a97b08c81b5dedd2702d155",
+    "4379f79347cfbde37df59c7694d527fd",
+    "49ad616e9026de471b422a6802330c7b",
+    "49ccd63f6728cd6128a269ebd59874e7",
+    "4a1fc568aef3a04c5f85edeb04a6073b",
+    "4d69daf77adad06c023da5642b5e49a4",
+    "4e93705732a7de5f327afce6002909e1",
+    "4efeeb5a4fd4522c5e99146828ecee2d",
+    "5559ae9268e15b9fcf84dac74bb90816",
+    "567c3dbe03d7117bae71182988fa204f",
+    "58b199054426e3914d874b40ac8b0b36",
+    "5add57f44dba36da166f127bda0f6766",
+    "5e27a2056e97a5eb77177d88a22695e5",
+    "5fae0a014e5d23b2d7b33eb18de91116",
+    "69d644dd3d990eca0c83eddb95ff1601",
+    "6e34e83c0df817e1ee5a3b6c3043deca",
+    "707a7355a955627f66b319ba243e5a6d",
+    "70bce6b81327f50868cabf793effd43d",
+    "719a7b6e04b21cec5cc222ae6882bea3",
+    "71ca904e72ca7aeeaa4386497c823197",
+    "729a6f57b84a687a51c8f11b91ee9c00",
+    "72c6f87812ede5a8edea658bd0e97174",
+    "75bc4706de5b3342a112f50f0ecf10d4",
+    "783a2c4ee0917af29df356158878730b",
+    "789434915139d673531514055b98821d",
+    "8670b446b10b490fe2fc741799c65326",
+    "8a42feb505601f6684028b69fd11254d",
+    "9048c385ac6453e9f7219ab59f05371a",
+    "923332127f48277c02c0f7e8db40381a",
+    "9293a4249712442d01fae5cfd0b81c3a",
+    "962511a7ca54c07906d6a725bfb9e648",
+    "963c0c32bc36fb3c159a7d3623c798ba",
+    "aa8d3a807feaf36a9a95cdf838f34cc2",
+    "abdcdb68b42be8967f44cb11a85128e1",
+    "ae88c34f9712162b5567fa89d91d598a",
+    "c14e37a0759e506d998b6ecaac07fd2c",
+    "c2a8a1e0069f20e6e359d8e134881a68",
+    "c780baebf0c538ff3aec5fd651f7417d",
+    "cfbc6a2e64ea8fbf6934a1db92860143",
+    "d2e61f896326e07fccec9b94d0e4b2fe",
+    "d5140a8893238f268437b61ad5da3f9b",
+    "d792dfeae5fe292d37a7886fc211e406",
+    "df2074a06a3fe09287965e8c611b5f0b",
+    "e0512c53ebe4d99d8aa5f1e780bb3765",
+    "e65fb61f2c45c0c6c77a5a9c4505a75a",
+    "eb37477b272b918412be89df46f51b30",
+    "ed1d74814e0b1fe7b7d90ad9a47e1489",
+    "f0c5e03618c49723e167f48b6922333b",
+    "f4e6391b4d937c08d2f17d657032d979",
+    "fa4b38cc8480bb150b05cbe8a76f69a9"
+   ],
+   "scene": {
+    "engine": "BLENDER_EEVEE",
+    "view_transform": "Standard",
+    "world": "Guesthouse Dining Room (Studio), Morning"
+   },
+   "worlds": {
+    "Guesthouse Dining Room (Studio), Day": {
+     "fingerprint": "5e4903b54b934294",
+     "sky": "material"
+    },
+    "Guesthouse Dining Room (Studio), Evening": {
+     "fingerprint": "92009589581830e8",
+     "sky": "material"
+    },
+    "Guesthouse Dining Room (Studio), Morning": {
+     "fingerprint": "cf44e51bde1a4f9a",
+     "sky": "material"
+    },
+    "Guesthouse Dining Room (Studio), Night": {
+     "fingerprint": "269b6443886fd475",
+     "sky": "material"
+    }
+   }
+  },
   "Maps/Guesthouse Dining Room.blend": {
    "assets": {
     "Collection Guesthouse Dining Room, Day": {
@@ -6328,6 +7838,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6340,6 +7851,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6461,6 +7973,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Furniture"
      ],
@@ -6516,6 +8029,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6527,6 +8041,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6538,6 +8053,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6549,6 +8065,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6703,6 +8220,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6714,6 +8232,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6725,6 +8244,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6794,6 +8314,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6860,6 +8381,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6883,6 +8405,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6895,6 +8418,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6907,6 +8431,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -6941,6 +8466,17 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Indoor",
+      "Other"
+     ],
+     "type": "Collection"
+    },
+    "Collection Register 00 (2)": {
+     "catalog": "Props/Other",
+     "preview": true,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7007,6 +8543,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7018,6 +8555,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7029,6 +8567,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7040,6 +8579,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7062,6 +8602,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7074,6 +8615,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7242,6 +8784,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7254,6 +8797,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7265,6 +8809,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7299,6 +8844,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7310,6 +8856,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7322,6 +8869,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7334,6 +8882,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7345,6 +8894,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7357,6 +8907,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7512,6 +9063,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Furniture"
      ],
@@ -7523,6 +9075,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Furniture"
      ],
@@ -7556,6 +9109,17 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Indoor",
+      "Other"
+     ],
+     "type": "Collection"
+    },
+    "Collection Tableware 00 (2)": {
+     "catalog": "Props/Other",
+     "preview": true,
+     "tags": [
+      "KKS",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7667,6 +9231,7 @@
       "KKS",
       "Aquarium Reception",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -7678,6 +9243,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Other"
      ],
@@ -8980,7 +10546,7 @@
      "in_probe": 0,
      "lightmapped": 0,
      "meshes": [
-      "e7fa390a57ce9104575fc07cf3e26baf"
+      "75bc4706de5b3342a112f50f0ecf10d4"
      ],
      "no_shadow": 0,
      "objects": {
@@ -9070,7 +10636,7 @@
      "in_probe": 0,
      "lightmapped": 0,
      "meshes": [
-      "c7948143344a1f6c73ac7127b41c35f5",
+      "02c48f8eb756e7065bd4fd91fdfa6c47",
       "cfbc6a2e64ea8fbf6934a1db92860143"
      ],
      "no_shadow": 0,
@@ -9179,6 +10745,21 @@
      "lightmapped": 0,
      "meshes": [
       "df03202cc5987b801fea739d0291297f"
+     ],
+     "no_shadow": 0,
+     "objects": {
+      "MESH": 1
+     },
+     "placements": 1,
+     "slots": {
+      "material": 1
+     }
+    },
+    "Register 00 (2)": {
+     "in_probe": 0,
+     "lightmapped": 0,
+     "meshes": [
+      "f0c5e03618c49723e167f48b6922333b"
      ],
      "no_shadow": 0,
      "objects": {
@@ -10037,6 +11618,24 @@
       "material": 3
      }
     },
+    "Tableware 00 (2)": {
+     "in_probe": 0,
+     "lightmapped": 0,
+     "meshes": [
+      "69d644dd3d990eca0c83eddb95ff1601",
+      "6e34e83c0df817e1ee5a3b6c3043deca",
+      "d2e61f896326e07fccec9b94d0e4b2fe"
+     ],
+     "no_shadow": 0,
+     "objects": {
+      "EMPTY": 1,
+      "MESH": 3
+     },
+     "placements": 1,
+     "slots": {
+      "material": 3
+     }
+    },
     "Tora 00 00": {
      "in_probe": 0,
      "lightmapped": 0,
@@ -10283,9 +11882,9 @@
    "counts": {
     "images": 148,
     "materials": 111,
-    "meshes": 135,
+    "meshes": 139,
     "node_groups": 112,
-    "objects": 251
+    "objects": 256
    },
    "groups": {
     ".KKM Grade Lut_Amount + Lut_TimeNight1 0.3": "87d2f8f2487370c7"
@@ -11486,6 +13085,7 @@
     "0150b4c85137503caafa13cb6ee7e5e0",
     "0296924964f2435fb54f8b1cdf2f9ce0",
     "029cf88950bafbe9bc76f47a91e11148",
+    "02c48f8eb756e7065bd4fd91fdfa6c47",
     "0954a17a07dcc5d9bfb2055e6fb1ee80",
     "0d5aada9728ae93834b80a6cc1836125",
     "10cda606aeeab989bb36bf2d0992857c",
@@ -11537,14 +13137,17 @@
     "65f2db48d6dfc526b61b64b49ba13823",
     "662d918cc7855df857d3f4e19eb6c08e",
     "69627155cc9d18eea3f2d2853aae4c4f",
+    "69d644dd3d990eca0c83eddb95ff1601",
     "6a212d5160bd51d6ece18fb6cc285847",
     "6c49fdfdee35ba71048e18199967c1dd",
     "6d92b431796ebf84b4170003168ef59d",
+    "6e34e83c0df817e1ee5a3b6c3043deca",
     "70bce6b81327f50868cabf793effd43d",
     "719a7b6e04b21cec5cc222ae6882bea3",
     "71c74e6892077f82805d30d4a334ed45",
     "71e89fd1f015f28b4777fb32311794ce",
     "7233f6de4af8e6eb3a3136b54c52a121",
+    "75bc4706de5b3342a112f50f0ecf10d4",
     "777efea41e402ff046867c9ef661dab2",
     "794d9959998e2b037794a32f9fcfbfdf",
     "7b1c2ec2212fc811f3d21c3e06d7858d",
@@ -11582,7 +13185,6 @@
     "c2a8a1e0069f20e6e359d8e134881a68",
     "c2e669b918e7b14fde202ce12a189958",
     "c780baebf0c538ff3aec5fd651f7417d",
-    "c7948143344a1f6c73ac7127b41c35f5",
     "c99cb31c828eedb24e552ddff2d79207",
     "c9c890fc37dcdfadbba5c825c7785165",
     "caf2d40b7432d54adca956be77fc4b62",
@@ -11590,6 +13192,7 @@
     "ce4fd83c86a26104e2e3206017a53747",
     "cf143dca3bec41cf56713b0605966d09",
     "cfbc6a2e64ea8fbf6934a1db92860143",
+    "d2e61f896326e07fccec9b94d0e4b2fe",
     "d3f359eed923cd08b4cddea47d1cb196",
     "d850f21d231540f8a12ca34a4ba74462",
     "d8aec52784448f2f703dbe2b0c0afac3",
@@ -11603,10 +13206,10 @@
     "e4f30c157cef5788698c905640223f97",
     "e608947315d52b9a509ef9cab9d1e8ba",
     "e62b32708069cba6085021c8eda0f16b",
-    "e7fa390a57ce9104575fc07cf3e26baf",
     "e81090422c1c37a6d82a702b82e46302",
     "eb37477b272b918412be89df46f51b30",
     "ed1d74814e0b1fe7b7d90ad9a47e1489",
+    "f0c5e03618c49723e167f48b6922333b",
     "f137f48173d7454feb5b43816e7274a4",
     "f1757174f26cbfa0de13ce2e8c0f1237",
     "f24048c6c1f44bc184ad4bc7ede0c499",
@@ -11631,6 +13234,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -11697,6 +13301,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -11708,6 +13313,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -11862,6 +13468,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -11873,6 +13480,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -11884,6 +13492,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -11945,6 +13554,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -11956,6 +13566,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -11967,6 +13578,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12068,6 +13680,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12079,6 +13692,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12220,6 +13834,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12263,6 +13878,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12295,6 +13911,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12327,6 +13944,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12348,6 +13966,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12380,6 +13999,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12433,6 +14053,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -12465,6 +14086,7 @@
      "tags": [
       "KKS",
       "Guesthouse Dining Room",
+      "Guesthouse Dining Room (Studio)",
       "Indoor",
       "Guesthouse"
      ],
@@ -15828,8 +17450,8 @@
  "report": {
   "files": {
    "Props.blend": {
-    "assets": 128,
-    "previews": 128
+    "assets": 130,
+    "previews": 130
    },
    "Structures.blend": {
     "assets": 88,
@@ -15837,7 +17459,7 @@
    }
   },
   "game": "KKS",
-  "map_variants": 9,
+  "map_variants": 13,
   "maps": [
    {
     "assumptions": [
@@ -15871,7 +17493,7 @@
     "material_notes": [],
     "name": "Aquarium Reception",
     "named": true,
-    "new_props": 43,
+    "new_props": 42,
     "new_structures": 23,
     "overrides": [],
     "placements": 130,
@@ -15998,7 +17620,7 @@
     ],
     "name": "Guesthouse Dining Room",
     "named": true,
-    "new_props": 25,
+    "new_props": 24,
     "new_structures": 19,
     "overrides": [],
     "placements": 100,
@@ -16019,10 +17641,46 @@
      "Guesthouse Dining Room, Evening",
      "Guesthouse Dining Room, Night"
     ]
+   },
+   {
+    "assumptions": [],
+    "extractor_skipped": [],
+    "file": "Maps/Guesthouse Dining Room (Studio).blend",
+    "key": "studio/map/minsyukulobby_studio",
+    "left_out_assets": [],
+    "material_notes": [
+     {
+      "materials": 3,
+      "note": "parallax (height map) ignored"
+     }
+    ],
+    "name": "Guesthouse Dining Room (Studio)",
+    "named": true,
+    "new_props": 4,
+    "new_structures": 0,
+    "overrides": [],
+    "placements": 90,
+    "renderer_notes": [],
+    "shader_tiers": [
+     {
+      "draws": 6,
+      "level": "approximated",
+      "materials": 3,
+      "reason": "hue variation and wind aren't drawn",
+      "shader": "Nature/SpeedTree"
+     }
+    ],
+    "variant_notes": [],
+    "variants": [
+     "Guesthouse Dining Room (Studio), Morning",
+     "Guesthouse Dining Room (Studio), Day",
+     "Guesthouse Dining Room (Studio), Evening",
+     "Guesthouse Dining Room (Studio), Night"
+    ]
    }
   ],
   "not_built": [],
-  "props": 128,
+  "props": 130,
   "report_version": 1,
   "structures": 88,
   "unknown_words": {

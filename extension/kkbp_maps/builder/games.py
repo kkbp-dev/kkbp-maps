@@ -74,8 +74,10 @@ CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
         "game": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=True, map_sun_shafts=True,
                               grade_lut=None, height_fog=HeightFog(top=0.0, density=0.5),
                               height_fog_from_map=True, assumed=True),
+        # KKS's CharaStudio, captured 2026-11-26 (camera-studio.json): AmplifyColor Tonemapper Disabled,
+        # Exposure 1, ApplyDithering false, Lut_Amount; GlobalFog and SunShafts off; RenderSettings.fog off.
         "studio": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=False,
-                                map_sun_shafts=False, grade_lut="Lut_Amount", assumed=True),
+                                map_sun_shafts=False, grade_lut="Lut_Amount", assumed=False),
     },
 }
 

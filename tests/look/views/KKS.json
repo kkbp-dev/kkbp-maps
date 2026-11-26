@@ -721,6 +721,326 @@
     1.0
    ],
    "fov": 40
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "day",
+   "name": "eye-0",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    0.0,
+    10.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "day",
+   "name": "eye-180",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    -0.0,
+    -9.9752,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "day",
+   "name": "eye-270",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    -10.0,
+    0.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "day",
+   "name": "eye-90",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    10.0,
+    0.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "day",
+   "name": "studio",
+   "position": [
+    0.0,
+    -4.21,
+    2.09
+   ],
+   "target": [
+    0.0,
+    0.0248,
+    1.2361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "evening",
+   "name": "eye-0",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    0.0,
+    10.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "evening",
+   "name": "eye-180",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    -0.0,
+    -9.9752,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "evening",
+   "name": "eye-270",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    -10.0,
+    0.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "evening",
+   "name": "eye-90",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    10.0,
+    0.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "evening",
+   "name": "studio",
+   "position": [
+    0.0,
+    -4.21,
+    2.09
+   ],
+   "target": [
+    0.0,
+    0.0248,
+    1.2361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "morning",
+   "name": "eye-0",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    0.0,
+    10.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "morning",
+   "name": "eye-180",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    -0.0,
+    -9.9752,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "morning",
+   "name": "eye-270",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    -10.0,
+    0.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "morning",
+   "name": "eye-90",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    10.0,
+    0.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "morning",
+   "name": "studio",
+   "position": [
+    0.0,
+    -4.21,
+    2.09
+   ],
+   "target": [
+    0.0,
+    0.0248,
+    1.2361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "night",
+   "name": "eye-0",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    0.0,
+    10.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "night",
+   "name": "eye-180",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    -0.0,
+    -9.9752,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "night",
+   "name": "eye-270",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    -10.0,
+    0.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "night",
+   "name": "eye-90",
+   "position": [
+    0.0,
+    0.0248,
+    2.8361
+   ],
+   "target": [
+    10.0,
+    0.0248,
+    1.8361
+   ],
+   "fov": 23
+  },
+  {
+   "map": "studio/map/minsyukulobby_studio",
+   "variant": "night",
+   "name": "studio",
+   "position": [
+    0.0,
+    -4.21,
+    2.09
+   ],
+   "target": [
+    0.0,
+    0.0248,
+    1.2361
+   ],
+   "fov": 23
   }
  ]
 }

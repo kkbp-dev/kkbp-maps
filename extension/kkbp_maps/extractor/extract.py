@@ -164,10 +164,13 @@ def _full_meshes(graph: Graph) -> set:
 
 
 def _render_queues(graph: Graph) -> dict:
-    """renderer Ref -> {material slot: render queue} from SetRenderQueue, which sets them in Awake."""
+    """renderer Ref -> {material slot: render queue} from SetRenderQueue, which sets them in Awake, and
+    KKS's SetRenderQueue_Custom, which sets the same in its first Update where the scene saves isSetQueue
+    on (only the character code switches it later)."""
     store = graph.store
     out = {}
-    for mb in graph.behaviours.get("SetRenderQueue", []):
+    custom = [mb for mb in graph.behaviours.get("SetRenderQueue_Custom", []) if store.tree(mb).get("isSetQueue")]
+    for mb in graph.behaviours.get("SetRenderQueue", []) + custom:
         t = store.tree(mb)
         obj = graph.obj_of(mb)
         renderer = obj.component("MeshRenderer") if obj else None

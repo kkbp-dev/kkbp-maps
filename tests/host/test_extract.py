@@ -418,3 +418,21 @@ def test_a_custom_probe_without_its_cubemap_is_left_out(install, tmp_path):
     _probe(scene, 2, 0)
     out = extract(install, tmp_path, scene)
     assert all(v["reflection"]["probes"] == [] for v in load(out, "variants")["variants"])
+
+
+def test_setrenderqueue_custom_sets_its_queues_where_the_scene_switches_it_on(install, tmp_path):
+    """KKS's SetRenderQueue_Custom applies its queues in its first Update when isSetQueue is saved on."""
+    scene, _ = build_scene()
+    root = next(pid for pid, (t, tr) in scene.objects.items() if t == "GameObject" and tr["m_Name"] == "Map")
+    mesh = scene.mesh("lamp", offset=(0.0, 0.0, 1.0))
+    for name, on, queue in (("o_lamp00", 1, 2999), ("o_lamp01", 0, 3100)):
+        obj = scene.object(name, root, position=(float(len(name)), 0.0, 0.0))
+        scene.mesh_renderer(obj, mesh, [scene.material(name)])
+        scene.behaviour(obj, "SetRenderQueue_Custom", {"isSetQueue": on, "m_queueDatas": [
+            {"id": 0, "m_queues": queue, "m_queuesBackup": 3000}]})
+    out = extract(install, tmp_path, scene)
+    mats = {m["id"]: m for m in load(out, "materials")["materials"]}
+    by_node = {n["name"]: n for n in load(out, "scene")["nodes"]}
+    queue = {name: mats[by_node[name]["renderer"]["draws"][0]["material"]]["render_queue"]
+             for name in ("o_lamp00", "o_lamp01")}
+    assert queue == {"o_lamp00": 2999, "o_lamp01": 2000}

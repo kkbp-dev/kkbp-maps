@@ -18,14 +18,14 @@
   "contents": {
    "candidates": 67,
    "lightmap_sets": 0,
-   "materials": 65,
+   "materials": 66,
    "meshes": 88,
    "nodes": 242,
    "placements": 130,
    "textures": 92,
    "variants": 1
   },
-  "geometry_hash": "0f6685744023a28a98b3190c03d2c0f8",
+  "geometry_hash": "5d3190220edc46ae4d183c3eb6364a80",
   "lightmaps": [],
   "outdoor": false,
   "skipped": {
@@ -174,14 +174,14 @@
   "contents": {
    "candidates": 59,
    "lightmap_sets": 0,
-   "materials": 63,
+   "materials": 64,
    "meshes": 74,
    "nodes": 238,
    "placements": 100,
    "textures": 81,
    "variants": 4
   },
-  "geometry_hash": "66fbff9f1fe3ca678d690ad62cf5aeb5",
+  "geometry_hash": "6de410f57b94872ca687b79dfb24a99c",
   "lightmaps": [],
   "outdoor": false,
   "skipped": {},

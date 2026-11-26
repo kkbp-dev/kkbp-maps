@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <GameAssembly Include="Koikatsu Sunshine/BepinEx/core/BepInEx.dll" />
+    <GameAssembly Include="Koikatsu Sunshine/BepinEx/plugins/KKSAPI.dll" />
     <GameAssembly Include="$(Managed)/Assembly-CSharp.dll" />
     <GameAssembly Include="$(Managed)/Assembly-CSharp-firstpass.dll" />
     <GameAssembly Include="$(Managed)/UnityEngine.dll" />

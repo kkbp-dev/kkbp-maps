@@ -1,15 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using KKAPI.Studio;
 using UnityEngine;
 using UnityStandardAssets.ImageEffects;
 
 namespace KKMaps.Capture
 {
     /// <summary>
-    /// Where a KKS capture runs. Only the story game (KoikatsuSunshine.exe): KKS's Studio loads its own
-    /// *_studio builds of the Maps, not the story Scene Bundles the Golden Maps are (kks-spike.md, section
-    /// 10), so the "studio" Camera Profile waits for a Studio Golden Map.
+    /// Where a KKS capture runs: the story game (KoikatsuSunshine.exe) for the story Maps, CharaStudio for
+    /// the Studio Maps, its own *_studio builds of them (kks-spike.md, section 10).
     /// </summary>
     internal interface IHost
     {
@@ -23,20 +25,87 @@ namespace KKMaps.Capture
         IEnumerator PlaceDefault(Frames frames, Dictionary<string, object> view);
     }
 
+    /// <summary>CharaStudio: its own camera, Studio.Map's loading and its sunType setter, as KK's.</summary>
     internal sealed class StudioHost : IHost
     {
+        private readonly MonoBehaviour plugin;
+
         public StudioHost(MonoBehaviour plugin)
         {
-            throw new Exception("KKS's Studio loads its own builds of the Maps; capture KKS's Golden Maps with \"camera\": \"game\"");
+            this.plugin = plugin;
         }
 
         public string Profile { get { return "studio"; } }
-        public Camera Camera { get { return null; } }
-        public IEnumerator Ready() { yield break; }
-        public IEnumerator Load(string bundle) { yield break; }
-        public IEnumerator SetTime(SunLightInfo.Info.Type type) { yield break; }
-        public void Hold(bool held) { }
-        public IEnumerator PlaceDefault(Frames frames, Dictionary<string, object> view) { yield break; }
+
+        public Camera Camera { get { return Singleton<Studio.Studio>.Instance.cameraCtrl.mainCmaera; } }
+
+        public IEnumerator Ready()
+        {
+            while (!StudioAPI.StudioLoaded) yield return new WaitForSecondsRealtime(0.5f);
+            yield return new WaitForSecondsRealtime(2f);
+        }
+
+        public IEnumerator Load(string bundle)
+        {
+            int no = MapNumber(bundle);
+            Plugin.Log.LogInfo("Loading " + bundle + " (Studio map " + no + ")");
+            yield return plugin.StartCoroutine(Singleton<Studio.Map>.Instance.LoadMapCoroutine(no));
+            yield return new WaitForSecondsRealtime(2f);
+        }
+
+        public IEnumerator SetTime(SunLightInfo.Info.Type type)
+        {
+            Singleton<Studio.Map>.Instance.sunType = type;
+            yield return new WaitForSecondsRealtime(1f);
+        }
+
+        public void Hold(bool held)
+        {
+            Singleton<Studio.Studio>.Instance.cameraCtrl.enabled = !held;
+        }
+
+        public IEnumerator PlaceDefault(Frames frames, Dictionary<string, object> view)
+        {
+            // As KK's: from Studio's own camera for the Map (CameraControl.Reset).
+            var ctrl = Singleton<Studio.Studio>.Instance.cameraCtrl;
+            Camera cam = Camera;
+            ctrl.enabled = true;
+            ctrl.Reset(0);
+            yield return null;
+            yield return null;
+            ctrl.enabled = false;
+            Vector3 target = ctrl.targetPos;
+            var yaw = Quaternion.AngleAxis((float)(double)view["studio_default"], Vector3.up);
+            if (view.ContainsKey("eye"))
+            {
+                Vector3 heading = cam.transform.forward;
+                heading.y = 0f;
+                heading = yaw * heading.normalized;
+                Vector3 eye = target + Vector3.up * (float)(double)view["eye"];
+                frames.Place(eye, eye + heading * 10f + Vector3.down * 1f, cam.fieldOfView);
+            }
+            else
+            {
+                frames.Place(target + yaw * (cam.transform.position - target), target, cam.fieldOfView);
+            }
+        }
+
+        /// <summary>The Studio map that loads this Scene Bundle.</summary>
+        private static int MapNumber(string bundle)
+        {
+            var maps = Singleton<Studio.Info>.Instance.dicMapLoadInfo;
+            string scene = Path.GetFileNameWithoutExtension(bundle);
+            foreach (var kv in maps)
+            {
+                if (kv.Value.bundlePath == bundle) return kv.Key;
+            }
+            foreach (var kv in maps)
+            {
+                if (string.Equals(kv.Value.fileName, scene, StringComparison.OrdinalIgnoreCase)) return kv.Key;
+            }
+            throw new Exception("No Studio map loads " + bundle + "; Studio has: " +
+                string.Join(", ", maps.Select(kv => kv.Key + " " + kv.Value.bundlePath + " " + kv.Value.fileName).ToArray()));
+        }
     }
 
     /// <summary>

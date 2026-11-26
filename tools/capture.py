@@ -38,6 +38,8 @@ import numpy as np
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "extension"))
+sys.path.insert(0, str(REPO / "tools"))
+import look_compare as lc  # noqa: E402
 from kkbp_maps.extractor import space  # noqa: E402  (the one place axes are converted, ADR 0011)
 
 from kkbp_maps.jobs import memory  # noqa: E402  (the game's own memory, watched while it runs)
@@ -51,14 +53,16 @@ GAME_MAX_GB, MIN_AVAILABLE_GB, MIN_SWAP_FREE_GB = 10.0, 1.2, 6.0
 
 # Per Game: its folder, play.sh's name for it, the program each Camera Profile runs in, the processes to
 # watch and stop (Linux keeps 15 characters of a process name), SunLightInfo.Info.Type by Time of Day,
-# and the seed's overview view name (Studio's camera in KK, the free-H point's overview in KKS).
+# and the seed's overview view name per Camera Profile (Studio's camera; KKS's story game: the free-H
+# point's overview).
 GAME_DATA = {
     "KK": {"dir": "Koikatsu", "play": "koikatsu", "exes": {"studio": "CharaStudio.exe", "game": "Koikatu.exe"},
            "processes": ("CharaStudio.exe", "Koikatu.exe"), "times": {"day": 0, "evening": 1, "night": 2},
-           "overview": "studio"},
-    "KKS": {"dir": "Koikatsu Sunshine", "play": "kks", "exes": {"game": "KoikatsuSunshine.exe"},
-            "processes": ("KoikatsuSunshin",), "times": {"morning": 0, "day": 1, "evening": 2, "night": 3},
-            "overview": "overview"},
+           "overview": {"studio": "studio", "game": "studio"}},
+    "KKS": {"dir": "Koikatsu Sunshine", "play": "kks",
+            "exes": {"studio": "CharaStudio.exe", "game": "KoikatsuSunshine.exe"},
+            "processes": ("CharaStudio.exe", "KoikatsuSunshin"), "times": {"morning": 0, "day": 1, "evening": 2, "night": 3},
+            "overview": {"studio": "studio", "game": "overview"}},
 }
 
 
@@ -114,15 +118,15 @@ def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[
     """With `lights`, a run that only dumps each Map Variant's lights and those renderers, taking no frames."""
     views = {} if seed else json.loads(VIEWS.read_text(encoding="utf-8"))["views"]
     maps = []
-    for key in look["maps"]:
+    for key in lc.maps_of(look, camera):
         if only and key not in only:
             continue
         bundle = next(s["path"] for s in json.loads((GOLDEN / key / "manifest.json").read_text())["sources"]
-                      if s["path"].startswith("abdata/map/scene/")).removeprefix("abdata/")
+                      if s["path"].removeprefix("abdata/").rsplit(".", 1)[0] == key).removeprefix("abdata/")
         vs = []
         for v in variants(key):
             if seed:
-                vv = [{"name": GAME_DATA[GAME]["overview"], "studio_default": 0}] + [
+                vv = [{"name": GAME_DATA[GAME]["overview"][camera], "studio_default": 0}] + [
                     {"name": f"eye-{y}", "studio_default": y, "eye": SEED_EYE} for y in SEED_YAWS]
             else:
                 vv = [{"name": w["name"], "position": to_unity(w["position"]), "target": to_unity(w["target"]),

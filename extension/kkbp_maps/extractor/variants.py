@@ -24,6 +24,7 @@ FOG_MODES = {1: "linear", 2: "exponential", 3: "exponential_squared"}
 REFLECTION_SKYBOX, REFLECTION_CUSTOM = 0, 1
 PROBE_BAKED, PROBE_REALTIME, PROBE_CUSTOM = 0, 1, 2
 LUT_SIZE = (1024, 32)
+UNITY_GREY = 0.21404114   # Unity's default "grey" texture, sRGB 0.5, as linear
 SIX_SIDED = ("_FrontTex", "_BackTex", "_LeftTex", "_RightTex", "_UpTex", "_DownTex")
 
 
@@ -230,7 +231,13 @@ def _sky(graph: Graph, walk: Walk, rs_ref, rs, tod: str, textures: Textures) -> 
                 "floats": {k: shortest32(v) for k, v in fl.items() if declared.get(k) in (FLOAT, RANGE)},
                 "geometry": []}
     if shader == "Skybox/Cubemap":
-        texture = textures.cubemap(store, store.resolve(material, texenvs["_Tex"]["m_Texture"]))
+        cube = store.resolve(material, texenvs["_Tex"]["m_Texture"])
+        if cube is not None and store.is_loaded(cube):
+            texture = textures.cubemap(store, cube)
+        else:   # an empty slot: the shader's default, Unity's "grey" (sRGB 0.5); aquariuminside's
+            import numpy as np
+            texture = textures.add(np.full((4, 8, 3), UNITY_GREY, dtype=np.float32), name="unity grey",
+                                   color_space="linear")
     elif shader == "Skybox/6 Sided":
         refs = {k: store.resolve(material, texenvs[k]["m_Texture"]) for k in SIX_SIDED}
         texture = textures.six_sided(store, refs, store.tree(material).get("m_Name", ""))

@@ -29,8 +29,7 @@ sys.path.insert(0, str(REPO / "tools"))
 
 from kkbp_maps.jobs.memory import Limits, run_watched  # noqa: E402
 
-GOLDEN = {"KK": ["map/scene/1f", "map/scene/park", "map/scene/ground"]}
-GAME_FOLDERS = {"KK": "Koikatsu", "KKS": "Koikatsu Sunshine", "SVS": "Summer Vacation Scramble"}
+from golden_maps import GAME_FOLDERS, GOLDEN  # noqa: E402
 SNAPSHOTS = REPO / "tests" / "snapshots" / "extract"
 
 
@@ -94,7 +93,7 @@ def worker(args) -> int:
     from kkbp_maps.extractor.games import detect
     from kkbp_maps.extractor.maplist import list_maps
 
-    install = detect(Path(args.games_dir) / GAME_FOLDERS[args.game])
+    install = detect(Path(args.games_dir) / GAME_FOLDERS[args.game], require_supported=False)   # a developer tool
     maps, _ = list_maps(install)
     m = next((m for m in maps if m.key == args.worker), None)
     if m is None:

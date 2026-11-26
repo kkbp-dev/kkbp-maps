@@ -29,6 +29,11 @@ class MeshData:
     uv1: np.ndarray | None
     submeshes: list[np.ndarray]
     readable: bool = True
+    colors: np.ndarray | None = None      # n × 4, 0…1
+    uv0_zw: np.ndarray | None = None      # the 3rd and 4th floats of a four-float UV set
+    uv1_zw: np.ndarray | None = None
+    uv2: np.ndarray | None = None         # n × 4, padded with 0
+    uv3: np.ndarray | None = None
 
 
 @dataclass
@@ -219,7 +224,9 @@ class UnityStore(Store):
 
         obj = self._objects[ref].read()
         name = obj.m_Name
-        if not getattr(obj, "m_IsReadable", True) or not obj.m_VertexData.m_VertexCount:
+        # m_IsReadable only says whether the game may read the mesh at run time; KKS's meshes are marked
+        # unreadable but carry their vertex data. A mesh without vertices is what can't be carried.
+        if not obj.m_VertexData.m_VertexCount:
             return MeshData(name, None, None, None, None, [], readable=False)
         h = MeshHandler(obj)
         h.process()
@@ -232,8 +239,32 @@ class UnityStore(Store):
                 a = a.reshape(-1, width)
             return np.ascontiguousarray(a[:, :width])  # normals can come as 4 floats, the 4th 0
 
+        def full(values):
+            if values is None or len(values) == 0:
+                return None
+            a = np.asarray(values, dtype=np.float32)
+            return a.reshape(len(a), -1) if a.ndim == 1 else a
+
+        def zw(values):
+            a = full(values)
+            return np.ascontiguousarray(a[:, 2:4]) if a is not None and a.shape[1] >= 4 else None
+
+        def four(values):
+            a = full(values)
+            if a is None:
+                return None
+            out = np.zeros((len(a), 4), dtype=np.float32)
+            out[:, :min(4, a.shape[1])] = a[:, :4]
+            return out
+
+        colors = full(h.m_Colors)
+        if colors is not None:   # UNorm8, SNorm8 and UNorm16 colours come as integers
+            fmt = obj.m_VertexData.m_Channels[3].format if len(obj.m_VertexData.m_Channels) > 3 else 0
+            colors = colors / {2: 255.0, 3: 127.0, 4: 65535.0}.get(fmt, 1.0)
+            colors = four(colors)
         submeshes = [np.asarray(tris, dtype=np.int64).reshape(-1) for tris in h.get_triangles()]
-        return MeshData(name, arr(h.m_Vertices, 3), arr(h.m_Normals, 3), arr(h.m_UV0, 2), arr(h.m_UV1, 2), submeshes)
+        return MeshData(name, arr(h.m_Vertices, 3), arr(h.m_Normals, 3), arr(h.m_UV0, 2), arr(h.m_UV1, 2), submeshes,
+                        colors=colors, uv0_zw=zw(h.m_UV0), uv1_zw=zw(h.m_UV1), uv2=four(h.m_UV2), uv3=four(h.m_UV3))
 
     def texture(self, ref):
         t = self.tree(ref)

@@ -21,7 +21,8 @@ import re
 from ..bundle import hashing
 
 
-def candidates(nodes: list[dict], prefixes: tuple[tuple[str, str], ...], containers: tuple[str, ...] = ()) -> list[dict]:
+def candidates(nodes: list[dict], prefixes: tuple[tuple[str, str], ...], containers: tuple[str, ...] = (),
+               containers_at_root: bool = False) -> list[dict]:
     """assets.json's Candidates for scene.json's `nodes`, each with its Placements in walk order."""
     container = [re.compile(c) for c in containers]
     children: list[list[int]] = [[] for _ in nodes]
@@ -31,7 +32,9 @@ def candidates(nodes: list[dict], prefixes: tuple[tuple[str, str], ...], contain
     roots: dict[int, str] = {}
 
     def rule_of(node) -> str | None:
-        if "renderer" not in node and any(c.search(node["name"]) for c in container):
+        under_root = node["parent"] is not None and nodes[node["parent"]]["parent"] is None
+        if ("renderer" not in node and any(c.search(node["name"]) for c in container)
+                and (under_root or not containers_at_root)):   # ADR 0019, 0033
             return None  # a room container: walked into
         for prefix, rule in prefixes:
             if node["name"].startswith(prefix):

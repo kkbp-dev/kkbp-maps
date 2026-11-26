@@ -97,12 +97,13 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
     textures = Textures(folder / "textures", options.max_texture_size)
     meshes = Meshes(folder / "meshes")
     materials = Materials(textures, game)
+    meshes.full = _full_meshes(graph)
     w = walk(graph, lambda ref: meshes.try_add(store, ref) is not None)
     queues = _render_queues(graph)
     nodes = node_records(w, graph, lambda ref: meshes.add(store, ref), lambda n: draws(store, n, meshes, materials, queues))
     lm = lightmap_set(graph, w, meshes, textures)
-    vs = variants(graph, w, textures, lm["id"] if lm else None)
-    assets = candidates(nodes, game.prefixes, game.containers)
+    vs = variants(graph, w, textures, lm["id"] if lm else None, materials)
+    assets = candidates(nodes, game.prefixes, game.containers, game.containers_at_root)
     map_record = {
         "key": m.key,
         "times_of_day": list(game.times_of_day),
@@ -143,6 +144,25 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
     write_json(folder / "manifest.json", manifest)
 
 
+def _full_meshes(graph: Graph) -> set:
+    """The meshes drawn with one of the Game's vertex_data_shaders, which carry every channel."""
+    from .scene import shader_name
+    store, out = graph.store, set()
+    if not graph.game.vertex_data_shaders:
+        return out
+    for ref in store.refs("MeshRenderer"):
+        obj = graph.obj_of(ref)
+        mf = obj.component("MeshFilter") if obj else None
+        if mf is None:
+            continue
+        shaders = {shader_name(store, store.resolve(ref, m)) for m in store.tree(ref).get("m_Materials", [])}
+        if shaders & set(graph.game.vertex_data_shaders):
+            mesh = store.resolve(mf, store.tree(mf).get("m_Mesh"))
+            if mesh is not None:
+                out.add(mesh)
+    return out
+
+
 def _render_queues(graph: Graph) -> dict:
     """renderer Ref -> {material slot: render queue} from SetRenderQueue, which sets them in Awake."""
     store = graph.store
@@ -181,9 +201,23 @@ def draws(store, node: Node, meshes: Meshes, materials: Materials, queues: dict)
 
 
 def thumbnails(install: Install, m: MapSource, textures: Textures) -> list[dict]:
+    from .unity import sprite_textures
+
+    if m.thumbnails:   # KKS: a sprite per Time of Day, by ID
+        by_bundle: dict[str, set[str]] = {}
+        for t in m.thumbnails.values():
+            by_bundle.setdefault(t.bundle, set()).add(t.asset)
+        found = {(b, name): px for b, names in by_bundle.items()
+                 for name, px in sprite_textures(install.assets / b, names).items()}
+        by_texture: dict[str, list[str]] = {}
+        for tod in install.game.times_of_day:
+            t = m.thumbnails.get(tod)
+            if t is not None and (t.bundle, t.asset) in found:
+                pixels, color_space = found[(t.bundle, t.asset)]
+                by_texture.setdefault(textures.thumbnail(pixels, t.asset, color_space), []).append(tod)
+        return [{"times_of_day": tods, "texture": tid} for tid, tods in by_texture.items()]
     if m.thumbnail is None:
         return []
-    from .unity import sprite_textures
 
     names = thumbnail_names(install, m.thumbnail) or {}
     found = sprite_textures(install.assets / m.thumbnail.bundle, set(names.values()) | {m.thumbnail.asset})
@@ -212,6 +246,8 @@ def source_files(install: Install, m: MapSource) -> list[Path]:
     files = [m.bundle] + sorted(m.list_files) + list(install.builtin_resources())
     if m.thumbnail is not None:
         files.append(install.assets / m.thumbnail.bundle)
+    for bundle_name in sorted({t.bundle for t in m.thumbnails.values()}):
+        files.append(install.assets / bundle_name)
     return files
 
 

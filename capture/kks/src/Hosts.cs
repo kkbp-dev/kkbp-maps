@@ -70,7 +70,7 @@ namespace KKMaps.Capture
 
         public IEnumerator Ready()
         {
-            while (Manager.Scene.LoadSceneName != TitleScene || Manager.Scene.IsNowLoadingFade)
+            while (!AtTitle())
             {
                 yield return new WaitForSecondsRealtime(0.5f);
             }
@@ -86,6 +86,19 @@ namespace KKMaps.Capture
             {
                 string name = b.GetType().Name;
                 if (name == "CameraEffectorConfig" || name == "CorrectLightAngle") b.enabled = false;
+            }
+        }
+
+        /// <summary>The title screen is up and still: Manager.Scene throws until its scene stack exists.</summary>
+        private static bool AtTitle()
+        {
+            try
+            {
+                return Manager.Scene.LoadSceneName == TitleScene && !Manager.Scene.IsNowLoadingFade;
+            }
+            catch (NullReferenceException)
+            {
+                return false;
             }
         }
 

@@ -17,6 +17,8 @@ from .textures import Textures
 LIGHT_TYPES = {0: "spot", 1: "directional", 2: "point", 3: "area"}
 LIGHT_MODES = {4: "realtime", 1: "mixed", 2: "baked"}
 SHADOWS = {0: "none", 1: "hard", 2: "soft"}
+RENDER_MODES = {0: "auto", 1: "important", 2: "not_important"}   # m_RenderMode
+ALL_LAYERS = 0xFFFFFFFF
 AMBIENT_SKYBOX, AMBIENT_TRILIGHT, AMBIENT_FLAT = 0, 1, 3
 FOG_MODES = {1: "linear", 2: "exponential", 3: "exponential_squared"}
 REFLECTION_SKYBOX, REFLECTION_CUSTOM = 0, 1
@@ -95,6 +97,8 @@ def _lights(graph: Graph, tod: str, sun_light, info) -> list[dict]:
             light["spot_angle"] = shortest32(t.get("m_SpotAngle", 30.0))
         light["shadows"] = SHADOWS.get(t.get("m_Shadows", {}).get("m_Type", 0), "none")
         light["mode"] = LIGHT_MODES.get(t.get("m_Lightmapping", 4), "realtime")
+        light["culling_mask"] = int(t.get("m_CullingMask", {}).get("m_Bits", ALL_LAYERS)) & ALL_LAYERS
+        light["render_mode"] = RENDER_MODES.get(t.get("m_RenderMode", 0), "auto")
         out.append(light)
     return out
 

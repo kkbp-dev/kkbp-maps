@@ -144,7 +144,7 @@ class MapBundleBuilder:
         if mesh:
             node["renderer"] = {"mesh": mesh, "draws": [{"submesh": s, "material": m} for s, m in draws],
                                 "shadows": "on", "receive_shadows": True,
-                                "realtime_gi": False, "reflection_probes": "blend_probes"}
+                                "realtime_gi": False, "reflection_probes": "blend_probes", "layer": 0}
         if sky:
             node["sky"] = True
         self.nodes.append(node)
@@ -155,7 +155,8 @@ class MapBundleBuilder:
         v = {
             "id": times_of_day[0], "times_of_day": list(times_of_day), "hidden": [], "lightmap_set": None,
             "lights": [{"type": "directional", "rotation": IDENTITY, "color": [1.0, 0.95, 0.9, 1.0],
-                        "intensity": 1.45, "shadows": "soft", "mode": "realtime"}],
+                        "intensity": 1.45, "shadows": "soft", "mode": "realtime",
+                        "culling_mask": 4294967295, "render_mode": "auto"}],
             "ambient": {"mode": "flat", "intensity": 1.0, "sky_color": [0.212, 0.227, 0.259, 1.0]},
             "fog": {"enabled": True, "mode": "linear", "color": [0.294, 0.883, 1.0, 1.0], "start": 0.0,
                     "end": 500.0, "density": 0.01},

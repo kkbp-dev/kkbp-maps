@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.7/scene.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.8/scene.schema.json",
   "title": "scene.json",
   "description": "The Map's nodes, Helpers left out, in walk order: a node's id is its position in the list, and its parent comes before it.",
   "type": "object",
@@ -69,9 +69,15 @@
         "reflection_probes": {
           "description": "How the renderer takes reflection probes, Unity's ReflectionProbeUsage: off (the Map's own reflection only), blend_probes, blend_probes_and_skybox, or simple (ADR 0026).",
           "enum": ["off", "blend_probes", "blend_probes_and_skybox", "simple"]
+        },
+        "layer": {
+          "description": "Its GameObject's Unity layer. A light lights it only if this layer is in the light's culling_mask.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 31
         }
       },
-      "required": ["mesh", "draws", "shadows", "receive_shadows", "realtime_gi", "reflection_probes"],
+      "required": ["mesh", "draws", "shadows", "receive_shadows", "realtime_gi", "reflection_probes", "layer"],
       "additionalProperties": false
     }
   }

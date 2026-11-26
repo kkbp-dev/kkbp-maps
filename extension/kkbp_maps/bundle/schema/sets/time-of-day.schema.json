@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.7/sets/time-of-day.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.8/sets/time-of-day.schema.json",
   "title": "Time of Day",
   "description": "One of the lighting states a Game gives a Map: KK has day, evening and night, KKS all four. Listed in the order they come in a day; lists of Times of Day keep this order.",
   "type": "string",

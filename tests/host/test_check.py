@@ -68,7 +68,7 @@ def test_without_manifest_it_is_unfinished(bundle):
 
 def test_another_schema_version_is_refused(bundle):
     edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.1"))
-    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.7 "
+    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.8 "
                                    "(ADR 0014), so extract the Map again"]
 
 
@@ -503,13 +503,24 @@ def test_variants_may_have_realtime_lights_probes_and_a_procedural_sky(tmp_path)
         b.add_texture("probe", 8, 4, 3, fmt="exr", color_space="linear")
         v = b.variants[1]
         v["lights"].append({"type": "point", "position": [1.0, 2.0, 3.0], "color": [1.0, 0.8, 0.5, 1.0],
-                            "intensity": 2.0, "range": 10.0, "shadows": "none", "mode": "realtime"})
+                            "intensity": 2.0, "range": 10.0, "shadows": "none", "mode": "mixed",
+                            "culling_mask": 2048, "render_mode": "not_important"})
         v["reflection"]["probes"].append({"texture": "probe", "position": [0.0, 0.0, 1.0],
                                           "box_size": [10.0, 20.0, 5.0], "box_projection": True, "intensity": 1.0})
         v["sky"] = {"kind": "procedural", "source": "skybox", "colors": {"_SkyTint": [0.5, 0.5, 0.5, 1.0]},
                     "floats": {"_SunSize": 0.04, "_Exposure": 1.3}, "geometry": []}
         v["ambient"] = {"mode": "skybox_sh", "intensity": 1.0, "sh": [0.1] * 27}
     assert problems_of(built(tmp_path, change), deep=True) == []
+
+
+def test_a_light_mask_covers_unity_layers_only(bundle):
+    edit_json(bundle, "variants", lambda d: d["variants"][0]["lights"][0].update(culling_mask=2 ** 32))
+    assert_problem(bundle, "culling_mask")
+
+
+def test_a_renderer_layer_is_a_unity_layer(bundle):
+    edit_json(bundle, "scene", lambda d: d["nodes"][WALL]["renderer"].update(layer=32))
+    assert_problem(bundle, "layer")
 
 
 # --- Candidates and Placements ----------------------------------------------------------------

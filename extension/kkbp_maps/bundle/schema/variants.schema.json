@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.7/variants.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.8/variants.schema.json",
   "title": "variants.json",
   "description": "The Map Variants: one per distinct lighting state, each covering the Times of Day that light the Map the same (ADR 0009).",
   "type": "object",
@@ -81,9 +81,11 @@
             "color": { "$ref": "common.schema.json#/$defs/color" },
             "intensity": { "type": "number" },
             "shadows": { "$ref": "#/$defs/shadows" },
-            "mode": { "$ref": "#/$defs/light_mode" }
+            "mode": { "$ref": "#/$defs/light_mode" },
+            "culling_mask": { "$ref": "#/$defs/culling_mask" },
+            "render_mode": { "$ref": "#/$defs/render_mode" }
           },
-          "required": ["type", "rotation", "color", "intensity", "shadows", "mode"],
+          "required": ["type", "rotation", "color", "intensity", "shadows", "mode", "culling_mask", "render_mode"],
           "additionalProperties": false
         },
         {
@@ -95,9 +97,11 @@
             "intensity": { "type": "number" },
             "range": { "type": "number", "minimum": 0 },
             "shadows": { "$ref": "#/$defs/shadows" },
-            "mode": { "$ref": "#/$defs/light_mode" }
+            "mode": { "$ref": "#/$defs/light_mode" },
+            "culling_mask": { "$ref": "#/$defs/culling_mask" },
+            "render_mode": { "$ref": "#/$defs/render_mode" }
           },
-          "required": ["type", "position", "color", "intensity", "range", "shadows", "mode"],
+          "required": ["type", "position", "color", "intensity", "range", "shadows", "mode", "culling_mask", "render_mode"],
           "additionalProperties": false
         },
         {
@@ -116,9 +120,11 @@
               "maximum": 180
             },
             "shadows": { "$ref": "#/$defs/shadows" },
-            "mode": { "$ref": "#/$defs/light_mode" }
+            "mode": { "$ref": "#/$defs/light_mode" },
+            "culling_mask": { "$ref": "#/$defs/culling_mask" },
+            "render_mode": { "$ref": "#/$defs/render_mode" }
           },
-          "required": ["type", "position", "rotation", "color", "intensity", "range", "spot_angle", "shadows", "mode"],
+          "required": ["type", "position", "rotation", "color", "intensity", "range", "spot_angle", "shadows", "mode", "culling_mask", "render_mode"],
           "additionalProperties": false
         },
         {
@@ -135,9 +141,11 @@
             "intensity": { "type": "number" },
             "range": { "type": "number", "minimum": 0 },
             "shadows": { "$ref": "#/$defs/shadows" },
-            "mode": { "$ref": "#/$defs/light_mode" }
+            "mode": { "$ref": "#/$defs/light_mode" },
+            "culling_mask": { "$ref": "#/$defs/culling_mask" },
+            "render_mode": { "$ref": "#/$defs/render_mode" }
           },
-          "required": ["type", "position", "rotation", "size", "color", "intensity", "range", "shadows", "mode"],
+          "required": ["type", "position", "rotation", "size", "color", "intensity", "range", "shadows", "mode", "culling_mask", "render_mode"],
           "additionalProperties": false
         }
       ]
@@ -145,6 +153,17 @@
     "shadows": {
       "type": "string",
       "enum": ["none", "hard", "soft"]
+    },
+    "culling_mask": {
+      "description": "The Unity layers the light lights, one bit per layer (bit n for layer n); a renderer's layer is in scene.json.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "render_mode": {
+      "description": "Unity's LightRenderMode: important lights always get a pixel pass, auto lights get one while the Game's pixel light count allows, not_important lights never do (per vertex or by spherical harmonics).",
+      "type": "string",
+      "enum": ["auto", "important", "not_important"]
     },
     "light_mode": {
       "description": "realtime and mixed lights light the Map Variant; a baked light's light is already in the Lightmap Set.",

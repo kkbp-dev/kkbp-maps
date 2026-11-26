@@ -56,6 +56,7 @@ class Renderer:
     lightmap_scale_offset: tuple[float, float, float, float]
     realtime_gi: bool
     reflection_probes: str      # REFLECTION_PROBE_MODES
+    layer: int = 0              # its GameObject's m_Layer
 
 
 @dataclass
@@ -235,7 +236,8 @@ def mesh_renderer(graph: Graph, obj: Obj) -> Renderer | None:
         lightmap_index=r.get("m_LightmapIndex", 0xFFFF),
         lightmap_scale_offset=(st["x"], st["y"], st["z"], st["w"]),
         realtime_gi=r.get("m_LightmapIndexDynamic", 0xFFFF) < NO_LIGHTMAP,
-        reflection_probes=REFLECTION_PROBE_MODES.get(r.get("m_ReflectionProbeUsage", 1), "blend_probes"))
+        reflection_probes=REFLECTION_PROBE_MODES.get(r.get("m_ReflectionProbeUsage", 1), "blend_probes"),
+        layer=int(store.tree(obj.go).get("m_Layer", 0)))
 
 
 def shader_name(store: Store, material: Ref | None) -> str | None:
@@ -353,7 +355,7 @@ def node_records(walk_: Walk, graph: Graph, mesh_id, draws_of) -> list[dict]:
             r = n.renderer
             rec["renderer"] = {"mesh": mesh_id(r.mesh), "draws": draws_of(n), "shadows": r.shadows,
                                "receive_shadows": r.receive_shadows, "realtime_gi": r.realtime_gi,
-                               "reflection_probes": r.reflection_probes}
+                               "reflection_probes": r.reflection_probes, "layer": r.layer}
         if n.sky:
             rec["sky"] = True
         out.append(rec)

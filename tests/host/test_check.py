@@ -68,7 +68,7 @@ def test_without_manifest_it_is_unfinished(bundle):
 
 def test_another_schema_version_is_refused(bundle):
     edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.1"))
-    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.5 "
+    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.6 "
                                    "(ADR 0014), so extract the Map again"]
 
 
@@ -137,6 +137,19 @@ def test_source_paths_are_relative_and_inside(bundle, path):
 def test_times_of_day_keep_their_order(bundle):
     edit_json(bundle, "map", lambda m: m.update(times_of_day=["night", "day", "evening"]))
     assert_problem(bundle, "times_of_day ['night', 'day', 'evening'] should name each value once")
+
+
+def test_four_times_of_day_start_with_morning(tmp_path):
+    def four(b):
+        b.map["times_of_day"] = ["morning", "day", "evening", "night"]
+        b.map["thumbnails"][0]["times_of_day"] = ["morning", "day", "evening", "night"]
+        b.variants[0].update(id="morning", times_of_day=["morning", "day"])
+    assert problems_of(built(tmp_path, four)) == []
+
+
+def test_morning_comes_before_day(bundle):
+    edit_json(bundle, "map", lambda m: m.update(times_of_day=["day", "morning", "evening", "night"]))
+    assert_problem(bundle, "times_of_day ['day', 'morning', 'evening', 'night'] should name each value once")
 
 
 def test_a_time_of_day_has_one_thumbnail(bundle):

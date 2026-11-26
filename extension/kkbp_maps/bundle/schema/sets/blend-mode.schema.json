@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.5/sets/blend-mode.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.6/sets/blend-mode.schema.json",
   "title": "Blend Mode",
   "description": "How a material lets what is behind it show through.",
   "type": "string",

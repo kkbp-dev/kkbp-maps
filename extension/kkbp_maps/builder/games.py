@@ -66,12 +66,13 @@ CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
         # captures' frames before AmplifyColor through Lut_Amount match the frames after it to ΔE 0.7).
         "studio": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=False,
                                 map_sun_shafts=False, grade_lut="Lut_Amount", assumed=False),
-    },    # Not captured yet (the KKS capture plugin, Phase 7): KK's, as a start. The story camera's CameraEffector
-    # has GlobalFog, AmplifyColor and SunShafts like KK's (kks-spike.md, section 2); its height fog is
-    # on only where a Map Variant switches it on (Map Bundle 0.9), with KK's density until captured.
+    },    # The story camera's CameraEffector has GlobalFog, AmplifyColor and SunShafts like KK's (kks-spike.md,
+    # section 2); its height fog is on only where a Map Variant switches it on (Map Bundle 0.9). Read from
+    # the running camera 2026-11-26 (camera.json): GlobalFog heightDensity 0.5; AmplifyColor Tonemapper
+    # Disabled, Exposure 1. Still assumed until its sun shafts are measured.
     "KKS": {
         "game": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=True, map_sun_shafts=True,
-                              grade_lut=None, height_fog=HeightFog(top=0.0, density=2.0),
+                              grade_lut=None, height_fog=HeightFog(top=0.0, density=0.5),
                               height_fog_from_map=True, assumed=True),
         "studio": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=False,
                                 map_sun_shafts=False, grade_lut="Lut_Amount", assumed=True),
@@ -82,9 +83,10 @@ LIGHTS: dict[str, GameLight] = {
     # lights_use_linear_intensity: Koikatu_Data/globalgamemanagers, GraphicsSettings. realtime_gi_ambient:
     # fitted on park's captures (kk-spike.md, "Settled by the look check"; 0.25 to 0.75 were tried).
     "KK": GameLight(lights_use_linear_intensity=False, realtime_gi_ambient=0.5),
-    # KoikatsuSunshine_Data/globalgamemanagers, GraphicsSettings (kks-spike.md, section 5); the point
-    # light reference and spot blend are first guesses, for the look check to fit.
-    "KKS": GameLight(lights_use_linear_intensity=False),
+    # KoikatsuSunshine_Data/globalgamemanagers, GraphicsSettings (kks-spike.md, section 5). point_reference
+    # fitted on the KKS Golden Maps' captures 2026-11-26: 0.2 to 0.8 tried, minsyukulobby's ΔE 5.2 at 0.2,
+    # 3.8 from 0.6 on; the spot blend is a first guess.
+    "KKS": GameLight(lights_use_linear_intensity=False, point_reference=0.6),
 }
 
 

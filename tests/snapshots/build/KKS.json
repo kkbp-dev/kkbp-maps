@@ -205,7 +205,7 @@
     [
      "9a5b8c918ca160560cd71072c7c5a8ac",
      "approximated",
-     "4b236b583f57bbd7"
+     "1b71b682a331796c"
     ],
     [
      "9c733f909fa4894237c0fb8134e6ee05",
@@ -589,7 +589,7 @@
    },
    "groups": {
     ".KKM Grade Lut_Amount + Lut_TimeNight1 0.3": "87d2f8f2487370c7",
-    ".KKM Light Aquarium Reception": "85e8ad7b5d03a766"
+    ".KKM Light Aquarium Reception": "60c355c79ed440b2"
    },
    "images": [
     {
@@ -2172,7 +2172,7 @@
     "images": 82,
     "materials": 236,
     "meshes": 74,
-    "node_groups": 68,
+    "node_groups": 72,
     "objects": 912
    },
    "groups": {
@@ -2180,7 +2180,11 @@
     ".KKM Light Guesthouse Dining Room, Day": "2ceaf5717dc194db",
     ".KKM Light Guesthouse Dining Room, Evening": "96cd93514692f360",
     ".KKM Light Guesthouse Dining Room, Morning": "2ceaf5717dc194db",
-    ".KKM Light Guesthouse Dining Room, Night": "131e3ae3648c44ac"
+    ".KKM Light Guesthouse Dining Room, Night": "131e3ae3648c44ac",
+    ".KKM Sky Guesthouse Dining Room, Day": "76321269681afb3e",
+    ".KKM Sky Guesthouse Dining Room, Evening": "d07ef34d060eed81",
+    ".KKM Sky Guesthouse Dining Room, Morning": "76321269681afb3e",
+    ".KKM Sky Guesthouse Dining Room, Night": "f544a31bc0ae4966"
    },
    "images": [
     {
@@ -2953,19 +2957,19 @@
    },
    "worlds": {
     "Guesthouse Dining Room, Day": {
-     "fingerprint": "3bb4905fc34afdcc",
+     "fingerprint": "d8d379fc72a58fa7",
      "sky": "material"
     },
     "Guesthouse Dining Room, Evening": {
-     "fingerprint": "74d393b0dd3670cf",
+     "fingerprint": "65fd5216fb71556a",
      "sky": "material"
     },
     "Guesthouse Dining Room, Morning": {
-     "fingerprint": "3bb4905fc34afdcc",
+     "fingerprint": "2312eeaafbd1fe2c",
      "sky": "material"
     },
     "Guesthouse Dining Room, Night": {
-     "fingerprint": "502958f3f4d21533",
+     "fingerprint": "ee18e01603d6d723",
      "sky": "material"
     }
    }
@@ -3330,7 +3334,7 @@
     [
      "974eaedde80bfb9d28a36a9f04ad4378",
      "rebuilt",
-     "d8bc6c638e14d32d"
+     "7272d68986d2527b"
     ],
     [
      "9e5bc9a6968c3d7fa84ec017981e8411",
@@ -3340,7 +3344,7 @@
     [
      "9f087959bf689d2f2c0b4fa8a02ad67e",
      "approximated",
-     "8bff3d9af98042e4"
+     "315fbcb6903842d5"
     ],
     [
      "a3c2f605c16e0dfd660d447bec64f23d",
@@ -3470,7 +3474,7 @@
     [
      "d4ccd4219a502d527ecb77b7ff062205",
      "rebuilt",
-     "ddd466b3c05e8a36"
+     "e0084c79c7aa9aa0"
     ],
     [
      "d70821e49ecd75f314d54ca4e758219a",
@@ -3485,7 +3489,7 @@
     [
      "d8dcbfb09730664d5375ce69c809fe08",
      "approximated",
-     "019224fc5fd1ae28"
+     "2388d8270a08366a"
     ],
     [
      "dee959bc5b61b4f91de97b914c517943",
@@ -3510,7 +3514,7 @@
     [
      "e7492fd7f68577289480bebee1b26871",
      "approximated",
-     "f3a16f3335920f2f"
+     "a300ca62f923d2a6"
     ],
     [
      "e784a2dd226268b66377220386f009cc",
@@ -4931,17 +4935,21 @@
     "images": 148,
     "materials": 379,
     "meshes": 149,
-    "node_groups": 107,
+    "node_groups": 111,
     "objects": 3216
    },
    "groups": {
     ".KKM Grade Lut_Amount": "5e2349814b900b4b",
     ".KKM Grade Lut_TimeNight1 + Lut_Amount 0.5": "37c9e19b9f2ef413",
     ".KKM Grade Lut_TimeSunset1": "638371d6b5b448ac",
-    ".KKM Light Hotel, Day": "3a8210c73e2406f4",
-    ".KKM Light Hotel, Evening": "ac69e0b67c408685",
-    ".KKM Light Hotel, Morning": "9c13c53129ac8ed3",
-    ".KKM Light Hotel, Night": "ecbeb751efe69075"
+    ".KKM Light Hotel, Day": "d251330d904a19cb",
+    ".KKM Light Hotel, Evening": "c5725289951b29f1",
+    ".KKM Light Hotel, Morning": "a915e703b233f64c",
+    ".KKM Light Hotel, Night": "2d4fc5ee8fac94a3",
+    ".KKM Sky Hotel, Day": "7ceb3f0bed0de3eb",
+    ".KKM Sky Hotel, Evening": "3176d7c8e2bfe7b0",
+    ".KKM Sky Hotel, Morning": "7ceb3f0bed0de3eb",
+    ".KKM Sky Hotel, Night": "bbb0d6e8725746e0"
    },
    "images": [
     {
@@ -6265,19 +6273,19 @@
    },
    "worlds": {
     "Hotel, Day": {
-     "fingerprint": "eb8a6116adaa0bea",
+     "fingerprint": "50021058819aed9e",
      "sky": "material"
     },
     "Hotel, Evening": {
-     "fingerprint": "4e4e2e43ef9a0db2",
+     "fingerprint": "16bbf7dd7d5bf56a",
      "sky": "material"
     },
     "Hotel, Morning": {
-     "fingerprint": "eb8a6116adaa0bea",
+     "fingerprint": "2616a4a15755a75c",
      "sky": "material"
     },
     "Hotel, Night": {
-     "fingerprint": "28b856cf541a115a",
+     "fingerprint": "05c56eb3fd91d9c0",
      "sky": "material"
     }
    }
@@ -12775,12 +12783,12 @@
     [
      "974eaedde80bfb9d28a36a9f04ad4378",
      "rebuilt",
-     "d8bc6c638e14d32d"
+     "7272d68986d2527b"
     ],
     [
      "9a5b8c918ca160560cd71072c7c5a8ac",
      "approximated",
-     "4b236b583f57bbd7"
+     "1b71b682a331796c"
     ],
     [
      "9a6ef12947a29d4497292989ae69645e",
@@ -12800,7 +12808,7 @@
     [
      "9f087959bf689d2f2c0b4fa8a02ad67e",
      "approximated",
-     "8bff3d9af98042e4"
+     "315fbcb6903842d5"
     ],
     [
      "a0fa38cac4dedde114cc10aae4506450",
@@ -12935,7 +12943,7 @@
     [
      "d4ccd4219a502d527ecb77b7ff062205",
      "rebuilt",
-     "ddd466b3c05e8a36"
+     "e0084c79c7aa9aa0"
     ],
     [
      "d4e11841ade26041477cb844cd5be76b",
@@ -12960,7 +12968,7 @@
     [
      "d8dcbfb09730664d5375ce69c809fe08",
      "approximated",
-     "019224fc5fd1ae28"
+     "2388d8270a08366a"
     ],
     [
      "ded7f4e87525edd5ba1e59918bc5f6a4",
@@ -12985,7 +12993,7 @@
     [
      "e7492fd7f68577289480bebee1b26871",
      "approximated",
-     "f3a16f3335920f2f"
+     "a300ca62f923d2a6"
     ],
     [
      "e7daabb6c910cec20352478531a50fe7",

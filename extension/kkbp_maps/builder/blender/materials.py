@@ -275,10 +275,15 @@ def _texture(bundle, m, raw):
     return next((t for t in m["textures"] if t["raw"] == raw), None)
 
 
-def _sample(g, bundle, m, raw, images, uv):
+def _sample(g, bundle, m, raw, images, uv, tiling_of=None):
+    """A texture slot's sample; with `tiling_of`, at another slot's scale and offset (Unity's Standard
+    samples the detail normal map with _DetailAlbedoMap_ST)."""
     slot = _texture(bundle, m, raw)
     if slot is None:
         return None
+    if tiling_of is not None and _texture(bundle, m, tiling_of) is not None:
+        other = _texture(bundle, m, tiling_of)
+        slot = {**slot, "scale": other["scale"], "offset": other["offset"]}
     img = images.get(bundle, slot["texture"])
     return image_node(g, img, bundle.textures[slot["texture"]], uv, slot)
 
@@ -335,7 +340,7 @@ def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
     detail_bump = None
     if "_DETAIL_MULX2" in kw:
         uv_detail = _uv(g, UV1) if fl.get("_UVSec", 0.0) >= 0.5 else uv
-        detail_bump = _sample(g, bundle, m, "_DetailNormalMap", images, uv_detail)
+        detail_bump = _sample(g, bundle, m, "_DetailNormalMap", images, uv_detail, tiling_of="_DetailAlbedoMap")
     if bump is not None or detail_bump is not None:
         tangent = _tangent_normal(g, bump, fl.get("_BumpScale", 1.0))
         if detail_bump is not None:
@@ -424,14 +429,25 @@ def _koikano(g: Graph, out, tree_in, bundle, m, images):
         g.set(out, key, value)
 
 
+# The depth of water a see-through water surface is drawn as covering, in metres: Lux Water absorbs what
+# lies behind it by its _Density over the depth it sees through, which a surface in Blender can't measure.
+# Fitted on the KKS Golden Maps' captures 2026-11-26 (2, 5 and 15 tried; aquariuminside's ΔE 8.4 with
+# the tier's constant alpha, 6.5 at 5).
+WATER_DEPTH = 5.0
+
+
 def _water(g: Graph, out, m, tier):
-    """Water as a smooth surface of one colour, partly see-through (shaders._water)."""
+    """Water as a smooth surface of one colour, partly see-through (shaders._water): its alpha is the
+    tier's, or 1 − exp(−density · WATER_DEPTH) where the tier names a density property."""
     albedo = g.rgb(linear_rgb(m["colors"].get(tier.color, [0.0, 0.4, 0.7, 1.0])))
     normal = (g.node("ShaderNodeNewGeometry"), "Normal")
     bsdf = g.node("ShaderNodeBsdfPrincipled", **{"Base Color": albedo, "Metallic": 0.0, "Roughness": 0.05,
                                                   "Normal": normal, "Specular IOR Level": 0.5})
     g.link(bsdf, (out, "BSDF"))
-    for key, value in (("Alpha", tier.alpha), ("Albedo", albedo), ("Metallic", 0.0), ("Smoothness", 0.95),
+    alpha = tier.alpha
+    if tier.density and tier.density in m["floats"]:
+        alpha = 1.0 - math.exp(-m["floats"][tier.density] * WATER_DEPTH)
+    for key, value in (("Alpha", alpha), ("Albedo", albedo), ("Metallic", 0.0), ("Smoothness", 0.95),
                        ("Occlusion", 1.0), ("Normal", normal), ("Reflections", 1.0)):
         g.set(out, key, value)
 
@@ -622,8 +638,10 @@ def _env_sample(g, bundle, images, texture_id, direction, mip=None):
 
 def _reflection(g, bundle, variant, images, n, view, geo, perceptual):
     """The reflection along R = reflect(−V, N): the probe the object's property names (box-projected
-    where the probe says so), else the Map's reflection cubemap, else the ambient, at Unity's mip for the
-    surface's perceptual roughness, r · (1.7 − 0.7 r) · 6, from a chain of halved maps."""
+    where the probe says so), else the Map's reflection cubemap, at Unity's mip for the surface's
+    perceptual roughness, r · (1.7 − 0.7 r) · 6, from a chain of halved maps. A Map that reflects its
+    skybox but holds no cubemap of it reflects its ambient light along R (ADR 0037); a custom reflection
+    left empty reflects nothing."""
     if look.get("reflection") == "off":
         return (g.rgb((0.0, 0.0, 0.0)), "Color")
     mip = g.math("MULTIPLY", g.math("MULTIPLY", perceptual, g.math("MULTIPLY_ADD", perceptual, -0.7, 1.7)),
@@ -632,6 +650,8 @@ def _reflection(g, bundle, variant, images, n, view, geo, perceptual):
     refl = variant["reflection"]
     if refl["texture"] is not None:
         env = g.vmath("SCALE", _env_sample(g, bundle, images, refl["texture"], r, mip), scale=refl["intensity"])
+    elif refl["source"] == "skybox":
+        env = g.vmath("SCALE", _ambient(g, variant["ambient"], r), scale=refl["intensity"])
     else:
         env = (g.rgb((0.0, 0.0, 0.0)), "Color")
     probe_index = (_attribute(g, PROP_PROBE), "Fac")
@@ -817,8 +837,9 @@ def point_power(color, intensity: float, light_range: float, convention) -> tupl
     peak = max(rgb)
     if peak <= 0 or light_range <= 0:
         return (1.0, 1.0, 1.0), 0.0
-    d = convention.point_reference * light_range
-    falloff = 1.0 / (1.0 + 25.0 * convention.point_reference ** 2)
+    share = look.number("point_reference", convention.point_reference)
+    d = share * light_range
+    falloff = 1.0 / (1.0 + 25.0 * share ** 2)
     return tuple(c / peak for c in rgb), 4.0 * math.pi ** 2 * d * d * falloff * peak
 
 

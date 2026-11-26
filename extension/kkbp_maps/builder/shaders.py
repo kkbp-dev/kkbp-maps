@@ -27,16 +27,18 @@ class Tier:
     cutout_keywords: tuple[str, ...] = ()   # keywords that make the material cutout at its _Cutoff
     color: str | None = None     # the water model's colour property
     alpha: float = 1.0           # the water model's opacity
+    density: str | None = None   # the water model's density property, which sets its opacity instead
 
 
 def _standard(level=REBUILT, reason="", double_sided=False, vertex_color=False):
     return Tier("standard", level, reason, double_sided, vertex_color=vertex_color)
 
 
-def _water(color, reason="water drawn as a smooth tinted surface"):
+def _water(color, alpha=0.6, density=None, reason="water drawn as a smooth tinted surface"):
     """Water (Lux Water, NatureManufacture's rivers): its textures are foam, caustics and flow, not its
     colour; drawn as a smooth, partly see-through surface of one colour property (a first guess)."""
-    return Tier("water", APPROXIMATED, reason, double_sided=True, blend="alpha", color=color, alpha=0.6)
+    return Tier("water", APPROXIMATED, reason, double_sided=True, blend="alpha", color=color, alpha=alpha,
+                density=density)
 
 
 def blend_mode(material: dict) -> str:
@@ -96,8 +98,11 @@ TIERS: dict[str, Tier] = {
     "Koikano/main_clothes_item": _standard(APPROXIMATED, "Koikano drawn as Standard"),
     "Koikano/main_clothes_item_glasses": _standard(APPROXIMATED, "Koikano drawn as Standard"),
     "ProBuilder/Standard Vertex Color": _standard(vertex_color=True),
-    "Lux Water/WaterSurface": _water("_UnderWaterReflCol"),
-    "Lux Water/WaterSurface Tessellation": _water("_UnderWaterReflCol"),
+    # Lux Water: its _Color is the colour the captures show for the sea at evening and night, and its
+    # _Density sets how much of what lies behind it shows (materials.WATER_DEPTH); its refraction, depth
+    # absorption and underwater effect aren't drawn, so the day sea lacks the sand's turquoise.
+    "Lux Water/WaterSurface": _water("_Color", density="_Density"),
+    "Lux Water/WaterSurface Tessellation": _water("_Color", density="_Density"),
     "NatureManufacture Shaders/Water/Water River Mobile": _water("_ShalowColor"),
     "NatureManufacture Shaders/Water/Water River Tesseled": _water("_ShalowColor"),
     "NatureManufacture Shaders/Water/Water River Tesseled Vertex Color": _water("_ShalowColor"),

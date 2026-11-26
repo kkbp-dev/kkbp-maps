@@ -77,7 +77,7 @@ hoteloutside's night, for example, is `Lut_TimeNight1` blended 0.5 with `Lut_Amo
 
 **The profiles.** A `SkyProfile` (a MonoBehaviour asset in `map/materials/00`) holds keyframe groups: 23 colours, 119 numbers, 18 textures, 2 sphere points (sun and moon position) and 1 boolean, plus a feature switch list. **Every group in every profile read holds a single keyframe**, so each value is a constant and the sky time doesn't change it. hoteloutside's profiles use the gradient sky and noise clouds; its night profile adds the moon and three star layers. Each profile names its own skybox material, all with the shader `Funly/Sky Studio/Skybox/3D Standard`.
 
-**What it lights.** With `SunFeature` on, the controller enables the light under the sun orbit (`OrbitingBody.BodyLight` is the first `Light` below it), aims it from the profile's sun position and sets its colour and intensity from the profile; the moon likewise. In hoteloutside both are `Map/light/SkySystemController/Sun/Light` and `Moon/Light` with culling mask 16, the water layer: **they light only the water**. `FogFeature` is off in every profile read, so `FogSyncWithGlobal` never overrides the Map's fog colour. Neither the ambient light (`SunLightInfo`'s trilight colours) nor the reflection depends on the sky: `updateGlobalIllumination` is off, so the skybox reflection stays the one baked when the Map was built.
+**What it lights.** With `SunFeature` on, the controller enables the light under the sun orbit (`OrbitingBody.BodyLight` is the first `Light` below it), aims it from the profile's sun position and sets its colour and intensity from the profile; the moon likewise. In hoteloutside both are `Map/light/SkySystemController/Sun/Light` and `Moon/Light` with culling mask 16, the water layer: **they light only the water**. `FogFeature` is off in every profile read, so `FogSyncWithGlobal` never overrides the Map's fog colour. Neither the ambient light (`SunLightInfo`'s trilight colours) nor the reflection depends on the sky: `updateGlobalIllumination` is off, so nothing renders a skybox reflection at run time, and none was baked: hoteloutside's and aquariuminside's `m_GeneratedSkyboxReflection` is empty. The look check chose what they reflect instead (ADR 0037).
 
 **Without SkyStudio.** Nine Maps have no `MapSkyInfo` (aquariuminside, forest, hotelkouisitu, hotelsuite, seacretbeach, showerroomnozoki, toiletnozoki among them); aquariuminside's skybox is a `Skybox/Cubemap` material, as in KK. hotelsuite holds a `SkyProfile` in its own bundle but no `MapSkyInfo`. In Studio a Map without `MapSkyInfo` is drawn over the camera's background colour (`CameraClearFlags.Color`) unless the Studio scene's own sky is on; the story game's list sets `isSky` for every Map.
 
@@ -187,6 +187,18 @@ Points that bear on the contract and the decisions, to settle before the Extract
 - **Mesh attributes** need colours and UV2 and UV3 for SpeedTree; a renderer needs its wind.
 - **Room containers** need a structural rule for KKS (section 10).
 - **Memory**: reading the shared bundle whole costs 3.6 GB per Map (section 6).
+
+## 12. Settled by the look check
+
+Fitted on the KKS Golden Maps' Reference Captures (camera "game"), 2026-11-26; mean ΔE before the Grade for aquariuminside, hoteloutside and minsyukulobby, from 10.5, 10.7 and 5.2 at the first build:
+
+- **Point and spot lights** agree with Unity's falloff at 0.6 of their range (`games.LIGHTS["KKS"].point_reference`; 0.2 to 0.8 tried). minsyukulobby went from 5.2 at 0.2 to 3.8; past 0.6 nothing changes.
+- **An unbaked skybox reflection** reflects the ambient light (ADR 0037): hoteloutside 8.9 with the sky, 7.2 with the ambient.
+- **Lux Water's opacity** is 1 − exp(−_Density · 5 m) (`materials.WATER_DEPTH`; 2, 5 and 15 m tried, against the tier's constant 0.6). aquariuminside's tank glass is a Lux surface the camera looks through, and the constant tinted everything behind it: 8.4 to 6.5.
+- **The detail normal map** takes `_DetailAlbedoMap`'s tiling, as Unity's Standard samples it.
+- **The camera's height fog** has heightDensity 0.5, read from the running camera.
+
+Left as they are: the day sea's turquoise, which comes from the sand seen through Lux's refraction; the underwater haze in aquariuminside's tank.
 
 ## Open questions
 

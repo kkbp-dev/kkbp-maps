@@ -18,7 +18,7 @@ import math
 import bpy
 from mathutils import Matrix, Quaternion, Vector
 
-from .. import shaders
+from .. import look, shaders
 from ..games import light_convention
 from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, koikano_tint, passes
 from . import materials as mats
@@ -185,6 +185,9 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
         coll = bpy.data.collections.new(vp.name)
         grade = fb.grade(*plan.grade_of(m, v))
         as_shown = plan.as_shown(m, v)
+        sky_tree = (skystudio.group(as_shown["sky"], fb.images, b, vp.name)
+                    if as_shown["sky"] and as_shown["sky"]["kind"] == "material"
+                    and as_shown["sky"]["shader"] == skystudio.SHADER else None)
         light = mats.variant_light(b, as_shown, vp.name, fb.images, grade)
         variant_mats: dict[str, bpy.types.Material] = {}
 
@@ -227,7 +230,7 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
                     drawers.append(o)
         _link_lights(coll, [_light_object(plan.game, light_record, f"{vp.name} {light_record['type'].title()}")
                             for light_record in v["lights"]], v["lights"], drawers)
-        w = build_world(b, as_shown, vp, fb, grade)
+        w = build_world(b, as_shown, vp, fb, grade, sky_tree)
         coll["kkbp_maps_world"] = w.name
         coll["kkbp_maps_map"] = m.key
         coll["kkbp_maps_variant"] = v["id"]
@@ -284,7 +287,7 @@ def _light_object(game: str, light: dict, name: str) -> bpy.types.Object | None:
         data.cutoff_distance = light["range"]
         if light["type"] == "spot":
             data.spot_size = math.radians(light["spot_angle"])
-            data.spot_blend = convention.spot_blend
+            data.spot_blend = look.number("spot_blend", convention.spot_blend)
     data.use_shadow = light["shadows"] != "none"
     obj = bpy.data.objects.new(name, data)
     obj.rotation_mode = "QUATERNION"
@@ -316,7 +319,7 @@ def _link_lights(coll, lights, records, drawn):
         obj.light_linking.receiver_collection = receivers[mask]
 
 
-def build_world(b, v: dict, vp: VariantPlan, fb: FileBuilder, grade) -> bpy.types.World:
+def build_world(b, v: dict, vp: VariantPlan, fb: FileBuilder, grade, sky_tree=None) -> bpy.types.World:
     """The Map Variant's World: in EEVEE the Sky for camera rays only, with the camera's height fog over a
     Sky Dome (ADR 0028), graded; black to every other ray, since the Variant Materials hold the indirect
     light (ADR 0020). In Cycles the Sky, ungraded and unfogged, for all. Takes the Map Variant as its Camera
@@ -339,9 +342,9 @@ def build_world(b, v: dict, vp: VariantPlan, fb: FileBuilder, grade) -> bpy.type
         color = g.mix(1.0, (env, "Color"), (*tint, 1.0), blend_type="MULTIPLY")
         if sky["source"] == "dome":   # a mesh, so GlobalFog fogs it; Unity's skybox is past its reach
             shown = mats.height_fog_sky(g, v, color, (coords, "Generated"))
-    elif sky and sky["kind"] == "material" and sky["shader"] == skystudio.SHADER:
+    elif sky_tree is not None:
         coords = g.node("ShaderNodeTexCoord")
-        color = skystudio.skystudio(g, sky, fb.images, b, (coords, "Generated"))
+        color = (g.group(sky_tree, Vector=(coords, "Generated")), "Color")
     else:
         color = (g.rgb((0.0, 0.0, 0.0)), "Color")  # a procedural skybox isn't rebuilt yet; no Golden Map shows one
     shown = shown or color

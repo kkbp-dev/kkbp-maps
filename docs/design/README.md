@@ -86,3 +86,4 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0034 Statically batched pieces match their originals within a tolerance](../adr/0034-batched-pieces-match-their-originals-within-a-tolerance.md)
 - [0035 Bundles are read a block at a time, and shared bundles are found by their CAB names](../adr/0035-bundles-are-read-a-block-at-a-time.md)
 - [0036 Realtime reflection probes are left out and counted](../adr/0036-realtime-reflection-probes-are-left-out.md)
+- [0037 A skybox reflection that was never baked reflects the ambient light](../adr/0037-an-unbaked-skybox-reflection-reflects-the-ambient-light.md)

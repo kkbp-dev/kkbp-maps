@@ -19,7 +19,7 @@ the horizon fog. Every direction is Blender's (ADR 0011); the shader's are Unity
 from __future__ import annotations
 
 from .materials import linear, linear_rgb
-from .nodes import Graph
+from .nodes import Graph, io, new_group
 
 from ..plan import SKYSTUDIO as SHADER   # noqa: F401  (what the Build Report says isn't drawn: plan.sky_notes)
 
@@ -51,6 +51,20 @@ def _disc(g, sky, n, position, radius, edge, color, boost):
     lit = g.mix(1.0, _rgb(g, sky, color), g.combine(fade, fade, fade), blend_type="MULTIPLY")
     lit = g.mix(1.0, lit, g.rgb((_f(sky, boost, 1.0),) * 3), blend_type="MULTIPLY")
     return inside, lit
+
+
+def group(sky: dict, images, bundle, name: str):
+    """`.KKM Sky <Map Variant>`: the sky as a node group, a direction in Blender's world axes in and its
+    colour out, for the World."""
+    import bpy
+    tree = bpy.data.node_groups.get(f".KKM Sky {name}")
+    if tree is not None:
+        return tree
+    tree = new_group(f".KKM Sky {name}", inputs=[("Vector", "NodeSocketVector", (0.0, 0.0, 1.0))],
+                     outputs=[("Color", "NodeSocketColor")])
+    g, i, o = io(tree)
+    g.link(skystudio(g, sky, images, bundle, (i, "Vector")), (o, "Color"))
+    return tree
 
 
 def skystudio(g: Graph, sky: dict, images, bundle, direction):

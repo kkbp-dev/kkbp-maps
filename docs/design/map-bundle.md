@@ -34,7 +34,7 @@ Nothing else is in the folder. The Builder's own cache lives elsewhere.
 - **The Sky** of a Map Variant is its Sky Dome's cubemap (or the skybox where there is no dome) as an equirectangular EXR at rotation 0, with tint, exposure and rotation as values, and the dome's clouds or stars as nodes flagged `sky` (D7).
 - **The Grade** names its LUT and layout. The settings of the camera it runs behind aren't in the bundle: `map.json` names a Camera Profile (`game` or `studio`), and the Builder finds that profile in the repository's Game data (ADR 0010).
 - **Lightmap Sets** are a list, so a Map can have several. Each lists its lightmaps (the colour decoded from RGBM into linear EXR, D21; the direction re-encoded in Blender's world axes) and, per renderer, the lightmap index, scale-offset and UV set.
-- **Version.** `0.10`, accepted only as an exact match until the first release (ADR 0014).
+- **Version.** `0.11`, accepted only as an exact match until the first release (ADR 0014).
 - **No Game Extensions.** Everything KK needs can be said without Game-specific fields. Later Games add set values and optional fields to the shared core.
 
 ## Later Games
@@ -48,7 +48,7 @@ Where each would go, without designing it here. Each is a Schema Version change.
 | SVS's external Lightmap Sets, matched by name | more sets in `lightmaps.json`, one per Map Variant; the Extractor matches names to nodes. A shadowmask becomes an optional texture on a lightmap |
 | KKS's blended AmplifyColor LUTs | an optional `blend` on the Grade (0.7) |
 | SVS's Volume Grades | a new `kind` in the Grade's union |
-| KKS's SkyStudio skies | a new `kind` in the Sky's union |
+| KKS's SkyStudio skies | the `material` kind in the Sky's union: the skybox's shader and values as the game sets them (0.11) |
 | KKS's statically batched meshes | split by the Extractor; no change |
 | SpeedTree | `color0`, `uv0_zw`, `uv1_zw`, `uv2` and `uv3` in the mesh attributes, `winds` in scene.json named by a renderer's `wind`, and a node's `wind_zone` (0.10) |
 | KKS's shared dependency bundles | more `sources` in the Manifest |

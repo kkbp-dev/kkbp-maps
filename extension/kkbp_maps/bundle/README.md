@@ -14,11 +14,11 @@ The contract between the Extractor and the Builder: the JSON Schemas in `schema/
 | `variants.json` | `variants.schema.json` |
 | `assets.json` | `assets.schema.json` |
 
-Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.10/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
+Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.11/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
 
 ## Schema Version
 
-`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.10`.
+`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.11`.
 
 ## Conventions
 
@@ -127,7 +127,7 @@ A Grade may carry a `blend`: a second LUT of the same layout and an amount. The 
 - A Sky's `geometry` names sky nodes that the Map Variant doesn't hide. Every sky node with a renderer is under the `geometry` of at least one Map Variant.
 - A light lights a renderer only where the renderer's `layer` is in the light's `culling_mask` (bit `layer`). How many lights a renderer takes per pixel is the Game's, by the lights' `render_mode`; the bundle doesn't say.
 - A renderer's `reflection_probes` is Unity's reflection probe usage. A renderer that is `off` takes only its Map Variant's own reflection (its `texture`, or none), never a probe (ADR 0026).
-- A Sky's cubemap, a reflection's texture and every probe's texture are EXRs. A reflection's texture is null only where the game holds no cubemap for its source. A Grade's `lut` is a `linear` PNG of 1024 × 32, and so is its `blend`'s.
+- A Sky's cubemap, a reflection's texture and every probe's texture are EXRs. A `material` Sky's keywords are sorted, each of its texture slots appears once, and its textures exist; a cubemap among them is an equirectangular EXR like the others. A reflection's texture is null only where the game holds no cubemap for its source. A Grade's `lut` is a `linear` PNG of 1024 × 32, and so is its `blend`'s.
 - A fog's `camera` and a sun shafts record's settings beyond `color` are what the Map sets on the camera's effects at that Time of Day. Where they are absent the Camera Profile's apply; where present they replace the Camera Profile's switches and values of the same name, and the camera still draws them only if the Camera Profile says it has the effect.
 - A Grade's `blend` mixes a second LUT's result into the first's: `(1 − amount) · lut(c) + amount · blend(c)`, both looked up as the AmplifyColor LUT section says. It is left out where the amount is 0.
 

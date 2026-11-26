@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.10/textures.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.11/textures.schema.json",
   "title": "textures.json",
   "description": "Every texture the bundle uses, for materials, lightmaps, skies, reflections, Grades and thumbnails. Its file is textures/<id>.<format>, top row first.",
   "type": "object",

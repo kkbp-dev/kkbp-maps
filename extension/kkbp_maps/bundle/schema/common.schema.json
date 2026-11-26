@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.10/common.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.11/common.schema.json",
   "title": "Shared definitions",
   "description": "Every position, rotation, scale and direction is in Blender's space: right-handed, +Z up, metres (ADR 0011).",
   "$defs": {

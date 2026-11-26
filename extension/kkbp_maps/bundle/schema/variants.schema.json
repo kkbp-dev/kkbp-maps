@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.10/variants.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.11/variants.schema.json",
   "title": "variants.json",
   "description": "The Map Variants: one per distinct lighting state, each covering the Times of Day that light the Map the same (ADR 0009).",
   "type": "object",
@@ -38,6 +38,7 @@
             "oneOf": [
               { "$ref": "#/$defs/cubemap_sky" },
               { "$ref": "#/$defs/procedural_sky" },
+              { "$ref": "#/$defs/material_sky" },
               { "type": "null" }
             ]
           },
@@ -337,6 +338,46 @@
         "geometry": { "$ref": "#/$defs/sky_geometry" }
       },
       "required": ["kind", "source", "colors", "floats", "geometry"],
+      "additionalProperties": false
+    },
+    "material_sky": {
+      "description": "A skybox material the game draws as it is, such as Funly SkyStudio's: its shader, keywords and values by Raw Property, as the game sets them at this Time of Day (for SkyStudio, its profile's values). The Builder rebuilds it by its shader.",
+      "type": "object",
+      "properties": {
+        "kind": { "const": "material" },
+        "source": {
+          "description": "skybox: the Map's RenderSettings skybox; skystudio: a Funly SkyStudio profile's skybox.",
+          "enum": ["skybox", "skystudio"]
+        },
+        "shader": { "type": "string", "minLength": 1 },
+        "keywords": {
+          "description": "Its shader keywords, sorted.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "colors": { "$ref": "common.schema.json#/$defs/colors" },
+        "floats": { "$ref": "common.schema.json#/$defs/floats" },
+        "vectors": { "$ref": "common.schema.json#/$defs/vectors" },
+        "textures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "raw": { "type": "string", "minLength": 1 },
+              "texture": {
+                "description": "A 2D texture, or a cubemap as an equirectangular EXR in Blender's world orientation.",
+                "$ref": "common.schema.json#/$defs/hash"
+              },
+              "offset": { "$ref": "common.schema.json#/$defs/vec2" },
+              "scale": { "$ref": "common.schema.json#/$defs/vec2" }
+            },
+            "required": ["raw", "texture", "offset", "scale"],
+            "additionalProperties": false
+          }
+        },
+        "geometry": { "$ref": "#/$defs/sky_geometry" }
+      },
+      "required": ["kind", "source", "shader", "keywords", "colors", "floats", "vectors", "textures", "geometry"],
       "additionalProperties": false
     },
     "amplify_color_grade": {

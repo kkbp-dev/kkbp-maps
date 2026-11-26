@@ -278,6 +278,12 @@ class _Context:
                         self.add("variants", f"{where}: hides its own sky geometry node {g}")
                 if sky["kind"] == "cubemap":
                     self.texture_of("variants", f"{where}: sky", sky["texture"], fmt="exr")
+                if sky["kind"] == "material":
+                    if sky["keywords"] != sorted(set(sky["keywords"])):
+                        self.add("variants", f"{where}: sky keywords should be sorted, each once")
+                    self.unique("variants", f"{where}: sky texture slot", (t["raw"] for t in sky["textures"]))
+                    for t in sky["textures"]:
+                        self.texture_of("variants", f"{where}: sky {t['raw']}", t["texture"])
             r = v["reflection"]
             if r["texture"] is not None:
                 self.texture_of("variants", f"{where}: reflection", r["texture"], fmt="exr")

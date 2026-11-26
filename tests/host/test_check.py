@@ -68,7 +68,7 @@ def test_without_manifest_it_is_unfinished(bundle):
 
 def test_another_schema_version_is_refused(bundle):
     edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.1"))
-    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.10 "
+    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.11 "
                                    "(ADR 0014), so extract the Map again"]
 
 
@@ -580,6 +580,31 @@ def test_every_wind_is_used(tmp_path):
     path = built(tmp_path, tree)
     edit_json(path, "scene", lambda d: d["winds"].append(dict(TREE_WIND, flags=[])))
     assert_problem(path, "wind 1 isn't used by any renderer")
+
+
+def skystudio(texture):
+    return {"kind": "material", "source": "skystudio", "shader": "Funly/Sky Studio/Skybox/3D Standard",
+            "keywords": ["GRADIENT_BACKGROUND", "NOISE_CLOUDS"],
+            "colors": {"_GradientSkyUpperColor": [0.33, 0.557, 1.0, 1.0]}, "floats": {"_CloudDensity": 0.25},
+            "vectors": {}, "textures": [{"raw": "_CloudNoiseTexture", "texture": texture, "offset": [0.0, 0.0],
+                                         "scale": [1.0, 1.0]}], "geometry": []}
+
+
+def test_a_sky_may_be_a_skybox_material(bundle):
+    noise = texture_id(bundle, "Lut_Amount")
+    edit_json(bundle, "variants", lambda d: d["variants"][1].update(sky=skystudio(noise)))
+    assert problems_of(bundle) == []
+
+
+def test_a_material_sky_names_textures_that_exist(bundle):
+    edit_json(bundle, "variants", lambda d: d["variants"][1].update(sky=skystudio("0" * 32)))
+    assert_problem(bundle, "sky _CloudNoiseTexture names texture")
+
+
+def test_a_material_sky_keywords_are_sorted(bundle):
+    noise = texture_id(bundle, "Lut_Amount")
+    edit_json(bundle, "variants", lambda d: d["variants"][1].update(sky=dict(skystudio(noise), keywords=["Z", "A"])))
+    assert_problem(bundle, "sky keywords should be sorted")
 
 
 # --- Candidates and Placements ----------------------------------------------------------------

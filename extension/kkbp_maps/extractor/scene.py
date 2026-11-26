@@ -419,8 +419,9 @@ def _lower_lods(graph: Graph) -> set[Ref]:
     return out
 
 
-def node_records(walk_: Walk, graph: Graph, mesh_id, draws_of) -> list[dict]:
-    """scene.json's nodes. `mesh_id(ref)` gives a mesh's Content Hash; `draws_of(node)` its draws."""
+def node_records(walk_: Walk, graph: Graph, mesh_id, draws_of, winds=None) -> list[dict]:
+    """scene.json's nodes. `mesh_id(ref)` gives a mesh's Content Hash; `draws_of(node)` its draws;
+    `winds` (wind.Winds) each tree's wind and each WindZone."""
     out = []
     for i, n in enumerate(walk_.nodes):
         t = graph.store.tree(n.obj.tf)
@@ -435,6 +436,12 @@ def node_records(walk_: Walk, graph: Graph, mesh_id, draws_of) -> list[dict]:
             rec["renderer"] = {"mesh": mesh_id(r.mesh), "draws": draws_of(n), "shadows": r.shadows,
                                "receive_shadows": r.receive_shadows, "realtime_gi": r.realtime_gi,
                                "reflection_probes": r.reflection_probes, "layer": r.layer}
+            wind = winds.of(n.obj) if winds is not None else None
+            if wind is not None:
+                rec["renderer"]["wind"] = wind
+        zone = winds.zone(n.obj) if winds is not None else None
+        if zone is not None:
+            rec["wind_zone"] = zone
         if n.sky:
             rec["sky"] = True
         out.append(rec)

@@ -26,6 +26,7 @@ from .meshes import Meshes
 from .scene import Graph, Node, Unsupported, node_records, read_graph, walk
 from .textures import Textures
 from .variants import variants
+from .wind import Winds
 
 DATA_FILES = ("map", "scene", "meshes", "materials", "textures", "lightmaps", "variants", "assets")
 
@@ -100,7 +101,9 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
     meshes.full = _full_meshes(graph)
     w = walk(graph, lambda ref: meshes.try_add(store, ref) is not None)
     queues = _render_queues(graph)
-    nodes = node_records(w, graph, lambda ref: meshes.add(store, ref), lambda n: draws(store, n, meshes, materials, queues))
+    winds = Winds(store)
+    nodes = node_records(w, graph, lambda ref: meshes.add(store, ref), lambda n: draws(store, n, meshes, materials, queues),
+                         winds)
     lm = lightmap_set(graph, w, meshes, textures)
     vs = variants(graph, w, textures, lm["id"] if lm else None, materials)
     assets = candidates(nodes, game.prefixes, game.containers, game.containers_at_root)
@@ -116,7 +119,7 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
     }
     data = {
         "map": map_record,
-        "scene": {"nodes": nodes},
+        "scene": {"nodes": nodes, **({"winds": winds.records} if winds.records else {})},
         "meshes": {"meshes": list(meshes.records.values())},
         "materials": {"materials": list(materials.records.values())},
         "textures": {"textures": list(textures.records.values())},

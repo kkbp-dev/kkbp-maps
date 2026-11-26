@@ -131,6 +131,7 @@ class FileBuilder:
         collection.objects.link(obj)
         if parent is not None:
             obj.parent = parent
+        _keep_wind(obj, bundle, node)
         if blended:
             mesh, centre = self.centred(bundle, r["mesh"])
             first = bpy.data.objects.new(f"{node['name']} blended", mesh)
@@ -165,6 +166,18 @@ class FileBuilder:
                 target.visible_transmission = target.visible_volume_scatter = False
                 target.hide_select = True
         return out
+
+
+def _keep_wind(obj, bundle, node: dict):
+    """How the game moves a tree, kept on its object as data (Map Bundle 0.10); the tree is drawn at rest.
+    A SpeedTree's wind: its numbers, and its switches that are on as one comma-separated string. A
+    WindZone's settings likewise."""
+    r = node.get("renderer")
+    if r is not None and "wind" in r:
+        wind = bundle.winds[r["wind"]]
+        obj["kkbp_maps_wind"] = {"kind": wind["kind"], "flags": ",".join(wind["flags"]), **wind["floats"]}
+    if "wind_zone" in node:
+        obj["kkbp_maps_wind_zone"] = dict(node["wind_zone"])
 
 
 # --- Map Variants ------------------------------------------------------------------------------------

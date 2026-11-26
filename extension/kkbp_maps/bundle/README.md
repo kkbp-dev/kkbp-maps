@@ -14,11 +14,11 @@ The contract between the Extractor and the Builder: the JSON Schemas in `schema/
 | `variants.json` | `variants.schema.json` |
 | `assets.json` | `assets.schema.json` |
 
-Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.6/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
+Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.7/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
 
 ## Schema Version
 
-`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.6`.
+`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.7`.
 
 ## Conventions
 
@@ -64,6 +64,8 @@ Every other slot is known by its Raw Property only. Illusion's own shaders (KK's
 ## The AmplifyColor LUT
 
 `amplify_32x32` is a 1024 × 32 linear PNG: 32 slices of 32 × 32 side by side. For a colour `(r, g, b)` in 0…1, sRGB-encoded as AmplifyColor sees it, `slice = b · 31` (two slices blended), the column is `r · 31 + 32 · slice` and the row is `g · 31` counted from the **bottom**, so PNG row `31 − g · 31`.
+
+A Grade may carry a `blend`: a second LUT of the same layout and an amount. The Grade is then `(1 − amount) · lut(c) + amount · blend(c)`, as AmplifyColor does when its `BlendAmount` isn't 0 (KKS, kks-spike.md section 2).
 
 ## Rules the schemas can't express
 
@@ -123,7 +125,8 @@ Every other slot is known by its Raw Property only. Illusion's own shaders (KK's
 - `hidden` nodes exist. `lightmap_set` names a set that exists.
 - A Sky's `geometry` names sky nodes that the Map Variant doesn't hide. Every sky node with a renderer is under the `geometry` of at least one Map Variant.
 - A renderer's `reflection_probes` is Unity's reflection probe usage. A renderer that is `off` takes only its Map Variant's own reflection (its `texture`, or none), never a probe (ADR 0026).
-- A Sky's cubemap, a reflection's texture and every probe's texture are EXRs. A reflection's texture is null only where the game holds no cubemap for its source. A Grade's `lut` is a `linear` PNG of 1024 × 32.
+- A Sky's cubemap, a reflection's texture and every probe's texture are EXRs. A reflection's texture is null only where the game holds no cubemap for its source. A Grade's `lut` is a `linear` PNG of 1024 × 32, and so is its `blend`'s.
+- A Grade's `blend` mixes a second LUT's result into the first's: `(1 − amount) · lut(c) + amount · blend(c)`, both looked up as the AmplifyColor LUT section says. It is left out where the amount is 0.
 
 ### Candidates and Placements
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.6/variants.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.7/variants.schema.json",
   "title": "variants.json",
   "description": "The Map Variants: one per distinct lighting state, each covering the Times of Day that light the Map the same (ADR 0009).",
   "type": "object",
@@ -312,6 +312,19 @@
         "layout": {
           "description": "amplify_32x32: 1024 × 32, defined in the rule text.",
           "const": "amplify_32x32"
+        },
+        "blend": {
+          "description": "A second LUT of the same layout, and how much of its result is mixed into the first's (KKS's BlendAmount).",
+          "type": "object",
+          "properties": {
+            "lut": {
+              "description": "A linear PNG.",
+              "$ref": "common.schema.json#/$defs/hash"
+            },
+            "amount": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "required": ["lut", "amount"],
+          "additionalProperties": false
         }
       },
       "required": ["kind", "lut", "layout"],

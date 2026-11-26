@@ -280,6 +280,12 @@ class _Context:
             if v["grade"]:
                 self.texture_of("variants", f"{where}: Grade LUT", v["grade"]["lut"], fmt="png",
                                 color_space="linear", size=(1024, 32))
+                blend = v["grade"].get("blend")
+                if blend:
+                    self.texture_of("variants", f"{where}: Grade blend LUT", blend["lut"], fmt="png",
+                                    color_space="linear", size=(1024, 32))
+                    if blend["amount"] == 0:
+                        self.add("variants", f"{where}: a Grade blend of amount 0 should be left out")
         for tod in times:
             if covered[tod] != 1:
                 self.add("variants", f"{tod} is covered by {covered[tod]} Map Variants; it should be by exactly one")

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.6/sets/map-list.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.7/sets/map-list.schema.json",
   "title": "Map list",
   "description": "The game list a Map is entered in: the story and free mode list, or Studio's.",
   "type": "string",

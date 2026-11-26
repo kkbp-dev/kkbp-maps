@@ -68,7 +68,7 @@ def test_without_manifest_it_is_unfinished(bundle):
 
 def test_another_schema_version_is_refused(bundle):
     edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.1"))
-    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.6 "
+    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.7 "
                                    "(ADR 0014), so extract the Map again"]
 
 
@@ -388,6 +388,24 @@ def test_each_time_of_day_in_one_variant(bundle):
 def test_no_time_of_day_twice(bundle):
     edit_json(bundle, "variants", lambda d: d["variants"][1].update(times_of_day=["day", "evening", "night"], id="day"))
     assert_problem(bundle, "day is covered by 2 Map Variants")
+
+
+def test_a_grade_can_blend_a_second_lut(bundle):
+    lut_day = texture_id(bundle, "Lut_Amount")
+    edit_json(bundle, "variants", lambda d: d["variants"][1]["grade"].update(blend={"lut": lut_day, "amount": 0.5}))
+    assert problems_of(bundle) == []
+
+
+def test_a_grade_blend_lut_is_a_lut(bundle):
+    sky = texture_id(bundle, "mt_koi_sky_hiru00")
+    edit_json(bundle, "variants", lambda d: d["variants"][1]["grade"].update(blend={"lut": sky, "amount": 0.5}))
+    assert_problem(bundle, "Grade blend LUT names texture")
+
+
+def test_a_grade_blend_of_nothing_is_left_out(bundle):
+    lut_day = texture_id(bundle, "Lut_Amount")
+    edit_json(bundle, "variants", lambda d: d["variants"][1]["grade"].update(blend={"lut": lut_day, "amount": 0.0}))
+    assert_problem(bundle, "a Grade blend of amount 0 should be left out")
 
 
 def test_variant_id_is_its_first_time_of_day(bundle):

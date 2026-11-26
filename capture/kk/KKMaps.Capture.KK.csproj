@@ -26,6 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- What every Game's plugin shares: the request, frames, dumps and JSON (capture/core); the hosts are KK's own. -->
+    <Compile Include="../core/src/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <GameAssembly Include="Koikatsu/BepinEx/core/BepInEx.dll" />
     <GameAssembly Include="Koikatsu/BepinEx/plugins/KKAPI.dll" />
     <GameAssembly Include="$(Managed)/Assembly-CSharp.dll" />

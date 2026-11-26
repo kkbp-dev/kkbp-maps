@@ -276,8 +276,9 @@ def _texture(bundle, m, raw):
 
 
 def _sample(g, bundle, m, raw, images, uv, tiling_of=None):
-    """A texture slot's sample; with `tiling_of`, at another slot's scale and offset (Unity's Standard
-    samples the detail normal map with _DetailAlbedoMap_ST)."""
+    """A texture slot's sample; with `tiling_of`, at another slot's scale and offset: Unity's Standard samples
+    its normal, metallic, occlusion, emission and detail-mask maps with _MainTex_ST, whatever their own
+    tiling, and its detail normal map with _DetailAlbedoMap_ST."""
     slot = _texture(bundle, m, raw)
     if slot is None:
         return None
@@ -316,14 +317,14 @@ def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
     if "_DETAIL_MULX2" in kw:
         uv_detail = _uv(g, UV1) if fl.get("_UVSec", 0.0) >= 0.5 else uv
         detail = _sample(g, bundle, m, "_DetailAlbedoMap", images, uv_detail)
-        mask_tex = _sample(g, bundle, m, "_DetailMask", images, uv)
+        mask_tex = _sample(g, bundle, m, "_DetailMask", images, uv, tiling_of="_MainTex")
         mask = (mask_tex, "Alpha") if mask_tex is not None else 1.0
         if detail is not None:
             doubled = g.mix(1.0, (detail, "Color"), (COLOR_SPACE_DOUBLE,) * 3 + (1.0,), blend_type="MULTIPLY")
             factor = g.mix(mask, (1.0, 1.0, 1.0, 1.0), doubled)
             albedo = g.mix(1.0, albedo, factor, blend_type="MULTIPLY")
 
-    gloss_map = _sample(g, bundle, m, "_MetallicGlossMap", images, uv) if "_METALLICGLOSSMAP" in kw else None
+    gloss_map = _sample(g, bundle, m, "_MetallicGlossMap", images, uv, tiling_of="_MainTex") if "_METALLICGLOSSMAP" in kw else None
     if gloss_map is not None:
         metallic = (g.node("ShaderNodeSeparateColor", Color=(gloss_map, "Color")), "Red")
         source = (main, "Alpha") if smooth_from_albedo and main is not None else (gloss_map, "Alpha")
@@ -336,7 +337,7 @@ def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
             smoothness = g.value(fl.get("_Glossiness", 0.5))
 
     normal = (g.node("ShaderNodeNewGeometry"), "Normal")
-    bump = _sample(g, bundle, m, "_BumpMap", images, uv) if "_NORMALMAP" in kw else None
+    bump = _sample(g, bundle, m, "_BumpMap", images, uv, tiling_of="_MainTex") if "_NORMALMAP" in kw else None
     detail_bump = None
     if "_DETAIL_MULX2" in kw:
         uv_detail = _uv(g, UV1) if fl.get("_UVSec", 0.0) >= 0.5 else uv
@@ -344,7 +345,7 @@ def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
     if bump is not None or detail_bump is not None:
         tangent = _tangent_normal(g, bump, fl.get("_BumpScale", 1.0))
         if detail_bump is not None:
-            mask_tex = _sample(g, bundle, m, "_DetailMask", images, uv)
+            mask_tex = _sample(g, bundle, m, "_DetailMask", images, uv, tiling_of="_MainTex")
             detail_t = _tangent_normal(g, detail_bump, fl.get("_DetailNormalMapScale", 1.0))
             if mask_tex is not None:
                 detail_t = g.mix((mask_tex, "Alpha"), (0.0, 0.0, 1.0), detail_t, data_type="VECTOR")
@@ -353,7 +354,7 @@ def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
         normal = (g.node("ShaderNodeNormalMap", uv_map=UV0, Color=encoded), "Normal")
 
     occlusion = 1.0
-    occ = _sample(g, bundle, m, "_OcclusionMap", images, uv)
+    occ = _sample(g, bundle, m, "_OcclusionMap", images, uv, tiling_of="_MainTex")
     if occ is not None:
         green = (g.node("ShaderNodeSeparateColor", Color=(occ, "Color")), "Green")
         occlusion = g.math("MULTIPLY_ADD", g.math("SUBTRACT", green, 1.0), fl.get("_OcclusionStrength", 1.0), 1.0)
@@ -362,7 +363,7 @@ def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
     if "_EMISSION" in kw:
         e = co.get("_EmissionColor", [0.0, 0.0, 0.0, 1.0])
         emission = g.rgb(linear_rgb(e))
-        etex = _sample(g, bundle, m, "_EmissionMap", images, uv)
+        etex = _sample(g, bundle, m, "_EmissionMap", images, uv, tiling_of="_MainTex")
         if etex is not None:
             emission = g.mix(1.0, emission, (etex, "Color"), blend_type="MULTIPLY")
 

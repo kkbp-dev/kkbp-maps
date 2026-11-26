@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.12/scene.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.13/scene.schema.json",
   "title": "scene.json",
   "description": "The Map's nodes, Helpers left out, in walk order: a node's id is its position in the list, and its parent comes before it.",
   "type": "object",

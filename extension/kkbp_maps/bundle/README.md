@@ -14,11 +14,11 @@ The contract between the Extractor and the Builder: the JSON Schemas in `schema/
 | `variants.json` | `variants.schema.json` |
 | `assets.json` | `assets.schema.json` |
 
-Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.12/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
+Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.13/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
 
 ## Schema Version
 
-`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.12`.
+`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.13`.
 
 ## Conventions
 
@@ -96,10 +96,11 @@ A Grade may carry a `blend`: a second LUT of the same layout and an amount. The 
 - `attributes` start with `position` and `normal`. `uv0_zw` needs `uv0` and `uv1_zw` needs `uv1`.
 - The mesh file is exactly as long as its record says: `4 · vertices ·` the sum of each attribute's floats (position, normal 3; color0, uv2, uv3 4; uv0, uv0_zw, uv1, uv1_zw 2) bytes of attributes, then `4 ·` the sum of `index_counts` bytes of indices. Every index count is a multiple of 3.
 - Deep check only: the file's hash is the mesh's `id`, and every index is below `vertices`.
-- A `batched` mesh was split out of a static batch (ADR 0034). Two meshes **match** when one of them is `batched`, they have the same vertex count, attributes, `uv0` and indices exactly, and every position and normal component lies within 1e-4 of the other's. The Extractor gives every batched mesh that matches an earlier mesh of the same Map that mesh, so no two meshes of a bundle match; the Builder treats matching meshes of different Maps as one.
+- A `batched` mesh was split out of a static batch (ADR 0034). Two meshes **match** when one of them is `batched`, they have the same vertex count, attributes, `uv0` and indices exactly, every position component within 1e-4 m of the other's, and every normal component within 1e-3. The Extractor gives every batched mesh that matches an earlier mesh of the same Map that mesh, so no two meshes of a bundle match; the Builder treats matching meshes of different Maps as one.
 
 ### Textures
 
+- A `realtime_probe` is a reflection probe the game renders when the Map loads (or every frame), which no file holds; it is left out, and its renderers take their Map Variant's own reflection (ADR 0036).
 - Each texture's file exists, its PNG or EXR header gives the record's width and height, and an EXR is `linear`, half float, ZIP-compressed. A PNG is 8-bit grey, grey and alpha, RGB or RGBA, not interlaced.
 
 ### Materials

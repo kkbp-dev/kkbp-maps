@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.12/lightmaps.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.13/lightmaps.schema.json",
   "title": "lightmaps.json",
   "description": "The Lightmap Sets: the baked light of one or more Map Variants, with the lightmap each renderer uses as the Extractor resolved it.",
   "type": "object",

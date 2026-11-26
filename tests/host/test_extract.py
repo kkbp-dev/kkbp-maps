@@ -403,8 +403,18 @@ def test_a_probe_that_was_never_baked_is_left_out(install, tmp_path):
     assert all(v["reflection"]["probes"] == [] for v in load(out, "variants")["variants"])
 
 
-def test_a_realtime_probe_still_stops(install, tmp_path):
+def test_a_realtime_probe_is_left_out_and_counted(install, tmp_path):
+    """ADR 0036: KKS's outdoor Maps render their probes when they load."""
     scene, _ = build_scene()
     _probe(scene, 1, 0)
-    with pytest.raises(Unsupported, match="no baked cubemap"):
-        extract(install, tmp_path, scene)
+    out = extract(install, tmp_path, scene)
+    assert all(v["reflection"]["probes"] == [] for v in load(out, "variants")["variants"])
+    assert {s["reason"]: s["count"] for s in load(out, "map")["skipped"]}["realtime_probe"] == 1
+
+
+def test_a_custom_probe_without_its_cubemap_is_left_out(install, tmp_path):
+    """ADR 0036: fittingroom's custom probe has an empty slot."""
+    scene, _ = build_scene()
+    _probe(scene, 2, 0)
+    out = extract(install, tmp_path, scene)
+    assert all(v["reflection"]["probes"] == [] for v in load(out, "variants")["variants"])

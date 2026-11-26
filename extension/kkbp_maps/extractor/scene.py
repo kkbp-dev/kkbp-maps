@@ -389,6 +389,12 @@ def walk(graph: Graph, mesh_readable) -> Walk:
     animating = sum(1 for n in kept if "Animator" in n.obj.components or "Animation" in n.obj.components)
     if animating:
         census.add("animated", animating)
+    for ref in graph.store.refs("ReflectionProbe"):   # rendered at run time, so no file holds them (ADR 0036)
+        t = graph.store.tree(ref)
+        obj = graph.obj_of(ref)
+        if (t.get("m_Mode") == 1 and t.get("m_Enabled", 1) and obj is not None
+                and any(graph.world_active(obj, tod) for tod in tods)):
+            census.add("realtime_probe")
 
     hidden: dict[str, list[int]] = {}
     for tod in tods:

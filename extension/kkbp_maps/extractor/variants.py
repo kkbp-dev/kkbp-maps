@@ -169,11 +169,11 @@ def _reflection(graph: Graph, rs_ref, rs, tod: str, textures: Textures) -> dict:
         obj = graph.obj_of(ref)
         if obj is None or not t.get("m_Enabled", 1) or not graph.world_active(obj, tod):
             continue
+        if t.get("m_Mode") == PROBE_REALTIME:
+            continue  # rendered by the game at run time: left out and counted (ADR 0036, Walk.census)
         baked = store.resolve(ref, t.get("m_CustomBakedTexture" if t.get("m_Mode") == PROBE_CUSTOM else "m_BakedTexture"))
-        if t.get("m_Mode") == PROBE_BAKED and baked is None:
-            continue  # never baked: Unity draws nothing from it, and its renderers take the Map's reflection (ADR 0023)
-        if t.get("m_Mode") == PROBE_REALTIME or baked is None:
-            raise Unsupported(f"reflection probe {obj.name} has no baked cubemap")
+        if baked is None or not store.is_loaded(baked):
+            continue  # never baked, or a custom slot left empty: Unity draws nothing from it (ADR 0023, 0036)
         m = graph.world_matrix(obj)
         lossy = [float((m[:3, i] ** 2).sum() ** 0.5) for i in range(3)]
         off, size = t["m_BoxOffset"], t["m_BoxSize"]

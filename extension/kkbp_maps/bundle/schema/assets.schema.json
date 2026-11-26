@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.12/assets.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.13/assets.schema.json",
   "title": "assets.json",
   "description": "The Prop and Structure Candidates the Extractor proposes, each with its Placements. The Builder applies the Name Tables' overrides.",
   "type": "object",

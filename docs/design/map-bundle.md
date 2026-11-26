@@ -34,7 +34,7 @@ Nothing else is in the folder. The Builder's own cache lives elsewhere.
 - **The Sky** of a Map Variant is its Sky Dome's cubemap (or the skybox where there is no dome) as an equirectangular EXR at rotation 0, with tint, exposure and rotation as values, and the dome's clouds or stars as nodes flagged `sky` (D7).
 - **The Grade** names its LUT and layout. The settings of the camera it runs behind aren't in the bundle: `map.json` names a Camera Profile (`game` or `studio`), and the Builder finds that profile in the repository's Game data (ADR 0010).
 - **Lightmap Sets** are a list, so a Map can have several. Each lists its lightmaps (the colour decoded from RGBM into linear EXR, D21; the direction re-encoded in Blender's world axes) and, per renderer, the lightmap index, scale-offset and UV set.
-- **Version.** `0.12`, accepted only as an exact match until the first release (ADR 0014).
+- **Version.** `0.13`, accepted only as an exact match until the first release (ADR 0014).
 - **No Game Extensions.** Everything KK needs can be said without Game-specific fields. Later Games add set values and optional fields to the shared core.
 
 ## Later Games
@@ -53,6 +53,7 @@ Where each would go, without designing it here. Each is a Schema Version change.
 | SpeedTree | `color0`, `uv0_zw`, `uv1_zw`, `uv2` and `uv3` in the mesh attributes, `winds` in scene.json named by a renderer's `wind`, and a node's `wind_zone` (0.10) |
 | KKS's shared dependency bundles | more `sources` in the Manifest |
 | Light probes | an optional list in a Map Variant |
+| KKS's realtime reflection probes | left out, counted as `realtime_probe` (0.13, ADR 0036) |
 | KKS's per-Time-of-Day camera fog and sun shaft settings | an optional `camera` on the fog, optional settings on `sun_shafts` (0.9) |
 
 ## The checker

@@ -151,6 +151,13 @@ namespace KKMaps.Capture
                     string cameraPath = Path.Combine(folder, "camera.json");   // this Time of Day's fog and sun shafts
                     File.WriteAllText(cameraPath, Json.Write(Dump.Camera(cam)));
                     files.Add(cameraPath);
+                    var globals = List(request, "globals").Cast<string>().ToList();
+                    if (globals.Count > 0)   // the shader globals the game has set, such as Koikano's
+                    {
+                        string globalsPath = Path.Combine(folder, "globals.json");
+                        File.WriteAllText(globalsPath, Json.Write(Dump.Globals(globals)));
+                        files.Add(globalsPath);
+                    }
                     Write("running", null);
                     if (!takeFrames) continue;
 

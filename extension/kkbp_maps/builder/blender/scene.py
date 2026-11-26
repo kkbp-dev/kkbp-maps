@@ -20,7 +20,7 @@ from mathutils import Matrix, Quaternion, Vector
 
 from .. import shaders
 from ..games import light_convention
-from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, passes
+from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, koikano_tint, passes
 from . import materials as mats
 from . import sky as skystudio
 from .meshes import Meshes
@@ -188,9 +188,12 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
         light = mats.variant_light(b, as_shown, vp.name, fb.images, grade)
         variant_mats: dict[str, bpy.types.Material] = {}
 
-        def material_for(material_id, vname=vp.name, light=light, variant_mats=variant_mats):
+        tint = koikano_tint(plan.game, v)
+
+        def material_for(material_id, vname=vp.name, light=light, variant_mats=variant_mats, tint=tint):
             if material_id not in variant_mats:
-                variant_mats[material_id] = mats.variant_material(b, material_id, vname, base_of(material_id), light)
+                variant_mats[material_id] = mats.variant_material(b, material_id, vname, base_of(material_id), light,
+                                                                  tint)
             return variant_mats[material_id]
 
         lm = {a["node"]: a for a in b.lightmap_sets[v["lightmap_set"]]["assignments"]} if v["lightmap_set"] else {}

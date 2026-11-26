@@ -239,8 +239,8 @@
     ],
     [
      "aa5a0c22ba87d862b230c622d7ad23c7",
-     "approximated",
-     "280b21c9a835f41f"
+     "rebuilt",
+     "db7fcbae349d0331"
     ],
     [
      "aa6fbfee2a91c245b4e2e2c0dfd2fd39",
@@ -254,8 +254,8 @@
     ],
     [
      "af3dec9eb6d1b559f6d34e171ad30717",
-     "approximated",
-     "dc4c25f5fa7d0f59"
+     "rebuilt",
+     "f22d2be42b446141"
     ],
     [
      "b000e8d4ecf7cf0f544de4b4c84e2ccf",
@@ -581,7 +581,7 @@
     }
    },
    "counts": {
-    "images": 85,
+    "images": 87,
     "materials": 65,
     "meshes": 88,
     "node_groups": 67,
@@ -660,6 +660,11 @@
     {
      "colorspace": "sRGB",
      "name": "2ba544a1bc95fee87f1b805cf612ebcf",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "2c0e9cbd535f7dbc370dfb05f7c20bf0",
      "relative": true
     },
     {
@@ -780,6 +785,11 @@
     {
      "colorspace": "Non-Color",
      "name": "7dd2b7bc482582707881bb8dda66de5a",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "80b7ce4ac74b4fa13370711013459670",
      "relative": true
     },
     {
@@ -3054,8 +3064,8 @@
    "base_materials": [
     [
      "0260468418388bb035a3fa987d2db57d",
-     "approximated",
-     "b87bc0cec6f7e949"
+     "rebuilt",
+     "db3d46c2d25bda30"
     ],
     [
      "033d445078942b7c55f29be63d2d7c52",
@@ -3069,8 +3079,8 @@
     ],
     [
      "080dded29800e7e5f682a8517683b47f",
-     "approximated",
-     "1cfd82a71e4786af"
+     "rebuilt",
+     "11149df152307627"
     ],
     [
      "09ab0aa44a955dba5b9463726f15abae",
@@ -3114,8 +3124,8 @@
     ],
     [
      "20291fdea450d6dfb3f1dd4f84be875c",
-     "approximated",
-     "e55f80517a16d59d"
+     "rebuilt",
+     "f5ae63365078744d"
     ],
     [
      "21f0725343a1eaef5a106f871ecadcc4",
@@ -4918,7 +4928,7 @@
     }
    },
    "counts": {
-    "images": 145,
+    "images": 148,
     "materials": 379,
     "meshes": 149,
     "node_groups": 107,
@@ -5002,6 +5012,11 @@
     {
      "colorspace": "Non-Color",
      "name": "1ca4bff7c2537e1b8fad4906488e8aea",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "1ca993ba8f4e0254ab7a3946e9a44782",
      "relative": true
     },
     {
@@ -5112,6 +5127,11 @@
     {
      "colorspace": "sRGB",
      "name": "47924a73b944a2beae825ea57fc04edc",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "481a80d30c7875cd140c675e197a94b0",
      "relative": true
     },
     {
@@ -5447,6 +5467,11 @@
     {
      "colorspace": "sRGB",
      "name": "ac4e14b89f6d866d1ffb9246682dae62",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "af028c573f133eb9284ac06ae6d54220",
      "relative": true
     },
     {
@@ -7695,8 +7720,8 @@
     ],
     [
      "0260468418388bb035a3fa987d2db57d",
-     "approximated",
-     "b87bc0cec6f7e949"
+     "rebuilt",
+     "db3d46c2d25bda30"
     ],
     [
      "05602dff07854fa787de4ba5f16c1af1",
@@ -7705,8 +7730,8 @@
     ],
     [
      "080dded29800e7e5f682a8517683b47f",
-     "approximated",
-     "1cfd82a71e4786af"
+     "rebuilt",
+     "11149df152307627"
     ],
     [
      "09ab0aa44a955dba5b9463726f15abae",
@@ -7770,8 +7795,8 @@
     ],
     [
      "20291fdea450d6dfb3f1dd4f84be875c",
-     "approximated",
-     "e55f80517a16d59d"
+     "rebuilt",
+     "f5ae63365078744d"
     ],
     [
      "21f0725343a1eaef5a106f871ecadcc4",
@@ -8035,8 +8060,8 @@
     ],
     [
      "aa5a0c22ba87d862b230c622d7ad23c7",
-     "approximated",
-     "280b21c9a835f41f"
+     "rebuilt",
+     "db7fcbae349d0331"
     ],
     [
      "aa6fbfee2a91c245b4e2e2c0dfd2fd39",
@@ -8050,8 +8075,8 @@
     ],
     [
      "af3dec9eb6d1b559f6d34e171ad30717",
-     "approximated",
-     "dc4c25f5fa7d0f59"
+     "rebuilt",
+     "f22d2be42b446141"
     ],
     [
      "af5f28e1dac4a8439712a3240990d57e",
@@ -10229,7 +10254,7 @@
     }
    },
    "counts": {
-    "images": 143,
+    "images": 148,
     "materials": 111,
     "meshes": 135,
     "node_groups": 112,
@@ -10306,6 +10331,11 @@
     },
     {
      "colorspace": "Non-Color",
+     "name": "1ca993ba8f4e0254ab7a3946e9a44782",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
      "name": "1ec8e1825185a74ba77b7f84372f2206",
      "relative": true
     },
@@ -10337,6 +10367,11 @@
     {
      "colorspace": "sRGB",
      "name": "2ba544a1bc95fee87f1b805cf612ebcf",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "2c0e9cbd535f7dbc370dfb05f7c20bf0",
      "relative": true
     },
     {
@@ -10407,6 +10442,11 @@
     {
      "colorspace": "sRGB",
      "name": "47924a73b944a2beae825ea57fc04edc",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "481a80d30c7875cd140c675e197a94b0",
      "relative": true
     },
     {
@@ -10570,6 +10610,11 @@
      "relative": true
     },
     {
+     "colorspace": "Non-Color",
+     "name": "80b7ce4ac74b4fa13370711013459670",
+     "relative": true
+    },
+    {
      "colorspace": "sRGB",
      "name": "836f4c35579baf6afad0ec24216cab38",
      "relative": true
@@ -10722,6 +10767,11 @@
     {
      "colorspace": "sRGB",
      "name": "ac4e14b89f6d866d1ffb9246682dae62",
+     "relative": true
+    },
+    {
+     "colorspace": "Non-Color",
+     "name": "af028c573f133eb9284ac06ae6d54220",
      "relative": true
     },
     {
@@ -15781,13 +15831,6 @@
     "renderer_notes": [],
     "shader_tiers": [
      {
-      "draws": 9,
-      "level": "approximated",
-      "materials": 2,
-      "reason": "no Game Shader Model yet",
-      "shader": "Koikano/main_item_map"
-     },
-     {
       "draws": 1,
       "level": "approximated",
       "materials": 1,
@@ -15857,13 +15900,6 @@
     "placements": 415,
     "renderer_notes": [],
     "shader_tiers": [
-     {
-      "draws": 26,
-      "level": "approximated",
-      "materials": 3,
-      "reason": "no Game Shader Model yet",
-      "shader": "Koikano/main_item_map"
-     },
      {
       "draws": 4,
       "level": "approximated",

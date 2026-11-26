@@ -254,12 +254,15 @@ def base_material(bundle, material_id: str, images: Images) -> bpy.types.ShaderN
             return tree
     m = bundle.materials[material_id]
     tier = shaders.tier(m["shader"])
-    tree = new_group(f".KKM {m['name']} {material_id[:8]}", outputs=BASE_OUTPUTS)
+    inputs = [("Light Tint", "NodeSocketColor", (1.0, 1.0, 1.0, 1.0))] if tier.model == "koikano" else []
+    tree = new_group(f".KKM {m['name']} {material_id[:8]}", inputs=inputs, outputs=BASE_OUTPUTS)
     tree[PROP_HASH] = material_id
     tree["kkbp_maps_shader"] = m["shader"]
     tree["kkbp_maps_tier"] = tier.level
-    g, _, out = io(tree)
-    if tier.model == "unlit":
+    g, tree_in, out = io(tree)
+    if tier.model == "koikano":
+        _koikano(g, out, tree_in, bundle, m, images)
+    elif tier.model == "unlit":
         _unlit(g, out, bundle, m, tier, images)
     elif tier.model == "water":
         _water(g, out, m, tier)
@@ -372,6 +375,52 @@ def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
     for key, value in (("Alpha", alpha), ("Albedo", albedo), ("Metallic", metallic), ("Smoothness", smoothness),
                        ("Occlusion", occlusion), ("Normal", normal),
                        ("Reflections", 0.0 if "_GLOSSYREFLECTIONS_OFF" in kw else 1.0)):
+        g.set(out, key, value)
+
+
+def _koikano(g: Graph, out, tree_in, bundle, m, images):
+    """Koikano/main_item_map as KKS's globals leave it (games.KOIKANO, transcribed from its ForwardBase
+    program): the colour mask's mix of _Color to _Color4 over the main texture, times the Map Variant's
+    light tint (the group's input, plan.koikano_tint), lit as Unity's Standard with metallic 0 and
+    smoothness 0, with its DXT5nm _NormalMap; alpha-tested at _Cutoff."""
+    co, fl = m["colors"], m["floats"]
+    uv = _uv(g)
+    main = _sample(g, bundle, m, "_MainTex", images, uv)
+    mask = _sample(g, bundle, m, "_ColorMask", images, uv)   # unset: black, so _Color4 alone
+
+    def col(name):
+        return g.rgb(linear_rgb(co.get(name, [1.0, 1.0, 1.0, 1.0])))
+    if mask is not None:
+        ch = g.node("ShaderNodeSeparateColor", Color=(mask, "Color"))
+        r, gg, b = (ch, "Red"), (ch, "Green"), (ch, "Blue")
+        c = g.mix(r, g.rgb((1.0, 1.0, 1.0)), col("_Color"))
+        c = g.mix(gg, c, col("_Color2"))
+        c = g.mix(b, c, col("_Color3"))
+        rest = g.math("SUBTRACT", 1.0, g.math("MAXIMUM", g.math("MAXIMUM", r, gg), b))
+        colors = g.mix(rest, c, col("_Color4"))
+    else:
+        colors = col("_Color4")
+    albedo = colors if main is None else g.mix(1.0, (main, "Color"), colors, blend_type="MULTIPLY")
+    albedo = g.mix(1.0, albedo, (tree_in, "Light Tint"), blend_type="MULTIPLY")
+    alpha = g.math("GREATER_THAN", (main, "Alpha") if main is not None else 1.0, fl.get("_Cutoff", 0.5) - 1e-6)
+
+    normal = (g.node("ShaderNodeNewGeometry"), "Normal")
+    nm = _sample(g, bundle, m, "_NormalMap", images, uv)
+    if nm is not None:   # DXT5nm: x from R · A, y from G; scaled by _BumpScale
+        ch = g.node("ShaderNodeSeparateColor", Color=(nm, "Color"))
+        scale = fl.get("_BumpScale", 1.0)
+        x = g.math("MULTIPLY", g.math("MULTIPLY_ADD", g.math("MULTIPLY", (ch, "Red"), (nm, "Alpha")), 2.0, -1.0), scale)
+        y = g.math("MULTIPLY", g.math("MULTIPLY_ADD", (ch, "Green"), 2.0, -1.0), scale)
+        z = g.math("SQRT", g.math("MAXIMUM", g.math("SUBTRACT", 1.0, g.math("ADD", g.math("MULTIPLY", x, x),
+                                                                              g.math("MULTIPLY", y, y))), 0.0))
+        tangent = g.node("ShaderNodeCombineXYZ", X=x, Y=y, Z=z)
+        encoded = g.vmath("MULTIPLY_ADD", (tangent, "Vector"), (0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        normal = (g.node("ShaderNodeNormalMap", uv_map=UV0, Color=encoded), "Normal")
+    bsdf = g.node("ShaderNodeBsdfPrincipled", **{"Base Color": albedo, "Metallic": 0.0, "Roughness": 1.0,
+                                                  "Normal": normal, "Specular IOR Level": 0.5})
+    g.link(bsdf, (out, "BSDF"))
+    for key, value in (("Alpha", alpha), ("Albedo", albedo), ("Metallic", 0.0), ("Smoothness", 0.0),
+                       ("Occlusion", 1.0), ("Normal", normal), ("Reflections", 1.0)):
         g.set(out, key, value)
 
 
@@ -676,8 +725,9 @@ def _finish(mat, m: dict, tier):
     mat[PROP_HASH] = m["id"]
 
 
-def variant_material(bundle, material_id: str, variant_name: str, base, light) -> bpy.types.Material:
-    """The Variant Material of a Base Material in a Map Variant (ADR 0002, 0008, 0020)."""
+def variant_material(bundle, material_id: str, variant_name: str, base, light, tint=None) -> bpy.types.Material:
+    """The Variant Material of a Base Material in a Map Variant (ADR 0002, 0008, 0020). `tint` is the
+    Map Variant's light tint, for a Base Material that takes one (Koikano's)."""
     m = bundle.materials[material_id]
     tier = shaders.tier(m["shader"])
     mat = bpy.data.materials.new(f"{m['name']}, {variant_name}")
@@ -685,6 +735,8 @@ def variant_material(bundle, material_id: str, variant_name: str, base, light) -
     mat.node_tree.nodes.clear()
     g = Graph(mat.node_tree)
     b = g.group(base)
+    if tint is not None and "Light Tint" in b.inputs:
+        b.inputs["Light Tint"].default_value = (*tint, 1.0)
     rgb = g.node("ShaderNodeShaderToRGB", Shader=(b, "BSDF"))
     additive = 1.0 if m["blend_mode"] == "additive" else 0.0
     lit = g.group(light, Direct=(rgb, "Color"), Albedo=(b, "Albedo"), Metallic=(b, "Metallic"),

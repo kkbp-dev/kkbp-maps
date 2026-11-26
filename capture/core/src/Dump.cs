@@ -78,6 +78,30 @@ namespace KKMaps.Capture
             return p;
         }
 
+        /// <summary>
+        /// Shader globals by name, as the game has set them: each as a float, a colour, a vector and, where a
+        /// texture is set, its name and size (KKS's character-system globals that Koikano's map shader reads).
+        /// </summary>
+        public static Dictionary<string, object> Globals(IEnumerable<string> names)
+        {
+            var out_ = new Dictionary<string, object>();
+            foreach (string name in names)
+            {
+                var entry = new Dictionary<string, object>
+                {
+                    { "float", (double)Shader.GetGlobalFloat(name) }, { "color", Value(Shader.GetGlobalColor(name)) },
+                    { "vector", Value(Shader.GetGlobalVector(name)) },
+                };
+                Texture t = Shader.GetGlobalTexture(name);
+                if (t != null)
+                {
+                    entry["texture"] = new Dictionary<string, object> { { "name", t.name }, { "width", t.width }, { "height", t.height } };
+                }
+                out_[name] = entry;
+            }
+            return out_;
+        }
+
         public static Dictionary<string, object> Camera(Camera cam)
         {
             var components = new List<object>();

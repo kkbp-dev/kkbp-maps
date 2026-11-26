@@ -88,6 +88,25 @@ LIGHTS: dict[str, GameLight] = {
 }
 
 
+@dataclass(frozen=True)
+class KoikanoGlobals:
+    """The shader globals KKS's character system sets and Koikano's map shader reads (ChaShader), as the
+    capture plugin read them from the running story game (tools/capture.py --globals; the same at every
+    Map Variant). With _KanoVerShift 0 the shader's toon terms cancel for materials without line, detail
+    or specular masks, and its albedo is the texture times saturate(0.6 · light + 0.4), mixed towards
+    max(0.6 · light + 0.4, ambient_shadow) by the ramp's corner texel (builder/blender/materials.py)."""
+    kano_ver_shift: float
+    ambient_shadow: tuple[float, float, float, float]   # _ambientshadowG
+    ramp_corner: float                                   # gt_ramp_00 (the _RampG global) at uv (0, 0), red
+
+
+# Captured 2026-11-26 in KKS's story game (globals.json): _RampG is gt_ramp_00 (chara/mt_ramp_00), black at
+# its corner; _ambientshadowG (0.019, 0.027, 0.039, 0.26); _KanoVerShift 0; _LineColorG (0.5, 0.5, 0.5, 0).
+KOIKANO: dict[str, KoikanoGlobals] = {
+    "KKS": KoikanoGlobals(kano_ver_shift=0.0, ambient_shadow=(0.019, 0.027, 0.039, 0.26), ramp_corner=0.0),
+}
+
+
 def camera_profile(game: str, camera: str) -> CameraProfile:
     return CAMERA_PROFILES[game][camera]
 

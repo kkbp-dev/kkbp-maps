@@ -234,3 +234,16 @@ def test_batched_copies_in_another_map_are_the_same_prop(tmp_path):
     p = plan_library([a, b], TABLES)
     vase = next(x for x in p.assets.values() if x.name == "Vase 00")
     assert vase.maps == ["map/scene/a", "map/scene/b"] and vase.source[0] == "map/scene/a"
+
+
+def test_koikano_tint_follows_the_brightest_directional_light():
+    from kkbp_maps.builder.plan import koikano_tint
+    sun = {"type": "directional", "mode": "realtime", "color": [1.0, 1.0, 1.0, 1.0], "intensity": 0.5}
+    fill = {"type": "directional", "mode": "realtime", "color": [1.0, 0.0, 0.0, 1.0], "intensity": 0.1}
+    point = {"type": "point", "mode": "mixed", "color": [1.0, 1.0, 1.0, 1.0], "intensity": 9.0}
+    lin = ((0.5 + 0.055) / 1.055) ** 2.4
+    assert koikano_tint("KKS", {"lights": [fill, sun, point]}) == pytest.approx((0.6 * lin + 0.4,) * 3)
+    bright = dict(sun, intensity=2.0)
+    assert koikano_tint("KKS", {"lights": [bright]}) == (1.0, 1.0, 1.0)     # saturated; the ramp corner is 0
+    assert koikano_tint("KKS", {"lights": []}) == pytest.approx((0.4, 0.4, 0.4))
+    assert koikano_tint("KK", {"lights": [sun]}) == (1.0, 1.0, 1.0)         # no Koikano in KK

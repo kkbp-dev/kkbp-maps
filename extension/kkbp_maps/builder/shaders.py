@@ -88,7 +88,8 @@ TIERS: dict[str, Tier] = {
     # KKS (kks-spike.md, section 9).
     "Nature/SpeedTree": Tier("standard", APPROXIMATED, "hue variation and wind aren't drawn",
                              cutout_keywords=("GEOM_TYPE_LEAF", "GEOM_TYPE_FROND")),
-    "Koikano/main_item_map": _standard(APPROXIMATED, "no Game Shader Model yet"),
+    # Koikano's map shader as the game's globals leave it (games.KOIKANO); always alpha-tested at _Cutoff.
+    "Koikano/main_item_map": Tier("koikano", REBUILT, blend="cutout"),
     "Koikano/sub_texture_cutout": _standard(APPROXIMATED, "Koikano drawn as Standard"),
     "Koikano/sub_texture_subblendcutout": _standard(APPROXIMATED, "Koikano drawn as Standard"),
     "Koikano/sub_add_cullfront": _standard(APPROXIMATED, "Koikano drawn as Standard"),

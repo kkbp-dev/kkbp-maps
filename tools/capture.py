@@ -275,6 +275,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--also-disable", action="append", metavar="EFFECT",
                     help="also switch off this camera effect, such as SunShafts; frames go to "
                          "captures/<Game>/[<profile>/]no-<EFFECT>/ (a measurement)")
+    ap.add_argument("--globals", nargs="+", metavar="NAME",
+                    help="take no frames: dump these shader globals per Map Variant (globals.json)")
     ap.add_argument("--sun-no-shadows", action="store_true",
                     help="the Map's sun casts no shadows; frames go to captures/<Game>/sun-no-shadows/ (a measurement)")
     args = ap.parse_args(argv)
@@ -304,8 +306,11 @@ def main(argv: list[str]) -> int:
         print("capture: KK's --seed takes Studio's own cameras; it needs --camera studio", file=sys.stderr)
         return 2
     look = json.loads(LOOK.read_text(encoding="utf-8"))
-    res = run(request(look, args.seed, args.map, args.lights, args.view, args.sun_off,
-                      args.sun_no_shadows, args.camera, args.also_disable), look, args.timeout)
+    req = request(look, args.seed, args.map, args.lights if args.lights is not None else ([] if args.globals else None),
+                  args.view, args.sun_off, args.sun_no_shadows, args.camera, args.also_disable)
+    if args.globals:
+        req["globals"] = args.globals
+    res = run(req, look, args.timeout)
     if res is None:
         print("capture: no result", file=sys.stderr)
         return 1

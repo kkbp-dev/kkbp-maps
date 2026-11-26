@@ -377,9 +377,43 @@ def renderer_notes(b: Bundle, node: dict, tiers) -> list[str]:
     return notes
 
 
+def koikano_tint(game: str, variant: dict) -> tuple[float, float, float]:
+    """The light tint Koikano's map shader gives its albedo in a Map Variant: saturate(0.6 · L + 0.4),
+    mixed towards max(0.6 · L + 0.4, the ambient shadow colour) by the ramp's corner (games.KOIKANO). L is
+    _LightColor0, the main directional light's colour as the shader receives it: the brightest directional
+    light of the Map Variant."""
+    from .games import KOIKANO, light_convention
+    k = KOIKANO.get(game)
+    if k is None:
+        return (1.0, 1.0, 1.0)
+
+    def linear(x):
+        return x / 12.92 if x <= 0.04045 else ((x + 0.055) / 1.055) ** 2.4
+    linear_intensity = light_convention(game).lights_use_linear_intensity
+    best = (0.0, 0.0, 0.0)
+    for light in variant["lights"]:
+        if light["type"] != "directional" or light["mode"] == "baked":
+            continue
+        c, i = light["color"][:3], light["intensity"]
+        rgb = tuple(linear(x) * i for x in c) if linear_intensity else tuple(linear(x * i) for x in c)
+        if sum(rgb) > sum(best):
+            best = rgb
+    out = []
+    for c in range(3):
+        raw = 0.6 * best[c] + 0.4
+        out.append((1 - k.ramp_corner) * min(max(raw, 0.0), 1.0) + k.ramp_corner * max(raw, k.ambient_shadow[c]))
+    return tuple(out)
+
+
 def material_notes(material: dict) -> list[str]:
-    """What a rebuilt Standard material loses, for the Build Report."""
+    """What a rebuilt material loses, for the Build Report."""
     t = shaders.tier(material["shader"])
+    if t.model == "koikano":
+        used = {x["raw"] for x in material["textures"]}
+        lost = sorted(used & {"_LineMask", "_DetailMask", "_AnimationMask"})
+        if lost or material["floats"].get("_SpecularPower", 0.0) > 0 or material["floats"].get("_EmissionPower", 0.0) > 0:
+            return ["Koikano's masks, specular and emission aren't drawn"]
+        return []
     if t.model != "standard":
         return []
     notes = []

@@ -54,6 +54,9 @@ class Game:
     builtin_resources: tuple[str, ...] = ("unity default resources", "unity_builtin_extra")
     # Lightmap RGBM decode: value = scale · a^exponent · srgb_to_linear(rgb) (kk-spike, section 3).
     rgbm: tuple[float, float] = (34.493242, 2.2)
+    # Folders under the asset folder whose bundles a Scene Bundle may point into by CAB name (KKS's
+    # shared materials, kks-spike.md section 6). KK's Scene Bundles are self-contained.
+    dependency_folders: tuple[str, ...] = ()
 
 
 KK = Game(
@@ -93,6 +96,11 @@ class Install:
     @property
     def assets(self) -> Path:
         return self.root / self.game.asset_folder
+
+    def cab_index(self) -> dict[str, Path]:
+        """The serialized files of the bundles a Scene Bundle may depend on, to their bundles."""
+        from .bundles import cab_index
+        return cab_index([self.assets / f for f in self.game.dependency_folders if (self.assets / f).is_dir()])
 
     def builtin_resources(self) -> tuple[Path, ...]:
         """The player's built-in resource files that this install has."""

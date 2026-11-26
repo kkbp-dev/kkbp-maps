@@ -84,3 +84,4 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0032 A missing Time of Day shows the Map's first info, and load-time scripts are Game data](../adr/0032-a-missing-time-of-day-shows-the-first-info.md)
 - [0033 KKS's room containers are found by their place under the Map root](../adr/0033-kks-room-containers-are-found-by-their-place.md)
 - [0034 Statically batched pieces match their originals within a tolerance](../adr/0034-batched-pieces-match-their-originals-within-a-tolerance.md)
+- [0035 Bundles are read a block at a time, and shared bundles are found by their CAB names](../adr/0035-bundles-are-read-a-block-at-a-time.md)

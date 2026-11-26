@@ -95,14 +95,30 @@ def unitypy():
 
 
 class UnityStore(Store):
-    def __init__(self, path: Path, builtin: tuple[Path, ...] = ()):
-        """A Scene Bundle and the bundles it names. `builtin` are the player's own resource files
+    def __init__(self, path: Path, builtin: tuple[Path, ...] = (), cabs: dict[str, Path] | None = None):
+        """A Scene Bundle and the bundles its files name. `builtin` are the player's own resource files
         (Game.builtin_resources, ADR 0031): their objects resolve and read like the bundle's, but
-        refs() never lists them, so nothing starts a walk from one."""
+        refs() never lists them, so nothing starts a walk from one. `cabs` maps the serialized files of
+        the Game's shared bundles to their bundles (bundles.cab_index): every one the Scene Bundle's
+        files name, and those they name in turn, is loaded too, and listed in `dependencies`. Bundles
+        are read a block at a time (bundles.py), so a shared bundle costs what a Map reads of it."""
         UnityPy = unitypy()  # here, so the rest of the Extractor imports without it
 
         self.path = Path(path)
-        self.env = UnityPy.load(str(self.path))
+        self.env = UnityPy.Environment()
+        self._blocks = []
+        self._mine = set(self._load_bundle(self.path))
+        self.dependencies: list[Path] = []
+        cabs = cabs or {}
+        while True:
+            present = {sf.name.lower() for sf in _serialized_files(self.env)}
+            wanted = sorted({cabs[e] for sf in _serialized_files(self.env) for e in _external_names(sf)
+                             if e not in present and e in cabs} - set(self.dependencies) - {self.path})
+            if not wanted:
+                break
+            for bundle in wanted:
+                self.dependencies.append(bundle)
+                self._load_bundle(bundle)
         self._objects: dict[Ref, object] = {}
         self._files: dict[str, object] = {}
         for sf in _serialized_files(self.env):
@@ -111,7 +127,8 @@ class UnityStore(Store):
                 self._objects[(sf.name, pid)] = obj
         self._by_type: dict[str, list[Ref]] = {}
         for ref, obj in self._objects.items():
-            self._by_type.setdefault(obj.type.name, []).append(ref)
+            if ref[0] in self._mine:   # only the Scene Bundle's own objects start a walk
+                self._by_type.setdefault(obj.type.name, []).append(ref)
         self._builtin_names = {Path(p).name.lower() for p in builtin}
         self._builtin_envs = []
         for p in builtin:
@@ -124,11 +141,34 @@ class UnityStore(Store):
                     self._objects[(name, pid)] = obj
         self._trees: dict[Ref, dict] = {}
 
+    def _load_bundle(self, path: Path) -> list[str]:
+        """Parses each file of a bundle into the environment as UnityPy's BundleFile would, but over a
+        lazy stream; returns the serialized files' names."""
+        from UnityPy.files import SerializedFile
+        from UnityPy.helpers import ImportHelper
+        from UnityPy.streams import EndianBinaryReader
+
+        from .bundles import Blocks
+
+        blocks = Blocks(path)
+        self._blocks.append(blocks)
+        names = []
+        for name, offset, size in blocks.nodes:
+            f = ImportHelper.parse_file(EndianBinaryReader(blocks.stream(offset, size)), self.env, name)
+            self.env.register_cab(name, f)
+            self.env.files[name] = f
+            if isinstance(f, SerializedFile):
+                names.append(f.name)
+        return names
+
     def close(self):
         self._trees.clear()
         self._objects.clear()
         self.env = None
         self._builtin_envs = []
+        for b in self._blocks:
+            b.close()
+        self._blocks = []
 
     def refs(self, type_name):
         return list(self._by_type.get(type_name, ()))
@@ -245,6 +285,11 @@ def _float_pixels(data: bytes, info: TextureData, flip: bool) -> np.ndarray:
     if channels == 2:
         a = np.concatenate([a, np.zeros_like(a[:, :, :1])], axis=2)
     return np.ascontiguousarray(a[::-1] if flip else a)
+
+
+def _external_names(sf) -> list[str]:
+    """The lower-cased file names a serialized file's external references point into."""
+    return [e.path.replace("\\", "/").rsplit("/", 1)[-1].lower() for e in sf.externals]
 
 
 def _serialized_files(env) -> Iterator:

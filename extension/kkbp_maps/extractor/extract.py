@@ -47,7 +47,8 @@ def extract_map(install: Install, m: MapSource, out, options: Options = Options(
     """Writes the Map Bundle of `m` under `out` and returns its folder; a fresh one is kept as it is."""
     target = bundle_path(out, install, m)
     sources = source_files(install, m)
-    if not force and is_fresh(target, install, sources, options):
+    hashes = SourceHashes(Path(out) / install.game.id / SourceHashes.FILE)
+    if not force and is_fresh(target, install, sources, options, hashes):
         log(f"{m.key}: fresh, kept")
         return target
     partial = target.with_name(target.name + ".partial")
@@ -58,14 +59,16 @@ def extract_map(install: Install, m: MapSource, out, options: Options = Options(
         from .unity import UnityStore
 
         def store_factory(path):
-            return UnityStore(path, builtin=install.builtin_resources())
+            return UnityStore(path, builtin=install.builtin_resources(), cabs=install.cab_index())
     store = store_factory(m.bundle)
     try:
-        write_bundle(install, m, store, partial, options, sources)
+        sources = sources + [p for p in getattr(store, "dependencies", []) if p not in sources]
+        write_bundle(install, m, store, partial, options, sources, hashes)
     finally:
         close = getattr(store, "close", None)
         if close:
             close()
+    hashes.save()
     problems = bundle.check(partial)
     if problems:
         raise BundleError(m.key, problems)
@@ -84,7 +87,8 @@ class BundleError(RuntimeError):
         super().__init__(f"{key}: the bundle breaks the contract:\n  {shown}{more}")
 
 
-def write_bundle(install: Install, m: MapSource, store, folder: Path, options: Options, sources: list[Path]):
+def write_bundle(install: Install, m: MapSource, store, folder: Path, options: Options, sources: list[Path],
+                 hashes: "SourceHashes | None" = None):
     game = install.game
     for ref in store.refs("LightProbes"):  # the bundle has no place for them yet (map-bundle.md, "Later Games")
         if store.tree(ref).get("m_Data", {}).get("m_Positions"):
@@ -129,7 +133,7 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
         "extracted_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "map": m.key,
         "options": options.record(),
-        "sources": [source_record(install, p) for p in sources],
+        "sources": [source_record(install, p, hashes) for p in sources],
         "contents": {
             "nodes": len(nodes), "meshes": len(meshes.records), "materials": len(materials.records),
             "textures": len(textures.records), "lightmap_sets": 1 if lm else 0, "variants": len(vs),
@@ -203,14 +207,51 @@ def skipped(counts: dict[str, int]) -> list[dict]:
 # --- sources and freshness -------------------------------------------------------------------------
 
 def source_files(install: Install, m: MapSource) -> list[Path]:
+    """The files a Map Bundle is made from that are known before its Scene Bundle is opened; the
+    shared bundles it depends on join them once it is (UnityStore.dependencies)."""
     files = [m.bundle] + sorted(m.list_files) + list(install.builtin_resources())
     if m.thumbnail is not None:
         files.append(install.assets / m.thumbnail.bundle)
     return files
 
 
-def source_record(install: Install, path: Path) -> dict:
-    return {"path": install.relative(path), "bytes": path.stat().st_size, "sha256": sha256(path)}
+def source_record(install: Install, path: Path, hashes: "SourceHashes | None" = None) -> dict:
+    return {"path": install.relative(path), "bytes": path.stat().st_size,
+            "sha256": hashes.sha256(path) if hashes else sha256(path)}
+
+
+class SourceHashes:
+    """The SHA-256 of each source file, kept in the Bundle Folder by path, size and modification time,
+    so a shared bundle of 1.7 GB isn't hashed again for every Map that depends on it."""
+    FILE = "source-hashes.json"
+
+    def __init__(self, path: Path):
+        self.path = Path(path)
+        try:
+            self.known = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            self.known = {}
+        self.changed = False
+
+    def sha256(self, path: Path) -> str:
+        st = path.stat()
+        key = str(Path(path).resolve())
+        k = self.known.get(key)
+        if k and k["bytes"] == st.st_size and k["mtime_ns"] == st.st_mtime_ns:
+            return k["sha256"]
+        digest = sha256(path)
+        self.known[key] = {"bytes": st.st_size, "mtime_ns": st.st_mtime_ns, "sha256": digest}
+        self.changed = True
+        return digest
+
+    def save(self):
+        if not self.changed:
+            return
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = self.path.with_name(self.path.name + ".partial")
+        tmp.write_text(json.dumps(self.known, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+        tmp.replace(self.path)
+        self.changed = False
 
 
 def sha256(path: Path) -> str:
@@ -221,7 +262,11 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def is_fresh(target: Path, install: Install, sources: list[Path], options: Options) -> bool:
+def is_fresh(target: Path, install: Install, sources: list[Path], options: Options,
+             hashes: SourceHashes | None = None) -> bool:
+    """A bundle is fresh when its Schema Version, Extractor version and options are today's, it names
+    every source known before extraction (`sources`) and perhaps more (the shared bundles found in its
+    Scene Bundle, which can't change while the Scene Bundle doesn't), and none of them has changed."""
     try:
         manifest = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -230,12 +275,16 @@ def is_fresh(target: Path, install: Install, sources: list[Path], options: Optio
             or manifest.get("extractor", {}).get("version") != VERSION):
         return False
     recorded = {s["path"]: s for s in manifest.get("sources", [])}
-    if set(recorded) != {install.relative(p) for p in sources}:
+    if not {install.relative(p) for p in sources} <= set(recorded):
         return False
-    for p in sources:
-        s = recorded[install.relative(p)]
-        if not p.is_file() or p.stat().st_size != s["bytes"] or sha256(p) != s["sha256"]:
+    for rel, s in recorded.items():
+        p = install.root / Path(*rel.split("/"))
+        if not p.is_file() or p.stat().st_size != s["bytes"]:
             return False
+        if (hashes.sha256(p) if hashes else sha256(p)) != s["sha256"]:
+            return False
+    if hashes:
+        hashes.save()
     return True
 
 

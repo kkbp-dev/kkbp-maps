@@ -20,7 +20,7 @@ from pathlib import Path
 
 from bundle import SCHEMA_VERSION, hashing
 
-ATTRIBUTE_FLOATS = {"position": 3, "normal": 3, "uv0": 2, "uv1": 2}
+from bundle.rules import FLOATS_PER_ATTRIBUTE as ATTRIBUTE_FLOATS  # noqa: E402
 IDENTITY = [1.0, 0.0, 0.0, 0.0]
 
 
@@ -110,6 +110,7 @@ class MapBundleBuilder:
         self.lightmap_sets: list[dict] = []
         self.variants: list[dict] = []
         self.candidates: list[dict] = []
+        self.winds: list[dict] = []
         self._default_map()
 
     # --- building blocks ---------------------------------------------------------------
@@ -315,7 +316,7 @@ class MapBundleBuilder:
 
         files = {
             "map": map_record,
-            "scene": {"nodes": nodes},
+            "scene": {"nodes": nodes, **({"winds": copy.deepcopy(self.winds)} if self.winds else {})},
             "meshes": {"meshes": mesh_records},
             "materials": {"materials": mat_records},
             "textures": {"textures": tex_records},

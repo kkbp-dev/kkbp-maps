@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.9/sets/camera.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.10/sets/camera.schema.json",
   "title": "Camera Profile",
   "description": "The game camera that shows a Map, whose settings are Game data (ADR 0010): the main game's or Studio's.",
   "type": "string",

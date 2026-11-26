@@ -16,7 +16,8 @@ from pathlib import Path
 from . import hashing, images
 
 DATA_FILES = ("manifest", "map", "scene", "meshes", "materials", "textures", "lightmaps", "variants", "assets")
-FLOATS_PER_ATTRIBUTE = {"position": 3, "normal": 3, "uv0": 2, "uv1": 2}
+FLOATS_PER_ATTRIBUTE = {"position": 3, "normal": 3, "color0": 4, "uv0": 2, "uv0_zw": 2, "uv1": 2, "uv1_zw": 2,
+                        "uv2": 4, "uv3": 4}
 
 
 def check(root: Path, d: dict, sets: dict, deep: bool) -> list[str]:
@@ -96,6 +97,9 @@ class _Context:
             if m["attributes"][:2] != ["position", "normal"]:
                 self.add("meshes", f"{where}: its attributes should start with position and normal")
             self.ordered("meshes", f"{where}: attributes", m["attributes"], "mesh-attribute")
+            for half, whole in (("uv0_zw", "uv0"), ("uv1_zw", "uv1")):
+                if half in m["attributes"] and whole not in m["attributes"]:
+                    self.add("meshes", f"{where}: has {half} but not {whole}")
             for i, n in enumerate(m["index_counts"]):
                 if n % 3:
                     self.add("meshes", f"{where}: submesh {i} has {n} indices, not a multiple of 3")
@@ -184,6 +188,8 @@ class _Context:
                 mesh = self.mesh.get(r["mesh"])
                 if mesh is None:
                     self.add("scene", f"{where}: mesh {r['mesh']} doesn't exist")
+                if "wind" in r and r["wind"] >= len(self.d["scene"].get("winds", [])):
+                    self.add("scene", f"{where}: wind {r['wind']} doesn't exist")
                 for draw in r["draws"]:
                     if draw["material"] not in self.material:
                         self.add("scene", f"{where}: material {draw['material']} doesn't exist")
@@ -353,6 +359,12 @@ class _Context:
             self.add("materials", f"material {m} isn't used by any renderer")
         for t in sorted(set(self.texture) - self.used_textures):
             self.add("textures", f"texture {t} isn't used by anything")
+        used_winds = {n["renderer"]["wind"] for n in self.nodes_ if "wind" in n.get("renderer", {})}
+        for i, w in enumerate(self.d["scene"].get("winds", [])):
+            if i not in used_winds:
+                self.add("scene", f"wind {i} isn't used by any renderer")
+            if w["flags"] != sorted(set(w["flags"])):
+                self.add("scene", f"wind {i}: flags should be sorted, each once")
         used_sets = {v["lightmap_set"] for v in self.d["variants"]["variants"]}
         for s in sorted(set(self.lightmap_set) - used_sets):
             self.add("lightmaps", f"Lightmap Set {s} isn't used by any Map Variant")

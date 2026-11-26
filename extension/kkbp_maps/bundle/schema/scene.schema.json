@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.9/scene.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.10/scene.schema.json",
   "title": "scene.json",
   "description": "The Map's nodes, Helpers left out, in walk order: a node's id is its position in the list, and its parent comes before it.",
   "type": "object",
@@ -26,12 +26,47 @@
           "rotation": { "$ref": "common.schema.json#/$defs/quat" },
           "scale": { "$ref": "common.schema.json#/$defs/vec3" },
           "renderer": { "$ref": "#/$defs/renderer" },
+          "wind_zone": {
+            "description": "A Unity WindZone on this node: directional ones blow along the node's local +Z converted to Blender's space, spherical ones out from it within radius.",
+            "type": "object",
+            "properties": {
+              "mode": { "enum": ["directional", "spherical"] },
+              "radius": { "type": "number", "minimum": 0 },
+              "main": { "type": "number" },
+              "turbulence": { "type": "number" },
+              "pulse_magnitude": { "type": "number" },
+              "pulse_frequency": { "type": "number" }
+            },
+            "required": ["mode", "radius", "main", "turbulence", "pulse_magnitude", "pulse_frequency"],
+            "additionalProperties": false
+          },
           "sky": {
             "description": "Part of a Sky Dome's clouds or stars: shown only in the Map Variants whose Sky lists it, and never a Candidate. Every descendant of a sky node is one too.",
             "const": true
           }
         },
         "required": ["id", "name", "parent", "translation", "rotation", "scale"],
+        "additionalProperties": false
+      }
+    },
+    "winds": {
+      "description": "The SpeedTree wind settings renderers name by index: each tree's SpeedTreeWindAsset, once per distinct one.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": { "const": "speedtree" },
+          "floats": {
+            "description": "The asset's numbers by their Raw Property names (m_sParams and its own fields).",
+            "$ref": "common.schema.json#/$defs/floats"
+          },
+          "flags": {
+            "description": "The names of its switches that are on, sorted.",
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        },
+        "required": ["kind", "floats", "flags"],
         "additionalProperties": false
       }
     }
@@ -69,6 +104,11 @@
         "reflection_probes": {
           "description": "How the renderer takes reflection probes, Unity's ReflectionProbeUsage: off (the Map's own reflection only), blend_probes, blend_probes_and_skybox, or simple (ADR 0026).",
           "enum": ["off", "blend_probes", "blend_probes_and_skybox", "simple"]
+        },
+        "wind": {
+          "description": "The index in scene.json's winds of the SpeedTree wind its tree moves with.",
+          "type": "integer",
+          "minimum": 0
         },
         "layer": {
           "description": "Its GameObject's Unity layer. A light lights it only if this layer is in the light's culling_mask.",

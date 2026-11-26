@@ -14,11 +14,11 @@ The contract between the Extractor and the Builder: the JSON Schemas in `schema/
 | `variants.json` | `variants.schema.json` |
 | `assets.json` | `assets.schema.json` |
 
-Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.9/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
+Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.10/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
 
 ## Schema Version
 
-`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.9`.
+`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.10`.
 
 ## Conventions
 
@@ -89,11 +89,12 @@ A Grade may carry a `blend`: a second LUT of the same layout and an amount. The 
 - Every rotation is a unit quaternion (within 1e-3), and no scale component is 0.
 - A renderer's `mesh` and every draw's `material` exist, and each draw's `submesh` is one its mesh has.
 - Every child of a sky node is a sky node.
+- A renderer's `wind` is an index into `winds`, and every wind is used. A wind's `flags` are sorted. Wind is how the game moves a tree; it isn't part of any Content Hash.
 
 ### Meshes
 
-- `attributes` start with `position` and `normal`.
-- The mesh file is exactly as long as its record says: `4 · vertices · (3 + 3 + 2 per UV set)` bytes of attributes, then `4 ·` the sum of `index_counts` bytes of indices. Every index count is a multiple of 3.
+- `attributes` start with `position` and `normal`. `uv0_zw` needs `uv0` and `uv1_zw` needs `uv1`.
+- The mesh file is exactly as long as its record says: `4 · vertices ·` the sum of each attribute's floats (position, normal 3; color0, uv2, uv3 4; uv0, uv0_zw, uv1, uv1_zw 2) bytes of attributes, then `4 ·` the sum of `index_counts` bytes of indices. Every index count is a multiple of 3.
 - Deep check only: the file's hash is the mesh's `id`, and every index is below `vertices`.
 
 ### Textures

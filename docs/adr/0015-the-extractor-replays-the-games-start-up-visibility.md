@@ -14,4 +14,4 @@ So the Extractor replays those steps, in the game's order, once per Time of Day:
 
 - The replayed scripts are named by their class names in `scene.py`, as the only marker the game gives (CLAUDE.md, "Find things by meaning").
 - `MapVisibleList` isn't replayed: the game calls it from gameplay, not when a Map loads, so its lists stay as serialized.
-- A Map whose `SunLightInfo` lacks one of the Game's Times of Day stops the extraction, since `Set` would then leave the scene as the previous Time of Day left it. No KK Map does.
+- A Map whose `SunLightInfo` lacks one of the Game's Times of Day stops the extraction, since `Set` would then leave the scene as the previous Time of Day left it. No KK Map does. *Amended by ADR 0032: a missing Time of Day shows the first info, as KKS's story game does, and which scripts are replayed is Game data.*

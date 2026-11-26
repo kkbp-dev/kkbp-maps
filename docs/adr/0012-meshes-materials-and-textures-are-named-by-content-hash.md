@@ -16,5 +16,5 @@ The hashes are part of the contract, so that any Extractor version gives the sam
 
 - File names carry no meaning to a person, as in KKBP, but they do carry identity.
 - Changing what a hash covers changes every Prop's identity, so it is a major Schema Version change.
-- Prop and Structure hashes use exact float32 values, with no rounding. If the Golden Maps show near-duplicates, rounding is added then.
+- Prop and Structure hashes use exact float32 values, with no rounding. If the Golden Maps show near-duplicates, rounding is added then. *Amended by ADR 0034: statically batched meshes match their originals within a tolerance.*
 - Each Map Bundle is still self-contained, so a texture used by many Maps is on disk once per bundle. The Builder writes it once.

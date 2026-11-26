@@ -81,4 +81,6 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0029 The wheels ship inside the extension, one zip per platform](../adr/0029-the-wheels-ship-inside-a-zip-per-platform.md)
 - [0030 The Schema Version stays 0.x through v0.1](../adr/0030-the-schema-version-stays-0x-through-v0-1.md)
 - [0031 Unity's built-in resources are read from the player's folder](../adr/0031-unitys-built-in-resources-are-read-from-the-player-folder.md)
+- [0032 A missing Time of Day shows the Map's first info, and load-time scripts are Game data](../adr/0032-a-missing-time-of-day-shows-the-first-info.md)
+- [0033 KKS's room containers are found by their place under the Map root](../adr/0033-kks-room-containers-are-found-by-their-place.md)
 - [0034 Statically batched pieces match their originals within a tolerance](../adr/0034-batched-pieces-match-their-originals-within-a-tolerance.md)

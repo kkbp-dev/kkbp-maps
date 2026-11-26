@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.8/variants.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.9/variants.schema.json",
   "title": "variants.json",
   "description": "The Map Variants: one per distinct lighting state, each covering the Times of Day that light the Map the same (ADR 0009).",
   "type": "object",
@@ -42,12 +42,17 @@
             ]
           },
           "sun_shafts": {
-            "description": "The sun shafts' colour; their strength is in the Camera Profile.",
+            "description": "The sun shafts' colour, and the settings the Map sets on the camera's SunShafts where it sets them (KKS); the rest, and their strength where the Map doesn't set it, are in the Camera Profile.",
             "oneOf": [
               {
                 "type": "object",
                 "properties": {
-                  "color": { "$ref": "common.schema.json#/$defs/color" }
+                  "color": { "$ref": "common.schema.json#/$defs/color" },
+                  "threshold": { "$ref": "common.schema.json#/$defs/color" },
+                  "max_radius": { "type": "number", "minimum": 0 },
+                  "blur_radius": { "type": "number", "minimum": 0 },
+                  "blur_iterations": { "type": "integer", "minimum": 0 },
+                  "intensity": { "type": "number", "minimum": 0 }
                 },
                 "required": ["color"],
                 "additionalProperties": false
@@ -232,7 +237,22 @@
         "color": { "$ref": "common.schema.json#/$defs/color" },
         "start": { "type": "number" },
         "end": { "type": "number" },
-        "density": { "type": "number" }
+        "density": { "type": "number" },
+        "camera": {
+          "description": "The switches the Map sets on the camera's GlobalFog at this Time of Day (KKS's SunLightInfo), where it sets them; its density and whether the camera has a GlobalFog at all are the Camera Profile's (ADR 0010, 0028).",
+          "type": "object",
+          "properties": {
+            "distance": { "type": "boolean" },
+            "height": { "type": "boolean" },
+            "top": {
+              "description": "The height fog's top, in metres above the origin along Blender's +Z.",
+              "type": "number"
+            },
+            "start_distance": { "type": "number", "minimum": 0 }
+          },
+          "required": ["distance", "height", "top", "start_distance"],
+          "additionalProperties": false
+        }
       },
       "required": ["enabled", "mode", "color", "start", "end", "density"],
       "additionalProperties": false

@@ -8,7 +8,7 @@ from pathlib import Path
 from . import hashing, rules
 from .validator import Schemas
 
-SCHEMA_VERSION = "0.8"
+SCHEMA_VERSION = "0.9"
 MAX_NUMBER_EXAMPLES = 3
 
 _schemas: Schemas | None = None

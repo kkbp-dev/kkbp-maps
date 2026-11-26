@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.11/meshes.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.12/meshes.schema.json",
   "title": "meshes.json",
   "description": "One record per unique mesh. Its data is meshes/<id>.bin: each attribute in turn as little-endian float32 for every vertex (position and normal 3 each, color0 4, uv0, uv1 and their _zw halves 2 each, uv2 and uv3 4 each), then every submesh's triangle indices in turn as little-endian uint32, winding already converted (ADR 0011).",
   "type": "object",
@@ -23,6 +23,10 @@
             "type": "array",
             "items": { "$ref": "sets/mesh-attribute.schema.json" },
             "minItems": 2
+          },
+          "batched": {
+            "description": "Split out of a statically batched mesh and moved back into its renderer's space, so its positions and normals are within float32 rounding of the original's, not equal to them (ADR 0034).",
+            "const": true
           },
           "index_counts": {
             "description": "Each submesh's number of indices, three per triangle.",

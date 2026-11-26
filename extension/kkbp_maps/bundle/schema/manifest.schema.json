@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.11/manifest.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.12/manifest.schema.json",
   "title": "manifest.json",
   "description": "Identifies a Map Bundle. Written last; a bundle without one is unfinished.",
   "type": "object",

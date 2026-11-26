@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.11/sets/candidate-rule.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.12/sets/candidate-rule.schema.json",
   "title": "Candidate rule",
   "description": "What made the Extractor propose a Candidate: the name prefix of its root, or none.",
   "type": "string",

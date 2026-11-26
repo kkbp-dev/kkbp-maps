@@ -68,7 +68,7 @@ def test_without_manifest_it_is_unfinished(bundle):
 
 def test_another_schema_version_is_refused(bundle):
     edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.1"))
-    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.11 "
+    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.12 "
                                    "(ADR 0014), so extract the Map again"]
 
 
@@ -605,6 +605,29 @@ def test_a_material_sky_keywords_are_sorted(bundle):
     noise = texture_id(bundle, "Lut_Amount")
     edit_json(bundle, "variants", lambda d: d["variants"][1].update(sky=dict(skystudio(noise), keywords=["Z", "A"])))
     assert_problem(bundle, "sky keywords should be sorted")
+
+
+def test_a_mesh_may_be_marked_batched(bundle):
+    edit_json(bundle, "meshes", lambda d: d["meshes"][0].update(batched=True))
+    assert problems_of(bundle) == []
+
+
+def test_a_batched_mesh_matching_another_is_a_problem(tmp_path):
+    def copy_quad(b):
+        q = b.meshes["quad"]["attributes"]
+        nudged = [[x + 5e-6, y, z] for x, y, z in q["position"]]
+        b.add_mesh("quad_batched", dict(q, position=nudged), b.meshes["quad"]["submeshes"])
+        b.add_node("mo_wall_01", b.nodes[ROOM]["id"], mesh="quad_batched", draws=[(0, "wall")])
+        b.candidates.append({"kind": "structure", "rule": "mo_prefix", "placements": [len(b.nodes) - 1]})
+    path = built(tmp_path, copy_quad)
+    assert problems_of(path, deep=True) == []          # nothing is batched yet: exact identity only
+    edit_json(path, "meshes", lambda d: next(m for m in d["meshes"] if m["name"] == "quad_batched").update(batched=True))
+    assert_problem(path, "match (ADR 0034)", deep=True)
+
+
+def test_batched_is_only_ever_true(bundle):
+    edit_json(bundle, "meshes", lambda d: d["meshes"][0].update(batched=False))
+    assert_problem(bundle, "batched")
 
 
 # --- Candidates and Placements ----------------------------------------------------------------

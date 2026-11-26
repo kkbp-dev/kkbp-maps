@@ -113,6 +113,20 @@ class _Context:
                 self.add("meshes", f"{where}: meshes/{m['id']}.bin is {path.stat().st_size} bytes; its record says {expected}")
 
     def deep_meshes(self):
+        from .matching import candidates_key, meshes_match   # matching imports this module
+        groups: dict[tuple, list[tuple[dict, bytes]]] = {}
+        for m in self.mesh.values():
+            path = self.root / "meshes" / f"{m['id']}.bin"
+            if path.is_file():
+                groups.setdefault(candidates_key(m), []).append((m, path.read_bytes()))
+        for group in groups.values():
+            if not any(m.get("batched") for m, _ in group):
+                continue
+            for i, (a, a_data) in enumerate(group):
+                for b, b_data in group[i + 1:]:
+                    if meshes_match(a, a_data, b, b_data):
+                        self.add("meshes", f"meshes {a['id']} and {b['id']} match (ADR 0034); the batched one "
+                                           f"should use the other's mesh")
         for m in self.mesh.values():
             path = self.root / "meshes" / f"{m['id']}.bin"
             if not path.is_file():

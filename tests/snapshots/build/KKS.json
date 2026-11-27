@@ -1397,6 +1397,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": "Aquarium Reception"
    },
@@ -2895,6 +2896,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": "Guesthouse Dining Room (Studio), Morning"
    },
@@ -4481,6 +4483,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": "Guesthouse Dining Room, Morning"
    },
@@ -7797,6 +7800,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": "Hotel, Morning"
    },
@@ -13221,6 +13225,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": null
    },
@@ -17431,6 +17436,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": null
    },

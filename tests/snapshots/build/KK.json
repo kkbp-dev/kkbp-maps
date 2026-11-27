@@ -570,6 +570,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": "Park"
    },
@@ -4531,6 +4532,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": "School 1F, Day"
    },
@@ -7699,6 +7701,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": "Sports Ground, Day"
    },
@@ -9252,6 +9255,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": null
    },
@@ -14909,6 +14913,7 @@
    ],
    "scene": {
     "engine": "BLENDER_EEVEE",
+    "file_browser_folders": 0,
     "view_transform": "Standard",
     "world": null
    },

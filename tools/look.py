@@ -118,7 +118,9 @@ def _heat(r: lc.Result) -> np.ndarray:
 
 def compare_all(root: Path, game: str, look: dict, pregrade: bool = False, camera: str = "studio") -> list[dict]:
     """Each Capture View's render against its capture; with `pregrade`, both before the Grade."""
-    views = json.loads((REPO / "tests" / "look" / "views" / f"{game}.json").read_text())["views"]
+    maps = set(lc.maps_of(look, camera))
+    views = [v for v in json.loads((REPO / "tests" / "look" / "views" / f"{game}.json").read_text())["views"]
+             if v["map"] in maps]
     t = lc.tolerances(look)["pregrade" if pregrade else "graded"]
     rows = []
     renders = root / "renders"

@@ -28,5 +28,5 @@ __MACOSX/
 /.claude/
 
 # The capture plugin's build state.
-/capture/kk/obj/
-/capture/kk/bin/
+/capture/*/obj/
+/capture/*/bin/

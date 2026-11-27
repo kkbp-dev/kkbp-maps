@@ -2,7 +2,7 @@
 
 How kkbp-maps is meant to work. Terms are defined in [CONTEXT.md](../../CONTEXT.md). Decisions that would be surprising without context are in [docs/adr/](../adr/). What each Game's map data looks like is in [games.md](games.md), and the order of work is in [roadmap.md](roadmap.md).
 
-Status: the KK spike's findings are in [kk-spike.md](kk-spike.md), the Map Bundle contract is in [map-bundle.md](map-bundle.md), the KK Extractor is in `extension/kkbp_maps/extractor/` (Phase 3), and the KK Builder in `extension/kkbp_maps/builder/` (Phase 4): its plan (no bpy) in `builder/`, the Blender side in `builder/blender/`, and the Name Tables in `names/`. The product shell (Phase 6) is the entry point and manifest, `deps/`, `jobs/` and `ui/`; its release checklist is [../release/v0.1.md](../release/v0.1.md).
+Status: the KK spike's findings are in [kk-spike.md](kk-spike.md) and the KKS spike's (Phase 7) in [kks-spike.md](kks-spike.md), the Map Bundle contract is in [map-bundle.md](map-bundle.md), the KK Extractor is in `extension/kkbp_maps/extractor/` (Phase 3), and the KK Builder in `extension/kkbp_maps/builder/` (Phase 4): its plan (no bpy) in `builder/`, the Blender side in `builder/blender/`, and the Name Tables in `names/`. The product shell (Phase 6) is the entry point and manifest, `deps/`, `jobs/` and `ui/`; its release checklist is [../release/v0.1.md](../release/v0.1.md).
 
 ## Shape
 
@@ -81,3 +81,9 @@ Numbered so code and reviews can point at them. Each says what holds now.
 - [0029 The wheels ship inside the extension, one zip per platform](../adr/0029-the-wheels-ship-inside-a-zip-per-platform.md)
 - [0030 The Schema Version stays 0.x through v0.1](../adr/0030-the-schema-version-stays-0x-through-v0-1.md)
 - [0031 Unity's built-in resources are read from the player's folder](../adr/0031-unitys-built-in-resources-are-read-from-the-player-folder.md)
+- [0032 A missing Time of Day shows the Map's first info, and load-time scripts are Game data](../adr/0032-a-missing-time-of-day-shows-the-first-info.md)
+- [0033 KKS's room containers are found by their place under the Map root](../adr/0033-kks-room-containers-are-found-by-their-place.md)
+- [0034 Statically batched pieces match their originals within a tolerance](../adr/0034-batched-pieces-match-their-originals-within-a-tolerance.md)
+- [0035 Bundles are read a block at a time, and shared bundles are found by their CAB names](../adr/0035-bundles-are-read-a-block-at-a-time.md)
+- [0036 Realtime reflection probes are left out and counted](../adr/0036-realtime-reflection-probes-are-left-out.md)
+- [0037 A skybox reflection that was never baked reflects the ambient light](../adr/0037-an-unbaked-skybox-reflection-reflects-the-ambient-light.md)

@@ -1,13 +1,18 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.5/sets/mesh-attribute.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.13/sets/mesh-attribute.schema.json",
   "title": "Mesh attribute",
-  "description": "A vertex attribute of a mesh file. Listed in the order they come in the file; position and normal always come first.",
+  "description": "A vertex attribute of a mesh file. Listed in the order they come in the file; position and normal always come first. color0 is the vertex colour (4 floats, as stored); uv0_zw and uv1_zw are the third and fourth floats of a four-float UV set, uv2 and uv3 always four floats (SpeedTree keeps its wind data in them).",
   "type": "string",
   "enum": [
     "position",
     "normal",
+    "color0",
     "uv0",
-    "uv1"
+    "uv0_zw",
+    "uv1",
+    "uv1_zw",
+    "uv2",
+    "uv3"
   ]
 }

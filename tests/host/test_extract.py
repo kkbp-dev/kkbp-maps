@@ -403,8 +403,64 @@ def test_a_probe_that_was_never_baked_is_left_out(install, tmp_path):
     assert all(v["reflection"]["probes"] == [] for v in load(out, "variants")["variants"])
 
 
-def test_a_realtime_probe_still_stops(install, tmp_path):
+def test_a_realtime_probe_is_left_out_and_counted(install, tmp_path):
+    """ADR 0036: KKS's outdoor Maps render their probes when they load."""
     scene, _ = build_scene()
     _probe(scene, 1, 0)
-    with pytest.raises(Unsupported, match="no baked cubemap"):
-        extract(install, tmp_path, scene)
+    out = extract(install, tmp_path, scene)
+    assert all(v["reflection"]["probes"] == [] for v in load(out, "variants")["variants"])
+    assert {s["reason"]: s["count"] for s in load(out, "map")["skipped"]}["realtime_probe"] == 1
+
+
+def test_a_custom_probe_without_its_cubemap_is_left_out(install, tmp_path):
+    """ADR 0036: fittingroom's custom probe has an empty slot."""
+    scene, _ = build_scene()
+    _probe(scene, 2, 0)
+    out = extract(install, tmp_path, scene)
+    assert all(v["reflection"]["probes"] == [] for v in load(out, "variants")["variants"])
+
+
+def test_setrenderqueue_custom_sets_its_queues_where_the_scene_switches_it_on(install, tmp_path):
+    """KKS's SetRenderQueue_Custom applies its queues in its first Update when isSetQueue is saved on."""
+    scene, _ = build_scene()
+    root = next(pid for pid, (t, tr) in scene.objects.items() if t == "GameObject" and tr["m_Name"] == "Map")
+    mesh = scene.mesh("lamp", offset=(0.0, 0.0, 1.0))
+    for name, on, queue in (("o_lamp00", 1, 2999), ("o_lamp01", 0, 3100)):
+        obj = scene.object(name, root, position=(float(len(name)), 0.0, 0.0))
+        scene.mesh_renderer(obj, mesh, [scene.material(name)])
+        scene.behaviour(obj, "SetRenderQueue_Custom", {"isSetQueue": on, "m_queueDatas": [
+            {"id": 0, "m_queues": queue, "m_queuesBackup": 3000}]})
+    out = extract(install, tmp_path, scene)
+    mats = {m["id"]: m for m in load(out, "materials")["materials"]}
+    by_node = {n["name"]: n for n in load(out, "scene")["nodes"]}
+    queue = {name: mats[by_node[name]["renderer"]["draws"][0]["material"]]["render_queue"]
+             for name in ("o_lamp00", "o_lamp01")}
+    assert queue == {"o_lamp00": 2999, "o_lamp01": 2000}
+
+
+def test_a_tree_keeps_its_speedtree_wind_and_a_windzone_its_settings(install, tmp_path):
+    """Map Bundle 0.10: wind is data, each distinct asset once; the Builder draws trees at rest."""
+    scene, _ = build_scene()
+    root = next(pid for pid, (t, tr) in scene.objects.items() if t == "GameObject" and tr["m_Name"] == "Map")
+    asset = scene.add("SpeedTreeWindAsset", {"m_Name": "", "m_Wind": {
+        "m_sParams": {"m_fStrengthResponse": 10.0, "BranchLevel1": {"m_afDistance": [0.5, 1.0]}},
+        "BranchWindAnchor0": 0.25, "GLOBAL_WIND": True, "ROLLING": False}})
+    mesh = scene.mesh("palm", offset=(0.0, 0.0, 2.0))
+    for name in ("p_palm00", "p_palm01"):
+        obj = scene.object(name, root, position=(float(len(name) + name.endswith("1")), 3.0, 0.0))
+        scene.mesh_renderer(obj, mesh, [scene.material("leaf")])
+        scene.component(obj, "Tree", {"m_SpeedTreeWindAsset": ptr(asset)})
+    zone = scene.object("WindZone", root)
+    scene.component(zone, "WindZone", {"m_Enabled": 1, "m_Mode": 0, "m_Radius": 20.0, "m_WindMain": 0.4,
+                                       "m_WindTurbulence": 0.2, "m_WindPulseMagnitude": 0.5,
+                                       "m_WindPulseFrequency": 0.01})
+    scene.mesh_renderer(scene.object("o_post00", zone), scene.mesh("post"), [scene.material("plain")])
+    out = extract(install, tmp_path, scene)
+    s = load(out, "scene")
+    assert s["winds"] == [{"kind": "speedtree", "flags": ["GLOBAL_WIND"], "floats": {
+        "BranchLevel1.m_afDistance[0]": 0.5, "BranchLevel1.m_afDistance[1]": 1.0, "BranchWindAnchor0": 0.25,
+        "m_fStrengthResponse": 10.0}}]
+    by_name = {n["name"]: n for n in s["nodes"]}
+    assert by_name["p_palm00"]["renderer"]["wind"] == by_name["p_palm01"]["renderer"]["wind"] == 0
+    assert by_name["WindZone"]["wind_zone"] == {"mode": "directional", "radius": 20.0, "main": 0.4,
+                                                "turbulence": 0.2, "pulse_magnitude": 0.5, "pulse_frequency": 0.01}

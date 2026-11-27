@@ -58,7 +58,9 @@ class Materials:
             self._ids[key] = mid
         return mid
 
-    def record(self, store: Store, ref: Ref, render_queue: int | None) -> dict:
+    def record(self, store: Store, ref: Ref, render_queue: int | None, write_textures: bool = True) -> dict:
+        """A material's record. With `write_textures` false its textures are left as references
+        (`ref` in place of `texture`) and nothing is written, for a caller that may replace them."""
         m = store.tree(ref)
         shader_ref = store.resolve(ref, m.get("m_Shader"))
         if shader_ref is None or not store.is_loaded(shader_ref):
@@ -85,7 +87,9 @@ class Materials:
                 continue
             role = ROLES.get(name)
             kind = store.type_of(tex)
-            if kind == "Texture2D":
+            if not write_textures and kind in ("Texture2D", "Cubemap"):
+                tid = None
+            elif kind == "Texture2D":
                 tid = self.textures.material(store, tex, self.game, normal=role in NORMAL_ROLES)
             elif kind == "Cubemap":
                 tid = self.textures.cubemap(store, tex)
@@ -93,6 +97,8 @@ class Materials:
                 continue  # a RenderTexture is drawn at run time
             entry = {"raw": name, "texture": tid, "offset": _f([env["m_Offset"]["x"], env["m_Offset"]["y"]]),
                      "scale": _f([env["m_Scale"]["x"], env["m_Scale"]["y"]])}
+            if tid is None:
+                entry["ref"] = tex
             if role:
                 entry = {"role": role, **entry}
             textures.append(entry)

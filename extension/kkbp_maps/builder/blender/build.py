@@ -142,9 +142,22 @@ def _new_file():
 
 def _save(path: Path):
     path.parent.mkdir(parents=True, exist_ok=True)
+    _clear_file_browsers()
     bpy.ops.wm.save_as_mainfile(filepath=str(path), compress=True)
     bpy.ops.file.make_paths_relative()
     bpy.ops.wm.save_mainfile(compress=True)
+
+
+def _clear_file_browsers():
+    """Empties the folder of every File Browser in the file's screens. The factory startup's Shading
+    workspace has one, pointed at the user's home folder, which would otherwise be saved into every
+    file and name the user to anyone the library is shared with. Blender picks a folder again when
+    the browser is next shown."""
+    for screen in bpy.data.screens:
+        for area in screen.areas:
+            for space in area.spaces:
+                if space.type == "FILE_BROWSER" and space.params is not None:
+                    space.params.directory = b""
 
 
 def _map_file(plan: LibraryPlan, m, library: Path, previews_on: bool) -> dict:

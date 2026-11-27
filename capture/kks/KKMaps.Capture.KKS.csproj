@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The developer-only capture plugin for KKS (ADR 0006, 0010): never shipped, and never in a release.
+       Built against the local game install (ADR 0007): set KKBP_GAMES_DIR, or keep the installs in
+       ../games beside this repository. Nothing from the install is copied into the build output.
+       KKS is Unity 2019.4 on Mono with BepInEx 5: .NET Framework 4.6, UnityEngine split into modules. -->
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework>
+    <AssemblyName>KKMaps.Capture.KKS</AssemblyName>
+    <RootNamespace>KKMaps.Capture</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <DebugType>embedded</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>$(DefineConstants);KKS</DefineConstants>
+    <GamesDir Condition="'$(GamesDir)' == '' And '$(KKBP_GAMES_DIR)' != ''">$(KKBP_GAMES_DIR)</GamesDir>
+    <GamesDir Condition="'$(GamesDir)' == ''">$(MSBuildThisFileDirectory)../../../games</GamesDir>
+    <GamesDir>$([MSBuild]::EnsureTrailingSlash('$(GamesDir)'))</GamesDir>
+    <Managed>Koikatsu Sunshine/KoikatsuSunshine_Data/Managed</Managed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- What every Game's plugin shares (capture/core); the hosts are KKS's own. -->
+    <Compile Include="../core/src/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <GameAssembly Include="Koikatsu Sunshine/BepinEx/core/BepInEx.dll" />
+    <GameAssembly Include="Koikatsu Sunshine/BepinEx/plugins/KKSAPI.dll" />
+    <GameAssembly Include="$(Managed)/Assembly-CSharp.dll" />
+    <GameAssembly Include="$(Managed)/Assembly-CSharp-firstpass.dll" />
+    <GameAssembly Include="$(Managed)/UnityEngine.dll" />
+    <GameAssembly Include="$(Managed)/UnityEngine.CoreModule.dll" />
+    <GameAssembly Include="$(Managed)/UnityEngine.ImageConversionModule.dll" />
+    <GameAssembly Include="$(Managed)/UnityEngine.AssetBundleModule.dll" />
+    <GameAssembly Include="$(Managed)/UniTask.dll" />
+  </ItemGroup>
+
+  <Target Name="ReferenceGameAssemblies" BeforeTargets="ResolveAssemblyReferences;CoreCompile">
+    <Error Condition="!Exists('$(GamesDir)%(GameAssembly.Identity)')"
+           Text="Missing game assembly $(GamesDir)%(GameAssembly.Identity). Set KKBP_GAMES_DIR to the folder holding the installs (ADR 0007)." />
+    <ItemGroup>
+      <Reference Include="@(GameAssembly->'%(Filename)')">
+        <HintPath>$(GamesDir)%(GameAssembly.Identity)</HintPath>
+        <Private>false</Private>
+      </Reference>
+    </ItemGroup>
+  </Target>
+</Project>

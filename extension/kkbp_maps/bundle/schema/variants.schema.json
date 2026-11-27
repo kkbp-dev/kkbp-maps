@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.5/variants.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.13/variants.schema.json",
   "title": "variants.json",
   "description": "The Map Variants: one per distinct lighting state, each covering the Times of Day that light the Map the same (ADR 0009).",
   "type": "object",
@@ -38,16 +38,22 @@
             "oneOf": [
               { "$ref": "#/$defs/cubemap_sky" },
               { "$ref": "#/$defs/procedural_sky" },
+              { "$ref": "#/$defs/material_sky" },
               { "type": "null" }
             ]
           },
           "sun_shafts": {
-            "description": "The sun shafts' colour; their strength is in the Camera Profile.",
+            "description": "The sun shafts' colour, and the settings the Map sets on the camera's SunShafts where it sets them (KKS); the rest, and their strength where the Map doesn't set it, are in the Camera Profile.",
             "oneOf": [
               {
                 "type": "object",
                 "properties": {
-                  "color": { "$ref": "common.schema.json#/$defs/color" }
+                  "color": { "$ref": "common.schema.json#/$defs/color" },
+                  "threshold": { "$ref": "common.schema.json#/$defs/color" },
+                  "max_radius": { "type": "number", "minimum": 0 },
+                  "blur_radius": { "type": "number", "minimum": 0 },
+                  "blur_iterations": { "type": "integer", "minimum": 0 },
+                  "intensity": { "type": "number", "minimum": 0 }
                 },
                 "required": ["color"],
                 "additionalProperties": false
@@ -81,9 +87,11 @@
             "color": { "$ref": "common.schema.json#/$defs/color" },
             "intensity": { "type": "number" },
             "shadows": { "$ref": "#/$defs/shadows" },
-            "mode": { "$ref": "#/$defs/light_mode" }
+            "mode": { "$ref": "#/$defs/light_mode" },
+            "culling_mask": { "$ref": "#/$defs/culling_mask" },
+            "render_mode": { "$ref": "#/$defs/render_mode" }
           },
-          "required": ["type", "rotation", "color", "intensity", "shadows", "mode"],
+          "required": ["type", "rotation", "color", "intensity", "shadows", "mode", "culling_mask", "render_mode"],
           "additionalProperties": false
         },
         {
@@ -95,9 +103,11 @@
             "intensity": { "type": "number" },
             "range": { "type": "number", "minimum": 0 },
             "shadows": { "$ref": "#/$defs/shadows" },
-            "mode": { "$ref": "#/$defs/light_mode" }
+            "mode": { "$ref": "#/$defs/light_mode" },
+            "culling_mask": { "$ref": "#/$defs/culling_mask" },
+            "render_mode": { "$ref": "#/$defs/render_mode" }
           },
-          "required": ["type", "position", "color", "intensity", "range", "shadows", "mode"],
+          "required": ["type", "position", "color", "intensity", "range", "shadows", "mode", "culling_mask", "render_mode"],
           "additionalProperties": false
         },
         {
@@ -116,9 +126,11 @@
               "maximum": 180
             },
             "shadows": { "$ref": "#/$defs/shadows" },
-            "mode": { "$ref": "#/$defs/light_mode" }
+            "mode": { "$ref": "#/$defs/light_mode" },
+            "culling_mask": { "$ref": "#/$defs/culling_mask" },
+            "render_mode": { "$ref": "#/$defs/render_mode" }
           },
-          "required": ["type", "position", "rotation", "color", "intensity", "range", "spot_angle", "shadows", "mode"],
+          "required": ["type", "position", "rotation", "color", "intensity", "range", "spot_angle", "shadows", "mode", "culling_mask", "render_mode"],
           "additionalProperties": false
         },
         {
@@ -135,9 +147,11 @@
             "intensity": { "type": "number" },
             "range": { "type": "number", "minimum": 0 },
             "shadows": { "$ref": "#/$defs/shadows" },
-            "mode": { "$ref": "#/$defs/light_mode" }
+            "mode": { "$ref": "#/$defs/light_mode" },
+            "culling_mask": { "$ref": "#/$defs/culling_mask" },
+            "render_mode": { "$ref": "#/$defs/render_mode" }
           },
-          "required": ["type", "position", "rotation", "size", "color", "intensity", "range", "shadows", "mode"],
+          "required": ["type", "position", "rotation", "size", "color", "intensity", "range", "shadows", "mode", "culling_mask", "render_mode"],
           "additionalProperties": false
         }
       ]
@@ -145,6 +159,17 @@
     "shadows": {
       "type": "string",
       "enum": ["none", "hard", "soft"]
+    },
+    "culling_mask": {
+      "description": "The Unity layers the light lights, one bit per layer (bit n for layer n); a renderer's layer is in scene.json.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "render_mode": {
+      "description": "Unity's LightRenderMode: important lights always get a pixel pass, auto lights get one while the Game's pixel light count allows, not_important lights never do (per vertex or by spherical harmonics).",
+      "type": "string",
+      "enum": ["auto", "important", "not_important"]
     },
     "light_mode": {
       "description": "realtime and mixed lights light the Map Variant; a baked light's light is already in the Lightmap Set.",
@@ -213,7 +238,22 @@
         "color": { "$ref": "common.schema.json#/$defs/color" },
         "start": { "type": "number" },
         "end": { "type": "number" },
-        "density": { "type": "number" }
+        "density": { "type": "number" },
+        "camera": {
+          "description": "The switches the Map sets on the camera's GlobalFog at this Time of Day (KKS's SunLightInfo), where it sets them; its density and whether the camera has a GlobalFog at all are the Camera Profile's (ADR 0010, 0028).",
+          "type": "object",
+          "properties": {
+            "distance": { "type": "boolean" },
+            "height": { "type": "boolean" },
+            "top": {
+              "description": "The height fog's top, in metres above the origin along Blender's +Z.",
+              "type": "number"
+            },
+            "start_distance": { "type": "number", "minimum": 0 }
+          },
+          "required": ["distance", "height", "top", "start_distance"],
+          "additionalProperties": false
+        }
       },
       "required": ["enabled", "mode", "color", "start", "end", "density"],
       "additionalProperties": false
@@ -300,6 +340,46 @@
       "required": ["kind", "source", "colors", "floats", "geometry"],
       "additionalProperties": false
     },
+    "material_sky": {
+      "description": "A skybox material the game draws as it is, such as Funly SkyStudio's: its shader, keywords and values by Raw Property, as the game sets them at this Time of Day (for SkyStudio, its profile's values). The Builder rebuilds it by its shader.",
+      "type": "object",
+      "properties": {
+        "kind": { "const": "material" },
+        "source": {
+          "description": "skybox: the Map's RenderSettings skybox; skystudio: a Funly SkyStudio profile's skybox.",
+          "enum": ["skybox", "skystudio"]
+        },
+        "shader": { "type": "string", "minLength": 1 },
+        "keywords": {
+          "description": "Its shader keywords, sorted.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "colors": { "$ref": "common.schema.json#/$defs/colors" },
+        "floats": { "$ref": "common.schema.json#/$defs/floats" },
+        "vectors": { "$ref": "common.schema.json#/$defs/vectors" },
+        "textures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "raw": { "type": "string", "minLength": 1 },
+              "texture": {
+                "description": "A 2D texture, or a cubemap as an equirectangular EXR in Blender's world orientation.",
+                "$ref": "common.schema.json#/$defs/hash"
+              },
+              "offset": { "$ref": "common.schema.json#/$defs/vec2" },
+              "scale": { "$ref": "common.schema.json#/$defs/vec2" }
+            },
+            "required": ["raw", "texture", "offset", "scale"],
+            "additionalProperties": false
+          }
+        },
+        "geometry": { "$ref": "#/$defs/sky_geometry" }
+      },
+      "required": ["kind", "source", "shader", "keywords", "colors", "floats", "vectors", "textures", "geometry"],
+      "additionalProperties": false
+    },
     "amplify_color_grade": {
       "description": "An AmplifyColor Grade. The tonemapper and exposure it runs after are in the Map's Camera Profile (ADR 0010).",
       "type": "object",
@@ -312,6 +392,19 @@
         "layout": {
           "description": "amplify_32x32: 1024 × 32, defined in the rule text.",
           "const": "amplify_32x32"
+        },
+        "blend": {
+          "description": "A second LUT of the same layout, and how much of its result is mixed into the first's (KKS's BlendAmount).",
+          "type": "object",
+          "properties": {
+            "lut": {
+              "description": "A linear PNG.",
+              "$ref": "common.schema.json#/$defs/hash"
+            },
+            "amount": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "required": ["lut", "amount"],
+          "additionalProperties": false
         }
       },
       "required": ["kind", "lut", "layout"],

@@ -14,11 +14,11 @@ The contract between the Extractor and the Builder: the JSON Schemas in `schema/
 | `variants.json` | `variants.schema.json` |
 | `assets.json` | `assets.schema.json` |
 
-Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.5/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
+Every schema has an `$id` under `https://schemas.kkbp-maps.invalid/0.13/`. The host doesn't exist; the checker loads the files from this folder and resolves the relative `$ref`s. The schemas are strict (`additionalProperties: false`) and use only the keywords the checker's validator knows (ADR 0013).
 
 ## Schema Version
 
-`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.5`.
+`major.minor`. While the major is 0, a Builder accepts only bundles of exactly its own version, and every contract change raises the minor (ADR 0014). From `1.0`, at the first release, a Builder accepts every bundle of its own major and ignores unknown fields; an additive change raises the minor and any other the major. Changing what a Content Hash covers is never additive. This is version `0.13`.
 
 ## Conventions
 
@@ -65,6 +65,8 @@ Every other slot is known by its Raw Property only. Illusion's own shaders (KK's
 
 `amplify_32x32` is a 1024 × 32 linear PNG: 32 slices of 32 × 32 side by side. For a colour `(r, g, b)` in 0…1, sRGB-encoded as AmplifyColor sees it, `slice = b · 31` (two slices blended), the column is `r · 31 + 32 · slice` and the row is `g · 31` counted from the **bottom**, so PNG row `31 − g · 31`.
 
+A Grade may carry a `blend`: a second LUT of the same layout and an amount. The Grade is then `(1 − amount) · lut(c) + amount · blend(c)`, as AmplifyColor does when its `BlendAmount` isn't 0 (KKS, kks-spike.md section 2).
+
 ## Rules the schemas can't express
 
 ### Manifest and files
@@ -87,15 +89,18 @@ Every other slot is known by its Raw Property only. Illusion's own shaders (KK's
 - Every rotation is a unit quaternion (within 1e-3), and no scale component is 0.
 - A renderer's `mesh` and every draw's `material` exist, and each draw's `submesh` is one its mesh has.
 - Every child of a sky node is a sky node.
+- A renderer's `wind` is an index into `winds`, and every wind is used. A wind's `flags` are sorted. Wind is how the game moves a tree; it isn't part of any Content Hash.
 
 ### Meshes
 
-- `attributes` start with `position` and `normal`.
-- The mesh file is exactly as long as its record says: `4 · vertices · (3 + 3 + 2 per UV set)` bytes of attributes, then `4 ·` the sum of `index_counts` bytes of indices. Every index count is a multiple of 3.
+- `attributes` start with `position` and `normal`. `uv0_zw` needs `uv0` and `uv1_zw` needs `uv1`.
+- The mesh file is exactly as long as its record says: `4 · vertices ·` the sum of each attribute's floats (position, normal 3; color0, uv2, uv3 4; uv0, uv0_zw, uv1, uv1_zw 2) bytes of attributes, then `4 ·` the sum of `index_counts` bytes of indices. Every index count is a multiple of 3.
 - Deep check only: the file's hash is the mesh's `id`, and every index is below `vertices`.
+- A `batched` mesh was split out of a static batch (ADR 0034). Two meshes **match** when one of them is `batched`, they have the same vertex count, attributes, `uv0` and indices exactly, every position component within 1e-4 m of the other's, and every normal component within 1e-3. The Extractor gives every batched mesh that matches an earlier mesh of the same Map that mesh, so no two meshes of a bundle match; the Builder treats matching meshes of different Maps as one.
 
 ### Textures
 
+- A `realtime_probe` is a reflection probe the game renders when the Map loads (or every frame), which no file holds; it is left out, and its renderers take their Map Variant's own reflection (ADR 0036).
 - Each texture's file exists, its PNG or EXR header gives the record's width and height, and an EXR is `linear`, half float, ZIP-compressed. A PNG is 8-bit grey, grey and alpha, RGB or RGBA, not interlaced.
 
 ### Materials
@@ -122,8 +127,11 @@ Every other slot is known by its Raw Property only. Illusion's own shaders (KK's
 - No two Map Variants are equal: two whose records are the same in everything but `id` and `times_of_day` must be one (ADR 0009). Equal means equal canonical JSON, compared exactly.
 - `hidden` nodes exist. `lightmap_set` names a set that exists.
 - A Sky's `geometry` names sky nodes that the Map Variant doesn't hide. Every sky node with a renderer is under the `geometry` of at least one Map Variant.
+- A light lights a renderer only where the renderer's `layer` is in the light's `culling_mask` (bit `layer`). How many lights a renderer takes per pixel is the Game's, by the lights' `render_mode`; the bundle doesn't say.
 - A renderer's `reflection_probes` is Unity's reflection probe usage. A renderer that is `off` takes only its Map Variant's own reflection (its `texture`, or none), never a probe (ADR 0026).
-- A Sky's cubemap, a reflection's texture and every probe's texture are EXRs. A reflection's texture is null only where the game holds no cubemap for its source. A Grade's `lut` is a `linear` PNG of 1024 × 32.
+- A Sky's cubemap, a reflection's texture and every probe's texture are EXRs. A `material` Sky's keywords are sorted, each of its texture slots appears once, and its textures exist; a cubemap among them is an equirectangular EXR like the others. A reflection's texture is null only where the game holds no cubemap for its source. A Grade's `lut` is a `linear` PNG of 1024 × 32, and so is its `blend`'s.
+- A fog's `camera` and a sun shafts record's settings beyond `color` are what the Map sets on the camera's effects at that Time of Day. Where they are absent the Camera Profile's apply; where present they replace the Camera Profile's switches and values of the same name, and the camera still draws them only if the Camera Profile says it has the effect.
+- A Grade's `blend` mixes a second LUT's result into the first's: `(1 − amount) · lut(c) + amount · blend(c)`, both looked up as the AmplifyColor LUT section says. It is left out where the amount is 0.
 
 ### Candidates and Placements
 

@@ -120,6 +120,13 @@ def collection(c):
     }
 
 
+def file_browser_folders() -> int:
+    """How many File Browsers in the file's screens have a folder set: 0, since a saved folder names the
+    user who built the file (the factory startup points one at their home folder)."""
+    return sum(1 for screen in bpy.data.screens for area in screen.areas for space in area.spaces
+               if space.type == "FILE_BROWSER" and space.params is not None and space.params.directory)
+
+
 def summarize(cats: dict) -> dict:
     trees = list(bpy.data.node_groups)  # fingerprint() adds and removes a scratch group as it goes
     groups = {g.name: fingerprint(g) for g in trees if not g.get(PREFIX + "hash")}
@@ -135,7 +142,8 @@ def summarize(cats: dict) -> dict:
                            "relative": i.filepath.startswith("//")})
     return {
         "scene": {"engine": bpy.context.scene.render.engine, "view_transform": bpy.context.scene.view_settings.view_transform,
-                  "world": bpy.context.scene.world.name if bpy.context.scene.world else None},
+                  "world": bpy.context.scene.world.name if bpy.context.scene.world else None,
+                  "file_browser_folders": file_browser_folders()},
         "assets": {f"{type(idb).__name__} {idb.name}": asset(idb, cats)
                    for idb in list(bpy.data.collections) + list(bpy.data.worlds) if idb.asset_data},
         "collections": {c.name: collection(c) for c in bpy.data.collections},

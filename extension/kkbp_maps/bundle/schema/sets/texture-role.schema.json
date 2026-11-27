@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.5/sets/texture-role.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.13/sets/texture-role.schema.json",
   "title": "Texture Role",
   "description": "The meaning of a texture slot on a material. Each Role appears at most once per material.",
   "type": "string",

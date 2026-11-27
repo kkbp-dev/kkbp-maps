@@ -16,7 +16,8 @@ from pathlib import Path
 from . import hashing, images
 
 DATA_FILES = ("manifest", "map", "scene", "meshes", "materials", "textures", "lightmaps", "variants", "assets")
-FLOATS_PER_ATTRIBUTE = {"position": 3, "normal": 3, "uv0": 2, "uv1": 2}
+FLOATS_PER_ATTRIBUTE = {"position": 3, "normal": 3, "color0": 4, "uv0": 2, "uv0_zw": 2, "uv1": 2, "uv1_zw": 2,
+                        "uv2": 4, "uv3": 4}
 
 
 def check(root: Path, d: dict, sets: dict, deep: bool) -> list[str]:
@@ -96,6 +97,9 @@ class _Context:
             if m["attributes"][:2] != ["position", "normal"]:
                 self.add("meshes", f"{where}: its attributes should start with position and normal")
             self.ordered("meshes", f"{where}: attributes", m["attributes"], "mesh-attribute")
+            for half, whole in (("uv0_zw", "uv0"), ("uv1_zw", "uv1")):
+                if half in m["attributes"] and whole not in m["attributes"]:
+                    self.add("meshes", f"{where}: has {half} but not {whole}")
             for i, n in enumerate(m["index_counts"]):
                 if n % 3:
                     self.add("meshes", f"{where}: submesh {i} has {n} indices, not a multiple of 3")
@@ -109,6 +113,20 @@ class _Context:
                 self.add("meshes", f"{where}: meshes/{m['id']}.bin is {path.stat().st_size} bytes; its record says {expected}")
 
     def deep_meshes(self):
+        from .matching import candidates_key, meshes_match   # matching imports this module
+        groups: dict[tuple, list[tuple[dict, bytes]]] = {}
+        for m in self.mesh.values():
+            path = self.root / "meshes" / f"{m['id']}.bin"
+            if path.is_file():
+                groups.setdefault(candidates_key(m), []).append((m, path.read_bytes()))
+        for group in groups.values():
+            if not any(m.get("batched") for m, _ in group):
+                continue
+            for i, (a, a_data) in enumerate(group):
+                for b, b_data in group[i + 1:]:
+                    if meshes_match(a, a_data, b, b_data):
+                        self.add("meshes", f"meshes {a['id']} and {b['id']} match (ADR 0034); the batched one "
+                                           f"should use the other's mesh")
         for m in self.mesh.values():
             path = self.root / "meshes" / f"{m['id']}.bin"
             if not path.is_file():
@@ -184,6 +202,8 @@ class _Context:
                 mesh = self.mesh.get(r["mesh"])
                 if mesh is None:
                     self.add("scene", f"{where}: mesh {r['mesh']} doesn't exist")
+                if "wind" in r and r["wind"] >= len(self.d["scene"].get("winds", [])):
+                    self.add("scene", f"{where}: wind {r['wind']} doesn't exist")
                 for draw in r["draws"]:
                     if draw["material"] not in self.material:
                         self.add("scene", f"{where}: material {draw['material']} doesn't exist")
@@ -272,6 +292,12 @@ class _Context:
                         self.add("variants", f"{where}: hides its own sky geometry node {g}")
                 if sky["kind"] == "cubemap":
                     self.texture_of("variants", f"{where}: sky", sky["texture"], fmt="exr")
+                if sky["kind"] == "material":
+                    if sky["keywords"] != sorted(set(sky["keywords"])):
+                        self.add("variants", f"{where}: sky keywords should be sorted, each once")
+                    self.unique("variants", f"{where}: sky texture slot", (t["raw"] for t in sky["textures"]))
+                    for t in sky["textures"]:
+                        self.texture_of("variants", f"{where}: sky {t['raw']}", t["texture"])
             r = v["reflection"]
             if r["texture"] is not None:
                 self.texture_of("variants", f"{where}: reflection", r["texture"], fmt="exr")
@@ -280,6 +306,12 @@ class _Context:
             if v["grade"]:
                 self.texture_of("variants", f"{where}: Grade LUT", v["grade"]["lut"], fmt="png",
                                 color_space="linear", size=(1024, 32))
+                blend = v["grade"].get("blend")
+                if blend:
+                    self.texture_of("variants", f"{where}: Grade blend LUT", blend["lut"], fmt="png",
+                                    color_space="linear", size=(1024, 32))
+                    if blend["amount"] == 0:
+                        self.add("variants", f"{where}: a Grade blend of amount 0 should be left out")
         for tod in times:
             if covered[tod] != 1:
                 self.add("variants", f"{tod} is covered by {covered[tod]} Map Variants; it should be by exactly one")
@@ -347,6 +379,12 @@ class _Context:
             self.add("materials", f"material {m} isn't used by any renderer")
         for t in sorted(set(self.texture) - self.used_textures):
             self.add("textures", f"texture {t} isn't used by anything")
+        used_winds = {n["renderer"]["wind"] for n in self.nodes_ if "wind" in n.get("renderer", {})}
+        for i, w in enumerate(self.d["scene"].get("winds", [])):
+            if i not in used_winds:
+                self.add("scene", f"wind {i} isn't used by any renderer")
+            if w["flags"] != sorted(set(w["flags"])):
+                self.add("scene", f"wind {i}: flags should be sorted, each once")
         used_sets = {v["lightmap_set"] for v in self.d["variants"]["variants"]}
         for s in sorted(set(self.lightmap_set) - used_sets):
             self.add("lightmaps", f"Lightmap Set {s} isn't used by any Map Variant")

@@ -56,6 +56,7 @@ class Renderer:
     lightmap_scale_offset: tuple[float, float, float, float]
     realtime_gi: bool
     reflection_probes: str      # REFLECTION_PROBE_MODES
+    layer: int = 0              # its GameObject's m_Layer
 
 
 @dataclass
@@ -158,10 +159,47 @@ def sun_infos(graph: Graph) -> tuple[Ref | None, list[dict]]:
     return refs[0], graph.store.tree(refs[0]).get("_infos", [])
 
 
+def sun_info(graph: Graph, infos: list[dict], tod: str) -> dict | None:
+    """The info SunLightInfo shows at a Time of Day: its own, or the Map's first where it has none, as
+    KKS's story game falls back (ADR 0032)."""
+    chosen = next((i for i in infos if graph.game.sun_types.get(i.get("type")) == tod), None)
+    return chosen if chosen is not None else (infos[0] if infos else None)
+
+
+def tod_type(graph: Graph, tod: str) -> int:
+    """The game's own number for a Time of Day (SunLightInfo.Info.Type)."""
+    return next(t for t, name in graph.game.sun_types.items() if name == tod)
+
+
+def sky_infos(graph: Graph) -> tuple[Ref | None, list[dict]]:
+    """KKS's MapSkyInfo and its infos (a SkyStudio profile and objects to switch, per Time of Day)."""
+    refs = graph.behaviours.get("MapSkyInfo", [])
+    if len(refs) > 1:
+        raise Unsupported(f"{len(refs)} MapSkyInfo components")
+    if not refs:
+        return None, []
+    return refs[0], graph.store.tree(refs[0]).get("_infos", [])
+
+
 def _simulate_visibility(graph: Graph):
     store = graph.store
     start: dict[Ref, bool] = {}
-    for mb in graph.behaviours.get("VisibleChange", []):
+    if graph.game.visible_state is not None:
+        for mb in graph.behaviours.get("MapVisibleState", []):   # MapVisibleState.Set(state)
+            data = store.tree(mb).get("_list", [])
+            for d in data:
+                if d.get("_state") != graph.game.visible_state:
+                    for p in d.get("_objList", []):
+                        go = store.resolve(mb, p)
+                        if go in graph.objects:
+                            start[go] = False
+            for d in data:
+                if d.get("_state") == graph.game.visible_state:
+                    for p in d.get("_objList", []):
+                        go = store.resolve(mb, p)
+                        if go in graph.objects:
+                            start[go] = True
+    for mb in graph.behaviours.get("VisibleChange", []) if graph.game.replays_visible_change else []:
         t = store.tree(mb)
         owner = graph.obj_of(mb)
         if not t.get("m_Enabled", 1) or owner is None or not _active_with(graph, owner, start):
@@ -175,16 +213,29 @@ def _simulate_visibility(graph: Graph):
             if go in graph.objects:
                 start[go] = False
     ref, infos = sun_infos(graph)
+    sky_ref, skies = sky_infos(graph)
     for tod in graph.game.times_of_day:
         flags = dict(start)
-        chosen = next((i for i in infos if graph.game.sun_types.get(i.get("type")) == tod), None)
-        if infos and chosen is None:
-            raise Unsupported(f"SunLightInfo has no info for {tod}")
-        for info in infos:
-            for p in info.get("visibleList", []):
-                go = store.resolve(ref, p)
-                if go in graph.objects:
-                    flags[go] = info is chosen
+        chosen = sun_info(graph, infos, tod)
+        if graph.game.sun_lists == "hide_then_show":
+            for info in infos + [chosen] if chosen is not None else []:
+                for p in info.get("visibleList", []):
+                    go = store.resolve(ref, p)
+                    if go in graph.objects:
+                        flags[go] = info is chosen
+        else:
+            for info in infos:
+                for p in info.get("visibleList", []):
+                    go = store.resolve(ref, p)
+                    if go in graph.objects:
+                        flags[go] = info is chosen
+        kind = tod_type(graph, tod)
+        if sky_ref is not None and 0 <= kind < len(skies):   # MapSkyInfo.Change(type), after Set
+            for field, value in (("_actives", True), ("_inactives", False)):
+                for p in skies[kind].get(field, []):
+                    go = store.resolve(sky_ref, p)
+                    if go in graph.objects:
+                        flags[go] = value
         graph.active[tod] = flags
 
 
@@ -222,8 +273,12 @@ def mesh_renderer(graph: Graph, obj: Obj) -> Renderer | None:
     mesh = store.resolve(mf, store.tree(mf).get("m_Mesh"))
     if mesh is None:
         return None
-    if r.get("m_StaticBatchInfo", {}).get("subMeshCount", 0):
-        raise Unsupported(f"{obj.name} is statically batched")
+    batch = r.get("m_StaticBatchInfo", {})
+    if batch.get("subMeshCount", 0):   # KKS: the renderer's part of a Combined Mesh, moved back (ADR 0034)
+        from .meshes import BatchPiece
+        inverse = np.linalg.inv(graph.world_matrix(obj))
+        mesh = BatchPiece(mesh, int(batch["firstSubMesh"]), int(batch["subMeshCount"]),
+                          tuple(float(v) for v in inverse.reshape(-1)))
     materials = [store.resolve(ref, m) for m in r.get("m_Materials", [])]
     materials = [m if m is not None and store.is_loaded(m) else None for m in materials]
     if not any(materials):
@@ -235,7 +290,8 @@ def mesh_renderer(graph: Graph, obj: Obj) -> Renderer | None:
         lightmap_index=r.get("m_LightmapIndex", 0xFFFF),
         lightmap_scale_offset=(st["x"], st["y"], st["z"], st["w"]),
         realtime_gi=r.get("m_LightmapIndexDynamic", 0xFFFF) < NO_LIGHTMAP,
-        reflection_probes=REFLECTION_PROBE_MODES.get(r.get("m_ReflectionProbeUsage", 1), "blend_probes"))
+        reflection_probes=REFLECTION_PROBE_MODES.get(r.get("m_ReflectionProbeUsage", 1), "blend_probes"),
+        layer=int(store.tree(obj.go).get("m_Layer", 0)))
 
 
 def shader_name(store: Store, material: Ref | None) -> str | None:
@@ -249,7 +305,7 @@ def shader_name(store: Store, material: Ref | None) -> str | None:
 
 def is_sky_dome(graph: Graph, r: Renderer) -> bool:
     """A Sky Dome: a built-in mesh (from Unity's own resources, not the bundle) drawn with a skybox shader."""
-    if not graph.store.is_builtin(r.mesh):
+    if not graph.store.is_builtin(getattr(r.mesh, "ref", r.mesh)):
         return False
     names = [shader_name(graph.store, m) for m in r.materials if m is not None]
     return bool(names) and all(n and n.startswith(graph.game.sky_shader_prefix) for n in names)
@@ -282,6 +338,7 @@ def walk(graph: Graph, mesh_readable) -> Walk:
     tods = graph.game.times_of_day
     skipped_types = dict(graph.game.skipped_renderers)
     kept: list[Node] = []
+    lower_lods = _lower_lods(graph)
 
     def visit(obj: Obj, parent_index: int | None, in_sky: bool) -> bool:
         shown = [t for t in tods if graph.world_active(obj, t)]
@@ -300,10 +357,13 @@ def walk(graph: Graph, mesh_readable) -> Walk:
                 continue
             raise Unsupported(f"{obj.name} has a {type_name}")
         r = mesh_renderer(graph, obj)
+        if r is not None and r.ref in lower_lods:   # only LOD0 is kept (D12)
+            census.add("lod")
+            r = None
         if r is not None:
             if is_sky_dome(graph, r):
                 dome = True
-            elif graph.store.is_builtin(r.mesh):
+            elif graph.store.is_builtin(getattr(r.mesh, "ref", r.mesh)):
                 pass  # any other built-in mesh is a Helper (games.md)
             elif not mesh_readable(r.mesh):
                 census.add("unreadable_mesh")
@@ -329,6 +389,12 @@ def walk(graph: Graph, mesh_readable) -> Walk:
     animating = sum(1 for n in kept if "Animator" in n.obj.components or "Animation" in n.obj.components)
     if animating:
         census.add("animated", animating)
+    for ref in graph.store.refs("ReflectionProbe"):   # rendered at run time, so no file holds them (ADR 0036)
+        t = graph.store.tree(ref)
+        obj = graph.obj_of(ref)
+        if (t.get("m_Mode") == 1 and t.get("m_Enabled", 1) and obj is not None
+                and any(graph.world_active(obj, tod) for tod in tods)):
+            census.add("realtime_probe")
 
     hidden: dict[str, list[int]] = {}
     for tod in tods:
@@ -338,8 +404,24 @@ def walk(graph: Graph, mesh_readable) -> Walk:
     return Walk(kept, census, hidden, domes)
 
 
-def node_records(walk_: Walk, graph: Graph, mesh_id, draws_of) -> list[dict]:
-    """scene.json's nodes. `mesh_id(ref)` gives a mesh's Content Hash; `draws_of(node)` its draws."""
+def _lower_lods(graph: Graph) -> set[Ref]:
+    """The renderers of every enabled LODGroup's levels after the first (KKS's SpeedTree)."""
+    store, out = graph.store, set()
+    for ref in store.refs("LODGroup"):
+        t = store.tree(ref)
+        if not t.get("m_Enabled", 1):
+            continue
+        for level in t.get("m_LODs", [])[1:]:
+            for entry in level.get("renderers", []):
+                r = store.resolve(ref, entry.get("renderer"))
+                if r is not None:
+                    out.add(r)
+    return out
+
+
+def node_records(walk_: Walk, graph: Graph, mesh_id, draws_of, winds=None) -> list[dict]:
+    """scene.json's nodes. `mesh_id(ref)` gives a mesh's Content Hash; `draws_of(node)` its draws;
+    `winds` (wind.Winds) each tree's wind and each WindZone."""
     out = []
     for i, n in enumerate(walk_.nodes):
         t = graph.store.tree(n.obj.tf)
@@ -353,7 +435,13 @@ def node_records(walk_: Walk, graph: Graph, mesh_id, draws_of) -> list[dict]:
             r = n.renderer
             rec["renderer"] = {"mesh": mesh_id(r.mesh), "draws": draws_of(n), "shadows": r.shadows,
                                "receive_shadows": r.receive_shadows, "realtime_gi": r.realtime_gi,
-                               "reflection_probes": r.reflection_probes}
+                               "reflection_probes": r.reflection_probes, "layer": r.layer}
+            wind = winds.of(n.obj) if winds is not None else None
+            if wind is not None:
+                rec["renderer"]["wind"] = wind
+        zone = winds.zone(n.obj) if winds is not None else None
+        if zone is not None:
+            rec["wind_zone"] = zone
         if n.sky:
             rec["sky"] = True
         out.append(rec)

@@ -1,10 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.5/sets/time-of-day.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.13/sets/time-of-day.schema.json",
   "title": "Time of Day",
-  "description": "One of the lighting states a Game gives a Map. Listed in the order a Game's Times of Day come in; lists of Times of Day keep this order.",
+  "description": "One of the lighting states a Game gives a Map: KK has day, evening and night, KKS all four. Listed in the order they come in a day; lists of Times of Day keep this order.",
   "type": "string",
   "enum": [
+    "morning",
     "day",
     "evening",
     "night"

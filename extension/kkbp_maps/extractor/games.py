@@ -19,6 +19,12 @@ class MapListSource:
     folder: str      # under the asset folder
     layout: str      # "mapinfo": records in a `param` array; "studio_rows": Excel-style string rows
     name_prefix: str = ""   # only MonoBehaviours whose name starts with this hold Map rows
+    # studio_rows: the columns of a row's number, name and Scene Bundle.
+    columns: tuple[int, int, int] = (0, 1, 2)
+    # mapinfo: where a record names its thumbnails by ID per Time of Day (KKS), the folder of the lists
+    # that give each ID its bundle and sprite, and the record's field for each Time of Day.
+    thumbnail_lists: str = ""
+    thumbnail_ids: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -44,7 +50,8 @@ class Game:
     helper_renderers: frozenset[str] = frozenset()
     # Renderer types the bundle can't carry, by skip reason.
     skipped_renderers: tuple[tuple[str, str], ...] = (("ParticleSystemRenderer", "particles"),
-                                                       ("SkinnedMeshRenderer", "skinned"))
+                                                       ("SkinnedMeshRenderer", "skinned"),
+                                                       ("BillboardRenderer", "billboard"))
     # How the game's Unity unpacks a normal map: X from A alone (Unity 5.6) or from R times A (2019).
     normal_x_from_alpha: bool = True
     # The Shader name prefix of a Sky Dome's material, on a built-in mesh.
@@ -54,6 +61,23 @@ class Game:
     builtin_resources: tuple[str, ...] = ("unity default resources", "unity_builtin_extra")
     # Lightmap RGBM decode: value = scale · a^exponent · srgb_to_linear(rgb) (kk-spike, section 3).
     rgbm: tuple[float, float] = (34.493242, 2.2)
+    # Folders under the asset folder whose bundles a Scene Bundle may point into by CAB name (KKS's
+    # shared materials, kks-spike.md section 6). KK's Scene Bundles are self-contained.
+    dependency_folders: tuple[str, ...] = ()
+    # SunLightInfo.Set (ADR 0015, 0032): "in_order" goes through the infos showing the chosen one's
+    # visibleList and hiding the others' in turn (KK); "hide_then_show" hides every list, then shows the
+    # chosen one's (KKS).
+    sun_lists: str = "in_order"
+    # Whether VisibleChange runs when a Map loads (KK's Start) or only at H points (KKS).
+    replays_visible_change: bool = True
+    # The MapVisibleState state the game sets when a Map loads, or None (ADR 0032).
+    visible_state: int | None = None
+    # Whether `containers` match only nodes directly under the scene's root (KKS, ADR 0033).
+    containers_at_root: bool = False
+    # Shaders that read more of a mesh than position, normal, UV0 and UV1: a mesh drawn with one also
+    # carries its colours, UV2, UV3 and the _zw halves (SpeedTree's wind data, Map Bundle 0.10). Other
+    # meshes don't, so KK's UV2 (Enlighten's) doesn't change their identity.
+    vertex_data_shaders: tuple[str, ...] = ()
 
 
 KK = Game(
@@ -71,7 +95,28 @@ KK = Game(
     containers=(r"^(p_|o_|mo_)(o_)?koi_(stu_)?map",),
 )
 
-KKS = Game(id="KKS", data_folder="KoikatsuSunshine_Data", normal_x_from_alpha=False)
+KKS = Game(
+    id="KKS",
+    data_folder="KoikatsuSunshine_Data",
+    times_of_day=("morning", "day", "evening", "night"),
+    sun_types={0: "morning", 1: "day", 2: "evening", 3: "night"},
+    map_lists=(
+        MapListSource(list="map", folder="map/list/mapinfo", layout="mapinfo",
+                      thumbnail_lists="map/list/mapthumbnailinfo",
+                      thumbnail_ids=(("ThumbnailMorningID", "morning"), ("ThumbnailDayTimeID", "day"),
+                                     ("ThumbnailEveningID", "evening"), ("ThumbnailNightID", "night"))),
+        MapListSource(list="studio", folder="studio/info", layout="studio_rows", name_prefix="Map_",
+                      columns=(0, 2, 3)),
+    ),
+    containers=(r"^(p_|o_)ks_",),
+    containers_at_root=True,
+    normal_x_from_alpha=False,
+    dependency_folders=("map/materials", "map/common", "studio/map/materials", "studio/map/common", "studio/map/00"),
+    sun_lists="hide_then_show",
+    vertex_data_shaders=("Nature/SpeedTree", "ProBuilder/Standard Vertex Color"),
+    replays_visible_change=False,
+    visible_state=0,
+)
 SVS = Game(id="SVS", data_folder="SamabakeScramble_Data", normal_x_from_alpha=False)
 
 GAMES = (KK, KKS, SVS)
@@ -93,6 +138,11 @@ class Install:
     @property
     def assets(self) -> Path:
         return self.root / self.game.asset_folder
+
+    def cab_index(self) -> dict[str, Path]:
+        """The serialized files of the bundles a Scene Bundle may depend on, to their bundles."""
+        from .bundles import cab_index
+        return cab_index([self.assets / f for f in self.game.dependency_folders if (self.assets / f).is_dir()])
 
     def builtin_resources(self) -> tuple[Path, ...]:
         """The player's built-in resource files that this install has."""

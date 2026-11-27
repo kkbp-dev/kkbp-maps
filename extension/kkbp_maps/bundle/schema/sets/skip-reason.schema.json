@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.kkbp-maps.invalid/0.5/sets/skip-reason.schema.json",
+  "$id": "https://schemas.kkbp-maps.invalid/0.13/sets/skip-reason.schema.json",
   "title": "Skip reason",
   "description": "Something the Extractor saw in a Map and couldn't carry into the bundle, counted for the Build Report.",
   "type": "string",
@@ -11,6 +11,7 @@
     "skinned",
     "animated",
     "lod",
+    "realtime_probe",
     "billboard",
     "unreadable_mesh"
   ]

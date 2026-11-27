@@ -31,7 +31,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "extension"))
 from kkbp_maps.jobs.memory import Limits, run_watched  # noqa: E402
 
-GOLDEN = {"KK": ["map/scene/1f", "map/scene/ground", "map/scene/park"]}
+from golden_maps import GOLDEN  # noqa: E402
 BUILDS = {  # the snap's launcher can't start from every process, so the snap's binary is named directly
     "min": "~/.local/opt/blender-5.2.2/blender",
     "latest": "/snap/blender/current/blender",

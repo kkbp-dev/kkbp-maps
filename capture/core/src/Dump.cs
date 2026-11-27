@@ -56,6 +56,8 @@ namespace KKMaps.Capture
                     { "lightmap_index", (double)r.lightmapIndex }, { "realtime_lightmap_index", (double)r.realtimeLightmapIndex },
                     { "shadow_casting", r.shadowCastingMode.ToString() }, { "receive_shadows", r.receiveShadows },
                     { "reflection_probe_usage", r.reflectionProbeUsage.ToString() }, { "materials", mats },
+                    { "position", Value(r.transform.position) }, { "lossy_scale", Value(r.transform.lossyScale) },
+                    { "bounds_min", Value(r.bounds.min) }, { "bounds_max", Value(r.bounds.max) },
                 });
             }
             return new Dictionary<string, object>
@@ -76,6 +78,30 @@ namespace KKMaps.Capture
             string p = t.name;
             for (t = t.parent; t != null; t = t.parent) p = t.name + "/" + p;
             return p;
+        }
+
+        /// <summary>
+        /// Shader globals by name, as the game has set them: each as a float, a colour, a vector and, where a
+        /// texture is set, its name and size (KKS's character-system globals that Koikano's map shader reads).
+        /// </summary>
+        public static Dictionary<string, object> Globals(IEnumerable<string> names)
+        {
+            var out_ = new Dictionary<string, object>();
+            foreach (string name in names)
+            {
+                var entry = new Dictionary<string, object>
+                {
+                    { "float", (double)Shader.GetGlobalFloat(name) }, { "color", Value(Shader.GetGlobalColor(name)) },
+                    { "vector", Value(Shader.GetGlobalVector(name)) },
+                };
+                Texture t = Shader.GetGlobalTexture(name);
+                if (t != null)
+                {
+                    entry["texture"] = new Dictionary<string, object> { { "name", t.name }, { "width", t.width }, { "height", t.height } };
+                }
+                out_[name] = entry;
+            }
+            return out_;
         }
 
         public static Dictionary<string, object> Camera(Camera cam)

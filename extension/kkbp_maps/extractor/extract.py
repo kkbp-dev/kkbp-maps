@@ -26,6 +26,7 @@ from .meshes import Meshes
 from .scene import Graph, Node, Unsupported, node_records, read_graph, walk
 from .textures import Textures
 from .variants import variants
+from .wind import Winds
 
 DATA_FILES = ("map", "scene", "meshes", "materials", "textures", "lightmaps", "variants", "assets")
 
@@ -47,7 +48,8 @@ def extract_map(install: Install, m: MapSource, out, options: Options = Options(
     """Writes the Map Bundle of `m` under `out` and returns its folder; a fresh one is kept as it is."""
     target = bundle_path(out, install, m)
     sources = source_files(install, m)
-    if not force and is_fresh(target, install, sources, options):
+    hashes = SourceHashes(Path(out) / install.game.id / SourceHashes.FILE)
+    if not force and is_fresh(target, install, sources, options, hashes):
         log(f"{m.key}: fresh, kept")
         return target
     partial = target.with_name(target.name + ".partial")
@@ -58,14 +60,16 @@ def extract_map(install: Install, m: MapSource, out, options: Options = Options(
         from .unity import UnityStore
 
         def store_factory(path):
-            return UnityStore(path, builtin=install.builtin_resources())
+            return UnityStore(path, builtin=install.builtin_resources(), cabs=install.cab_index())
     store = store_factory(m.bundle)
     try:
-        write_bundle(install, m, store, partial, options, sources)
+        sources = sources + [p for p in getattr(store, "dependencies", []) if p not in sources]
+        write_bundle(install, m, store, partial, options, sources, hashes)
     finally:
         close = getattr(store, "close", None)
         if close:
             close()
+    hashes.save()
     problems = bundle.check(partial)
     if problems:
         raise BundleError(m.key, problems)
@@ -84,7 +88,8 @@ class BundleError(RuntimeError):
         super().__init__(f"{key}: the bundle breaks the contract:\n  {shown}{more}")
 
 
-def write_bundle(install: Install, m: MapSource, store, folder: Path, options: Options, sources: list[Path]):
+def write_bundle(install: Install, m: MapSource, store, folder: Path, options: Options, sources: list[Path],
+                 hashes: "SourceHashes | None" = None):
     game = install.game
     for ref in store.refs("LightProbes"):  # the bundle has no place for them yet (map-bundle.md, "Later Games")
         if store.tree(ref).get("m_Data", {}).get("m_Positions"):
@@ -93,12 +98,15 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
     textures = Textures(folder / "textures", options.max_texture_size)
     meshes = Meshes(folder / "meshes")
     materials = Materials(textures, game)
+    meshes.full = _full_meshes(graph)
     w = walk(graph, lambda ref: meshes.try_add(store, ref) is not None)
     queues = _render_queues(graph)
-    nodes = node_records(w, graph, lambda ref: meshes.add(store, ref), lambda n: draws(store, n, meshes, materials, queues))
+    winds = Winds(store)
+    nodes = node_records(w, graph, lambda ref: meshes.add(store, ref), lambda n: draws(store, n, meshes, materials, queues),
+                         winds)
     lm = lightmap_set(graph, w, meshes, textures)
-    vs = variants(graph, w, textures, lm["id"] if lm else None)
-    assets = candidates(nodes, game.prefixes, game.containers)
+    vs = variants(graph, w, textures, lm["id"] if lm else None, materials)
+    assets = candidates(nodes, game.prefixes, game.containers, game.containers_at_root)
     map_record = {
         "key": m.key,
         "times_of_day": list(game.times_of_day),
@@ -111,7 +119,7 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
     }
     data = {
         "map": map_record,
-        "scene": {"nodes": nodes},
+        "scene": {"nodes": nodes, **({"winds": winds.records} if winds.records else {})},
         "meshes": {"meshes": list(meshes.records.values())},
         "materials": {"materials": list(materials.records.values())},
         "textures": {"textures": list(textures.records.values())},
@@ -129,7 +137,7 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
         "extracted_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "map": m.key,
         "options": options.record(),
-        "sources": [source_record(install, p) for p in sources],
+        "sources": [source_record(install, p, hashes) for p in sources],
         "contents": {
             "nodes": len(nodes), "meshes": len(meshes.records), "materials": len(materials.records),
             "textures": len(textures.records), "lightmap_sets": 1 if lm else 0, "variants": len(vs),
@@ -139,11 +147,33 @@ def write_bundle(install: Install, m: MapSource, store, folder: Path, options: O
     write_json(folder / "manifest.json", manifest)
 
 
+def _full_meshes(graph: Graph) -> set:
+    """The meshes drawn with one of the Game's vertex_data_shaders, which carry every channel."""
+    from .scene import shader_name
+    store, out = graph.store, set()
+    if not graph.game.vertex_data_shaders:
+        return out
+    for ref in store.refs("MeshRenderer"):
+        obj = graph.obj_of(ref)
+        mf = obj.component("MeshFilter") if obj else None
+        if mf is None:
+            continue
+        shaders = {shader_name(store, store.resolve(ref, m)) for m in store.tree(ref).get("m_Materials", [])}
+        if shaders & set(graph.game.vertex_data_shaders):
+            mesh = store.resolve(mf, store.tree(mf).get("m_Mesh"))
+            if mesh is not None:
+                out.add(mesh)
+    return out
+
+
 def _render_queues(graph: Graph) -> dict:
-    """renderer Ref -> {material slot: render queue} from SetRenderQueue, which sets them in Awake."""
+    """renderer Ref -> {material slot: render queue} from SetRenderQueue, which sets them in Awake, and
+    KKS's SetRenderQueue_Custom, which sets the same in its first Update where the scene saves isSetQueue
+    on (only the character code switches it later)."""
     store = graph.store
     out = {}
-    for mb in graph.behaviours.get("SetRenderQueue", []):
+    custom = [mb for mb in graph.behaviours.get("SetRenderQueue_Custom", []) if store.tree(mb).get("isSetQueue")]
+    for mb in graph.behaviours.get("SetRenderQueue", []) + custom:
         t = store.tree(mb)
         obj = graph.obj_of(mb)
         renderer = obj.component("MeshRenderer") if obj else None
@@ -177,9 +207,23 @@ def draws(store, node: Node, meshes: Meshes, materials: Materials, queues: dict)
 
 
 def thumbnails(install: Install, m: MapSource, textures: Textures) -> list[dict]:
+    from .unity import sprite_textures
+
+    if m.thumbnails:   # KKS: a sprite per Time of Day, by ID
+        by_bundle: dict[str, set[str]] = {}
+        for t in m.thumbnails.values():
+            by_bundle.setdefault(t.bundle, set()).add(t.asset)
+        found = {(b, name): px for b, names in by_bundle.items()
+                 for name, px in sprite_textures(install.assets / b, names).items()}
+        by_texture: dict[str, list[str]] = {}
+        for tod in install.game.times_of_day:
+            t = m.thumbnails.get(tod)
+            if t is not None and (t.bundle, t.asset) in found:
+                pixels, color_space = found[(t.bundle, t.asset)]
+                by_texture.setdefault(textures.thumbnail(pixels, t.asset, color_space), []).append(tod)
+        return [{"times_of_day": tods, "texture": tid} for tid, tods in by_texture.items()]
     if m.thumbnail is None:
         return []
-    from .unity import sprite_textures
 
     names = thumbnail_names(install, m.thumbnail) or {}
     found = sprite_textures(install.assets / m.thumbnail.bundle, set(names.values()) | {m.thumbnail.asset})
@@ -203,14 +247,53 @@ def skipped(counts: dict[str, int]) -> list[dict]:
 # --- sources and freshness -------------------------------------------------------------------------
 
 def source_files(install: Install, m: MapSource) -> list[Path]:
+    """The files a Map Bundle is made from that are known before its Scene Bundle is opened; the
+    shared bundles it depends on join them once it is (UnityStore.dependencies)."""
     files = [m.bundle] + sorted(m.list_files) + list(install.builtin_resources())
     if m.thumbnail is not None:
         files.append(install.assets / m.thumbnail.bundle)
+    for bundle_name in sorted({t.bundle for t in m.thumbnails.values()}):
+        files.append(install.assets / bundle_name)
     return files
 
 
-def source_record(install: Install, path: Path) -> dict:
-    return {"path": install.relative(path), "bytes": path.stat().st_size, "sha256": sha256(path)}
+def source_record(install: Install, path: Path, hashes: "SourceHashes | None" = None) -> dict:
+    return {"path": install.relative(path), "bytes": path.stat().st_size,
+            "sha256": hashes.sha256(path) if hashes else sha256(path)}
+
+
+class SourceHashes:
+    """The SHA-256 of each source file, kept in the Bundle Folder by path, size and modification time,
+    so a shared bundle of 1.7 GB isn't hashed again for every Map that depends on it."""
+    FILE = "source-hashes.json"
+
+    def __init__(self, path: Path):
+        self.path = Path(path)
+        try:
+            self.known = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            self.known = {}
+        self.changed = False
+
+    def sha256(self, path: Path) -> str:
+        st = path.stat()
+        key = str(Path(path).resolve())
+        k = self.known.get(key)
+        if k and k["bytes"] == st.st_size and k["mtime_ns"] == st.st_mtime_ns:
+            return k["sha256"]
+        digest = sha256(path)
+        self.known[key] = {"bytes": st.st_size, "mtime_ns": st.st_mtime_ns, "sha256": digest}
+        self.changed = True
+        return digest
+
+    def save(self):
+        if not self.changed:
+            return
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = self.path.with_name(self.path.name + ".partial")
+        tmp.write_text(json.dumps(self.known, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+        tmp.replace(self.path)
+        self.changed = False
 
 
 def sha256(path: Path) -> str:
@@ -221,7 +304,11 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def is_fresh(target: Path, install: Install, sources: list[Path], options: Options) -> bool:
+def is_fresh(target: Path, install: Install, sources: list[Path], options: Options,
+             hashes: SourceHashes | None = None) -> bool:
+    """A bundle is fresh when its Schema Version, Extractor version and options are today's, it names
+    every source known before extraction (`sources`) and perhaps more (the shared bundles found in its
+    Scene Bundle, which can't change while the Scene Bundle doesn't), and none of them has changed."""
     try:
         manifest = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -230,12 +317,16 @@ def is_fresh(target: Path, install: Install, sources: list[Path], options: Optio
             or manifest.get("extractor", {}).get("version") != VERSION):
         return False
     recorded = {s["path"]: s for s in manifest.get("sources", [])}
-    if set(recorded) != {install.relative(p) for p in sources}:
+    if not {install.relative(p) for p in sources} <= set(recorded):
         return False
-    for p in sources:
-        s = recorded[install.relative(p)]
-        if not p.is_file() or p.stat().st_size != s["bytes"] or sha256(p) != s["sha256"]:
+    for rel, s in recorded.items():
+        p = install.root / Path(*rel.split("/"))
+        if not p.is_file() or p.stat().st_size != s["bytes"]:
             return False
+        if (hashes.sha256(p) if hashes else sha256(p)) != s["sha256"]:
+            return False
+    if hashes:
+        hashes.save()
     return True
 
 

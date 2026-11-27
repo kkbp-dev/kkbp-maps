@@ -14,6 +14,10 @@ SWITCHES: dict[str, tuple[object, str]] = {
     "reflection": (("on", "off"), "on"),
     # The share of ambient light added to a real-time GI renderer, instead of the Game's (ADR 0025).
     "realtime_gi_ambient": (float, ""),
+    # Point and spot lights: the share of their range at which they agree with Unity's falloff, and the
+    # spot's blend, instead of the Game's (games.GameLight).
+    "point_reference": (float, ""),
+    "spot_blend": (float, ""),
 }
 
 # Settled by the look check (kk-spike.md, "Settled by the look check"): shadow culling as Unity's

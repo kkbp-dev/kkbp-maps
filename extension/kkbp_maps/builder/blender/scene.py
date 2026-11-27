@@ -18,15 +18,17 @@ import math
 import bpy
 from mathutils import Matrix, Quaternion, Vector
 
-from .. import shaders
+from .. import look, shaders
 from ..games import light_convention
-from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, passes
+from ..plan import LibraryPlan, MapPlan, VariantPlan, asset_nodes, koikano_tint, passes
 from . import materials as mats
+from . import sky as skystudio
 from .meshes import Meshes
 from .nodes import Graph
 
 SOFT_SHADOW_ANGLE = math.radians(0.5)   # Unity's soft shadows have no angle; the look check sees no difference
 PROP_ASSET, PROP_KIND = "kkbp_maps_asset", "kkbp_maps_kind"
+PROP_LAYER = "kkbp_maps_layer"   # a renderer's Unity layer, which a light's culling mask names
 BLENDED = ("alpha", "additive")
 
 
@@ -82,11 +84,19 @@ class FileBuilder:
         if not grade:
             return None
         tid = grade["lut"]
-        if tid not in self.grades:
+        blend = grade.get("blend")
+        key = (tid, blend["lut"], blend["amount"]) if blend else tid
+        if key not in self.grades:
             img = self.images.get(bundle, tid)
             img.colorspace_settings.name = "Non-Color"
-            self.grades[tid] = mats.grade_group(f".KKM Grade {bundle.textures[tid]['name']}", img)
-        return self.grades[tid]
+            name = f".KKM Grade {bundle.textures[tid]['name']}"
+            blend_img = None
+            if blend:
+                blend_img = self.images.get(bundle, blend["lut"])
+                blend_img.colorspace_settings.name = "Non-Color"
+                name += f" + {bundle.textures[blend['lut']]['name']} {blend['amount']:g}"
+            self.grades[key] = mats.grade_group(name, img, blend_img, blend["amount"] if blend else 0.0)
+        return self.grades[key]
 
     def two_sided(self, mat: bpy.types.Material) -> bpy.types.Material:
         """The material for a `two_sided` renderer: one that casts shadows from both faces, a twin of
@@ -121,6 +131,7 @@ class FileBuilder:
         collection.objects.link(obj)
         if parent is not None:
             obj.parent = parent
+        _keep_wind(obj, bundle, node)
         if blended:
             mesh, centre = self.centred(bundle, r["mesh"])
             first = bpy.data.objects.new(f"{node['name']} blended", mesh)
@@ -157,6 +168,18 @@ class FileBuilder:
         return out
 
 
+def _keep_wind(obj, bundle, node: dict):
+    """How the game moves a tree, kept on its object as data (Map Bundle 0.10); the tree is drawn at rest.
+    A SpeedTree's wind: its numbers, and its switches that are on as one comma-separated string. A
+    WindZone's settings likewise."""
+    r = node.get("renderer")
+    if r is not None and "wind" in r:
+        wind = bundle.winds[r["wind"]]
+        obj["kkbp_maps_wind"] = {"kind": wind["kind"], "flags": ",".join(wind["flags"]), **wind["floats"]}
+    if "wind_zone" in node:
+        obj["kkbp_maps_wind_zone"] = dict(node["wind_zone"])
+
+
 # --- Map Variants ------------------------------------------------------------------------------------
 
 def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.Collection]:
@@ -175,17 +198,24 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
         coll = bpy.data.collections.new(vp.name)
         grade = fb.grade(*plan.grade_of(m, v))
         as_shown = plan.as_shown(m, v)
+        sky_tree = (skystudio.group(as_shown["sky"], fb.images, b, vp.name)
+                    if as_shown["sky"] and as_shown["sky"]["kind"] == "material"
+                    and as_shown["sky"]["shader"] == skystudio.SHADER else None)
         light = mats.variant_light(b, as_shown, vp.name, fb.images, grade)
         variant_mats: dict[str, bpy.types.Material] = {}
 
-        def material_for(material_id, vname=vp.name, light=light, variant_mats=variant_mats):
+        tint = koikano_tint(plan.game, v)
+
+        def material_for(material_id, vname=vp.name, light=light, variant_mats=variant_mats, tint=tint):
             if material_id not in variant_mats:
-                variant_mats[material_id] = mats.variant_material(b, material_id, vname, base_of(material_id), light)
+                variant_mats[material_id] = mats.variant_material(b, material_id, vname, base_of(material_id), light,
+                                                                  tint)
             return variant_mats[material_id]
 
         lm = {a["node"]: a for a in b.lightmap_sets[v["lightmap_set"]]["assignments"]} if v["lightmap_set"] else {}
         shown = _shown_nodes(b, v)
         objects: dict[int, bpy.types.Object] = {}
+        drawers: list[bpy.types.Object] = []
         for n in b.nodes:
             i = n["id"]
             if i not in shown:
@@ -209,9 +239,11 @@ def build_map(plan: LibraryPlan, m: MapPlan, fb: FileBuilder) -> list[bpy.types.
                     o[mats.PROP_UV] = a["uv"] if a else 1
                     o[mats.PROP_PROBE] = probe
                     o[mats.PROP_REALTIME_GI] = int(n["renderer"]["realtime_gi"])
-        for k, light_record in enumerate(v["lights"]):
-            coll.objects.link(_light_object(plan.game, light_record, f"{vp.name} {light_record['type'].title()}"))
-        w = build_world(b, as_shown, vp, fb, grade)
+                    o[PROP_LAYER] = n["renderer"]["layer"]
+                    drawers.append(o)
+        _link_lights(coll, [_light_object(plan.game, light_record, f"{vp.name} {light_record['type'].title()}")
+                            for light_record in v["lights"]], v["lights"], drawers)
+        w = build_world(b, as_shown, vp, fb, grade, sky_tree)
         coll["kkbp_maps_world"] = w.name
         coll["kkbp_maps_map"] = m.key
         coll["kkbp_maps_variant"] = v["id"]
@@ -247,23 +279,60 @@ def _probe_of(v, world: Matrix, mesh) -> int:
     return 0
 
 
-def _light_object(game: str, light: dict, name: str) -> bpy.types.Object:
-    if light["type"] != "directional":
-        raise NotImplementedError(f"{light['type']} lights come with KKS and SVS")
-    data = bpy.data.lights.new(name, "SUN")
-    color, strength = mats.sun_strength(light["color"], light["intensity"],
-                                        light_convention(game).lights_use_linear_intensity)
-    data.color = color
-    data.energy = strength
+def _light_object(game: str, light: dict, name: str) -> bpy.types.Object | None:
+    """A Unity light as a Blender one, or None for a light that adds nothing: a baked light, whose light
+    is in a Lightmap Set or nowhere, and an area light, which Unity's built-in pipeline only bakes. Mixed
+    lights light in realtime. Every light lights per pixel; Unity's pixel light count and render modes
+    aren't followed (the look check measures it)."""
+    convention = light_convention(game)
+    if light["mode"] == "baked" or light["type"] == "area":
+        return None
+    if light["type"] == "directional":
+        data = bpy.data.lights.new(name, "SUN")
+        data.color, data.energy = mats.sun_strength(light["color"], light["intensity"],
+                                                    convention.lights_use_linear_intensity)
+        data.angle = SOFT_SHADOW_ANGLE if light["shadows"] == "soft" else 0.0
+    else:
+        data = bpy.data.lights.new(name, "POINT" if light["type"] == "point" else "SPOT")
+        data.color, data.energy = mats.point_power(light["color"], light["intensity"], light["range"], convention)
+        data.shadow_soft_size = 0.0
+        data.use_custom_distance = True
+        data.cutoff_distance = light["range"]
+        if light["type"] == "spot":
+            data.spot_size = math.radians(light["spot_angle"])
+            data.spot_blend = look.number("spot_blend", convention.spot_blend)
     data.use_shadow = light["shadows"] != "none"
-    data.angle = SOFT_SHADOW_ANGLE if light["shadows"] == "soft" else 0.0
     obj = bpy.data.objects.new(name, data)
     obj.rotation_mode = "QUATERNION"
-    obj.rotation_quaternion = light["rotation"]
+    if light["type"] != "point":
+        obj.rotation_quaternion = light["rotation"]
+    if light["type"] != "directional":
+        obj.location = light["position"]
     return obj
 
 
-def build_world(b, v: dict, vp: VariantPlan, fb: FileBuilder, grade) -> bpy.types.World:
+def _link_lights(coll, lights, records, drawn):
+    """Links the lights into the Map Variant, each lighting only the objects whose Unity layer is in its
+    culling mask (Map Bundle 0.8), through Blender's light linking: a light whose mask leaves out a layer
+    the Map Variant's renderers are on gets a receiver collection of the others."""
+    layers = {o[PROP_LAYER] for o in drawn}
+    receivers: dict[int, bpy.types.Collection] = {}
+    for obj, light in zip(lights, records):
+        if obj is None:
+            continue
+        coll.objects.link(obj)
+        mask = light["culling_mask"]
+        if all(mask >> layer & 1 for layer in layers):
+            continue
+        if mask not in receivers:
+            r = receivers[mask] = bpy.data.collections.new(f"{coll.name} Layers {mask:08x}")
+            for o in drawn:
+                if mask >> o[PROP_LAYER] & 1:
+                    r.objects.link(o)
+        obj.light_linking.receiver_collection = receivers[mask]
+
+
+def build_world(b, v: dict, vp: VariantPlan, fb: FileBuilder, grade, sky_tree=None) -> bpy.types.World:
     """The Map Variant's World: in EEVEE the Sky for camera rays only, with the camera's height fog over a
     Sky Dome (ADR 0028), graded; black to every other ray, since the Variant Materials hold the indirect
     light (ADR 0020). In Cycles the Sky, ungraded and unfogged, for all. Takes the Map Variant as its Camera
@@ -286,8 +355,11 @@ def build_world(b, v: dict, vp: VariantPlan, fb: FileBuilder, grade) -> bpy.type
         color = g.mix(1.0, (env, "Color"), (*tint, 1.0), blend_type="MULTIPLY")
         if sky["source"] == "dome":   # a mesh, so GlobalFog fogs it; Unity's skybox is past its reach
             shown = mats.height_fog_sky(g, v, color, (coords, "Generated"))
+    elif sky_tree is not None:
+        coords = g.node("ShaderNodeTexCoord")
+        color = (g.group(sky_tree, Vector=(coords, "Generated")), "Color")
     else:
-        color = (g.rgb((0.0, 0.0, 0.0)), "Color")  # a procedural skybox isn't rebuilt yet; no KK Golden Map shows one
+        color = (g.rgb((0.0, 0.0, 0.0)), "Color")  # a procedural skybox isn't rebuilt yet; no Golden Map shows one
     shown = shown or color
     graded = (g.group(grade, Color=shown), "Color") if grade is not None else shown
     camera = (g.node("ShaderNodeLightPath"), "Is Camera Ray")

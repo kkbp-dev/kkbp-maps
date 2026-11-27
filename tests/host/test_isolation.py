@@ -34,7 +34,7 @@ def test_bundle_imports_itself_only_relatively():
 # --- the Extractor --------------------------------------------------------------------------------
 
 EXTRACTOR = PACKAGE_PARENT / "extractor"
-EXTRACTOR_THIRD_PARTY = {"numpy", "PIL", "UnityPy"}
+EXTRACTOR_THIRD_PARTY = {"numpy", "PIL", "UnityPy", "lz4"}   # lz4: a pinned UnityPy dependency, read by bundles.py
 
 
 def test_the_extractor_never_imports_bpy_and_only_its_dependencies():

@@ -1,6 +1,6 @@
 # The Games' map data
 
-What a survey of the HF Patched installs found (KK HF Patch v4.2, KKS v2.2, SVS v2.0), read with UnityPy 1.25.4. Paths are relative to the game folder. The Phase 1 spike checked KK's items; its evidence is in [kk-spike.md](kk-spike.md). Items still marked *to confirm* belong to later Games.
+What a survey of the HF Patched installs found (KK HF Patch v4.2, KKS v2.2, SVS v2.0), read with UnityPy 1.25.4. Paths are relative to the game folder. The Phase 1 spike checked KK's items; its evidence is in [kk-spike.md](kk-spike.md). The Phase 7 spike checked KKS's, in [kks-spike.md](kks-spike.md). Items still marked *to confirm* belong to later Games.
 
 ## Common to all three
 
@@ -34,16 +34,21 @@ What a survey of the HF Patched installs found (KK HF Patch v4.2, KKS v2.2, SVS 
 
 ## KKS
 
-- Unity 2019.4.9f1, Mono, built-in pipeline with PostProcessing v2 and AmplifyColor.
-- 31 small Scene Bundles in `abdata/map/scene/` that depend on `abdata/map/materials/00.unity3d` (815 MB) and some on `map/common/00`. `hotelsuite` is self-contained.
-- Studio: 76 bundles (about 5 GB) in `abdata/studio/map/`. 42 are KK Maps rebuilt for 2019.4, which keep their KK lightmaps; 31 are `*_studio` versions of KKS Maps.
-- Lists: `map/list/mapinfo/*` (adds `DisplayName`, `isSky`, thumbnails per Time of Day) and `studio/info/*`.
-- Shaders: 35, mostly `Standard` and `Nature/SpeedTree`; Illusion's `Koikano/main_item_map`, `map_tiling`, `sub_mob`; Lux Water, NatureManufacture River, ProBuilder, Funly SkyStudio.
-- 79 renderers in 10 interior Maps are statically batched into one `Combined Mesh (root: scene)` per Map; `m_StaticBatchInfo` gives each one's submesh range. Unbatched copies keep their own mesh.
-- Vegetation is SpeedTree: LOD0 to LOD2 plus a billboard.
-- No lightmaps. 2 to 31 realtime lights per Map, reflection probes, trilight or flat ambient.
-- Times of Day: four, through `SunLightInfo` (with ambient colours and fog) and `MapSkyInfo`, which points at Funly SkyStudio `SkyProfile`s. Some objects exist once per Time of Day and are toggled by `visibleList`.
-- Helpers: `obstacle (N)`, `navmesh_*`, `SEmesh_*`, `*col`.
+The Phase 7 spike checked these; its evidence is in [kks-spike.md](kks-spike.md).
+
+- Unity 2019.4.9f1, Mono, built-in pipeline, linear colour space, `m_LightsUseLinearIntensity` false (as KK), `pixelLightCount` 4 at every quality level. The story camera uses Unity's legacy image effects (GlobalFog, AmplifyColor, AmplifyOcclusion, BloomAndFlares, SunShafts, DepthOfField, Vignette), not PostProcessing v2.
+- 31 Scene Bundles in `abdata/map/scene/`. Each scene names its dependencies by CAB in its externals: `map/materials/00` (815 MB, 1.7 GB decompressed) for all but `hotelsuite`, which is self-contained, and `map/common/00` for five. Unity's manifest `abdata/abdata` lists more dependencies than the scenes use, and no Studio bundle. A bundle's CAB names can be read from its header alone.
+- Studio: 76 bundles (about 5 GB) in `abdata/studio/map/`: 42 KK Maps rebuilt for 2019.4, which keep their KK lightmaps and KK's three `SunLightInfo` types (KKS shows them as Morning, Day and Evening), and 31 `*_studio` builds of KKS Maps. They depend on `studio/map/materials/00` (1.7 GB, stored uncompressed), `studio/map/common/00` and, for the KK ports, `studio/map/00/tex`.
+- Lists: `map/list/mapinfo/*` (adds `DisplayName`, `isSky`, and a thumbnail ID per Time of Day into `map/list/mapthumbnailinfo/*`, which names a Texture2D by bundle and asset); six entries name no Scene Bundle. `studio/info/*`'s `Map_*` rows are `[No, category, name, bundle, asset, …]`.
+- Shaders: mostly `Nature/SpeedTree` (11,478 material slots in 19 Maps) and `Standard`; Illusion's `Koikano/main_item_map` (371 in 15 Maps), `sub_texture_cutout`, `sub_texture_subblendcutout`, `main_clothes_item`, `sub_add_cullfront`, and one `Shader Forge/main_item`; Lux Water, NatureManufacture River, ProBuilder, `FX/MirrorReflection`, and the mini-map's `Custom/MiniMapRoad`.
+- 79 renderers in 10 Maps, all `p_ks_r01_*` and `o_ks_r01_*` pieces, are statically batched into one `Combined Mesh (root: scene)` per Map, in world space; `m_StaticBatchInfo` gives each one's submesh range. The original mesh isn't in the Map, only sometimes in another Map, where its UV0 and indices match exactly and its positions to within 6e-6 m.
+- Vegetation is SpeedTree (`toon_*`): LODGroups of LOD0 to LOD2 plus a billboard, or of one level. Its meshes carry colours and UV0 to UV3; each `Tree` names a readable `SpeedTreeWindAsset`.
+- No lightmaps and no light probes in the story Maps. 2 to 31 lights per Map: realtime and mixed (a mixed light without a lightmap lights in realtime), with layer culling masks (water-only lights on layer 4, most renderers on layer 11) and pixel or vertex render modes. Reflection probes; trilight (outdoors) or flat (indoors) ambient.
+- Times of Day: four, `SunLightInfo.Info.Type` Morning, DayTime, Evening, Night (0 to 3). Six Maps have fewer infos; the story game then shows the first info, and Studio offers only those present. `Set` hides every info's `visibleList` and shows the chosen one's, and sets the sun, the trilight ambient colours, linear fog with GlobalFog's switches and height, the sun shafts, a possibly blended AmplifyColor LUT (37 of 107 infos blend two), ambient occlusion, bloom, depth of field and vignette. Some objects exist once per Time of Day and are toggled by `visibleList`.
+- Sky: in 22 Maps `MapSkyInfo` gives each Time of Day a Funly SkyStudio `SkyProfile`, whose every property is a single keyframe (a constant), drawn with `Funly/Sky Studio/Skybox/3D Standard`. Its sun and moon lights reach only the water layer. The other Maps use Unity's skyboxes.
+- `VisibleChange` runs only at H and esthetic points, not when a Map loads. `MapVisibleState` (seacretbeach) switches objects by the weekday.
+- Room containers: one renderer-less `p_ks_` or `o_ks_` node directly under the `Map` root in 30 of the 31 Maps (`o_ks_m00hotel00_00`, `p_ks_r01`). Names: `p_ks_`/`o_ks_` with `m<NN>` for a Map's own pieces and `r<NN>` for sets shared between interiors.
+- Helpers: `obstacle (N)`, `navmesh_*`, `SEmesh_*`, `*col` (1,381 renderer-less `ks_` nodes are colliders named `…col`).
 - Mods: 28 Sideloader map zipmods (223 Scene Bundles, 5.5 GB).
 
 ## SVS

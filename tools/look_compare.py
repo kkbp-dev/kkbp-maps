@@ -117,6 +117,12 @@ PASSES = ("pregrade", "graded")
 MEASURES = ("mean_de", "p95_de", "worst_tile")
 
 
+def maps_of(look: dict, camera: str) -> list[str]:
+    """The Golden Maps captured and checked through a Camera Profile: the look file's `cameras.<camera>.maps`
+    where it names them (KKS: the story Maps through "game", the Studio Map through "studio"), else all."""
+    return look.get("cameras", {}).get(camera, {}).get("maps") or look["maps"]
+
+
 def tolerances(look: dict) -> dict[str, Tolerance]:
     """The tolerance of each pass, from a look file's "tolerance"."""
     given = look.get("tolerance", {})

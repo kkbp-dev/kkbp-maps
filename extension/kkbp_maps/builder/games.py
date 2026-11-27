@@ -34,6 +34,7 @@ class CameraProfile:
     map_sun_shafts: bool = True   # the Map's sun shafts are drawn
     grade_lut: str | None = None  # a LUT, by name, that grades every Map instead of the Map's own
     height_fog: HeightFog | None = None
+    height_fog_from_map: bool = False   # the height fog is on only where a Map Variant switches it on (KKS)
     assumed: bool = True
 
 
@@ -43,6 +44,11 @@ class GameLight:
     # Real-time GI that no file holds (ADR 0025): a renderer that takes it gets this share of the Map's
     # ambient light on top of its lightmap, fitted to the Reference Captures by the look check.
     realtime_gi_ambient: float = 0.0
+    # Point and spot lights: Unity's built-in falloff is 1 / (1 + 25 (d/range)^2), Blender's 1/d^2. A
+    # Blender light agrees with Unity's at this share of its range, and is cut off at its range.
+    point_reference: float = 0.2
+    # Unity's spot cookie fades towards the cone's edge; the Blender spot's blend.
+    spot_blend: float = 0.5
 
 
 CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
@@ -60,6 +66,18 @@ CAMERA_PROFILES: dict[str, dict[str, CameraProfile]] = {
         # captures' frames before AmplifyColor through Lut_Amount match the frames after it to ΔE 0.7).
         "studio": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=False,
                                 map_sun_shafts=False, grade_lut="Lut_Amount", assumed=False),
+    },    # The story camera's CameraEffector has GlobalFog, AmplifyColor and SunShafts like KK's (kks-spike.md,
+    # section 2); its height fog is on only where a Map Variant switches it on (Map Bundle 0.9). Read from
+    # the running camera 2026-11-26 (camera.json): GlobalFog heightDensity 0.5; AmplifyColor Tonemapper
+    # Disabled, Exposure 1. Still assumed until its sun shafts are measured.
+    "KKS": {
+        "game": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=True, map_sun_shafts=True,
+                              grade_lut=None, height_fog=HeightFog(top=0.0, density=0.5),
+                              height_fog_from_map=True, assumed=True),
+        # KKS's CharaStudio, captured 2026-11-26 (camera-studio.json): AmplifyColor Tonemapper Disabled,
+        # Exposure 1, ApplyDithering false, Lut_Amount; GlobalFog and SunShafts off; RenderSettings.fog off.
+        "studio": CameraProfile(tonemapper="none", exposure=1.0, sun_shafts=0.0, map_fog=False,
+                                map_sun_shafts=False, grade_lut="Lut_Amount", assumed=False),
     },
 }
 
@@ -67,6 +85,29 @@ LIGHTS: dict[str, GameLight] = {
     # lights_use_linear_intensity: Koikatu_Data/globalgamemanagers, GraphicsSettings. realtime_gi_ambient:
     # fitted on park's captures (kk-spike.md, "Settled by the look check"; 0.25 to 0.75 were tried).
     "KK": GameLight(lights_use_linear_intensity=False, realtime_gi_ambient=0.5),
+    # KoikatsuSunshine_Data/globalgamemanagers, GraphicsSettings (kks-spike.md, section 5). point_reference
+    # fitted on the KKS Golden Maps' captures 2026-11-26: 0.2 to 0.8 tried, minsyukulobby's ΔE 5.2 at 0.2,
+    # 3.8 from 0.6 on; the spot blend is a first guess.
+    "KKS": GameLight(lights_use_linear_intensity=False, point_reference=0.6),
+}
+
+
+@dataclass(frozen=True)
+class KoikanoGlobals:
+    """The shader globals KKS's character system sets and Koikano's map shader reads (ChaShader), as the
+    capture plugin read them from the running story game (tools/capture.py --globals; the same at every
+    Map Variant). With _KanoVerShift 0 the shader's toon terms cancel for materials without line, detail
+    or specular masks, and its albedo is the texture times saturate(0.6 · light + 0.4), mixed towards
+    max(0.6 · light + 0.4, ambient_shadow) by the ramp's corner texel (builder/blender/materials.py)."""
+    kano_ver_shift: float
+    ambient_shadow: tuple[float, float, float, float]   # _ambientshadowG
+    ramp_corner: float                                   # gt_ramp_00 (the _RampG global) at uv (0, 0), red
+
+
+# Captured 2026-11-26 in KKS's story game (globals.json): _RampG is gt_ramp_00 (chara/mt_ramp_00), black at
+# its corner; _ambientshadowG (0.019, 0.027, 0.039, 0.26); _KanoVerShift 0; _LineColorG (0.5, 0.5, 0.5, 0).
+KOIKANO: dict[str, KoikanoGlobals] = {
+    "KKS": KoikanoGlobals(kano_ver_shift=0.0, ambient_shadow=(0.019, 0.027, 0.039, 0.26), ramp_corner=0.0),
 }
 
 

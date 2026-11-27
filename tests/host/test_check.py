@@ -68,7 +68,7 @@ def test_without_manifest_it_is_unfinished(bundle):
 
 def test_another_schema_version_is_refused(bundle):
     edit_json(bundle, "manifest", lambda m: m.update(schema_version="0.1"))
-    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.5 "
+    assert problems_of(bundle) == ["manifest.json: the bundle is Schema Version 0.1; this checker reads only 0.13 "
                                    "(ADR 0014), so extract the Map again"]
 
 
@@ -137,6 +137,19 @@ def test_source_paths_are_relative_and_inside(bundle, path):
 def test_times_of_day_keep_their_order(bundle):
     edit_json(bundle, "map", lambda m: m.update(times_of_day=["night", "day", "evening"]))
     assert_problem(bundle, "times_of_day ['night', 'day', 'evening'] should name each value once")
+
+
+def test_four_times_of_day_start_with_morning(tmp_path):
+    def four(b):
+        b.map["times_of_day"] = ["morning", "day", "evening", "night"]
+        b.map["thumbnails"][0]["times_of_day"] = ["morning", "day", "evening", "night"]
+        b.variants[0].update(id="morning", times_of_day=["morning", "day"])
+    assert problems_of(built(tmp_path, four)) == []
+
+
+def test_morning_comes_before_day(bundle):
+    edit_json(bundle, "map", lambda m: m.update(times_of_day=["day", "morning", "evening", "night"]))
+    assert_problem(bundle, "times_of_day ['day', 'morning', 'evening', 'night'] should name each value once")
 
 
 def test_a_time_of_day_has_one_thumbnail(bundle):
@@ -377,6 +390,24 @@ def test_no_time_of_day_twice(bundle):
     assert_problem(bundle, "day is covered by 2 Map Variants")
 
 
+def test_a_grade_can_blend_a_second_lut(bundle):
+    lut_day = texture_id(bundle, "Lut_Amount")
+    edit_json(bundle, "variants", lambda d: d["variants"][1]["grade"].update(blend={"lut": lut_day, "amount": 0.5}))
+    assert problems_of(bundle) == []
+
+
+def test_a_grade_blend_lut_is_a_lut(bundle):
+    sky = texture_id(bundle, "mt_koi_sky_hiru00")
+    edit_json(bundle, "variants", lambda d: d["variants"][1]["grade"].update(blend={"lut": sky, "amount": 0.5}))
+    assert_problem(bundle, "Grade blend LUT names texture")
+
+
+def test_a_grade_blend_of_nothing_is_left_out(bundle):
+    lut_day = texture_id(bundle, "Lut_Amount")
+    edit_json(bundle, "variants", lambda d: d["variants"][1]["grade"].update(blend={"lut": lut_day, "amount": 0.0}))
+    assert_problem(bundle, "a Grade blend of amount 0 should be left out")
+
+
 def test_variant_id_is_its_first_time_of_day(bundle):
     edit_json(bundle, "variants", lambda d: d["variants"][1].update(id="night"))
     assert_problem(bundle, "its id should be its first Time of Day, evening")
@@ -472,13 +503,131 @@ def test_variants_may_have_realtime_lights_probes_and_a_procedural_sky(tmp_path)
         b.add_texture("probe", 8, 4, 3, fmt="exr", color_space="linear")
         v = b.variants[1]
         v["lights"].append({"type": "point", "position": [1.0, 2.0, 3.0], "color": [1.0, 0.8, 0.5, 1.0],
-                            "intensity": 2.0, "range": 10.0, "shadows": "none", "mode": "realtime"})
+                            "intensity": 2.0, "range": 10.0, "shadows": "none", "mode": "mixed",
+                            "culling_mask": 2048, "render_mode": "not_important"})
         v["reflection"]["probes"].append({"texture": "probe", "position": [0.0, 0.0, 1.0],
                                           "box_size": [10.0, 20.0, 5.0], "box_projection": True, "intensity": 1.0})
         v["sky"] = {"kind": "procedural", "source": "skybox", "colors": {"_SkyTint": [0.5, 0.5, 0.5, 1.0]},
                     "floats": {"_SunSize": 0.04, "_Exposure": 1.3}, "geometry": []}
         v["ambient"] = {"mode": "skybox_sh", "intensity": 1.0, "sh": [0.1] * 27}
     assert problems_of(built(tmp_path, change), deep=True) == []
+
+
+def test_a_variant_may_set_the_camera_fog_and_sun_shafts(bundle):
+    def change(d):
+        d["variants"][0]["fog"]["camera"] = {"distance": False, "height": True, "top": 2.0, "start_distance": 0.0}
+        d["variants"][0]["sun_shafts"].update(threshold=[0.0, 0.0, 0.0, 0.0], max_radius=0.3, blur_radius=3.0,
+                                              blur_iterations=2, intensity=1.0)
+    edit_json(bundle, "variants", change)
+    assert problems_of(bundle) == []
+
+
+def test_camera_fog_names_all_its_switches(bundle):
+    edit_json(bundle, "variants", lambda d: d["variants"][0]["fog"].update(camera={"height": True, "top": 2.0}))
+    assert_problem(bundle, "fog/camera")
+
+
+def test_a_light_mask_covers_unity_layers_only(bundle):
+    edit_json(bundle, "variants", lambda d: d["variants"][0]["lights"][0].update(culling_mask=2 ** 32))
+    assert_problem(bundle, "culling_mask")
+
+
+def test_a_renderer_layer_is_a_unity_layer(bundle):
+    edit_json(bundle, "scene", lambda d: d["nodes"][WALL]["renderer"].update(layer=32))
+    assert_problem(bundle, "layer")
+
+
+TREE_WIND = {"kind": "speedtree", "floats": {"m_fStrengthResponse": 10.0, "Oscillation0_1": 0.174},
+             "flags": ["BRANCH_DIRECTIONAL_FROND_1", "GLOBAL_WIND"]}
+
+
+def tree(b):
+    """A SpeedTree-like mesh with every attribute, on a node with a wind and a wind zone."""
+    quad = b.meshes["quad"]["attributes"]
+    n = len(quad["position"])
+    b.add_mesh("tree", {"position": quad["position"], "normal": quad["normal"], "color0": [[1.0, 1.0, 1.0, 0.5]] * n,
+                        "uv0": quad["uv0"], "uv0_zw": [[0.1, 0.2]] * n, "uv1": [[0.5, 0.5]] * n,
+                        "uv1_zw": [[0.0, 1.0]] * n, "uv2": [[0.0, 0.1, 0.2, 0.3]] * n, "uv3": [[1.0, 0.0, 0.0, 0.0]] * n},
+               [[0, 1, 2]])
+    node = b.add_node("toon_tree00_00_LOD0", b.nodes[ROOM]["id"], mesh="tree", draws=[(0, "desk")])
+    b.nodes[node]["renderer"]["wind"] = 0
+    b.nodes[ROOM]["wind_zone"] = {"mode": "directional", "radius": 20.0, "main": 1.0, "turbulence": 1.0,
+                                  "pulse_magnitude": 0.5, "pulse_frequency": 0.01}
+    b.winds.append(dict(TREE_WIND))
+    b.candidates.append({"kind": "structure", "rule": "unprefixed", "placements": [node]})
+
+
+def test_speedtree_attributes_wind_and_wind_zones(tmp_path):
+    assert problems_of(built(tmp_path, tree), deep=True) == []
+
+
+def test_a_zw_half_needs_its_uv_set(tmp_path):
+    path = built(tmp_path, tree)
+    def drop_uv1(d):
+        m = next(m for m in d["meshes"] if "uv1_zw" in m["attributes"])
+        m["attributes"].remove("uv1")
+    edit_json(path, "meshes", drop_uv1)
+    assert_problem(path, "has uv1_zw but not uv1")
+
+
+def test_a_renderer_names_a_wind_that_exists(tmp_path):
+    path = built(tmp_path, tree)
+    edit_json(path, "scene", lambda d: next(n for n in d["nodes"] if n["name"] == "toon_tree00_00_LOD0")["renderer"].update(wind=3))
+    assert_problem(path, "wind 3 doesn't exist")
+
+
+def test_every_wind_is_used(tmp_path):
+    path = built(tmp_path, tree)
+    edit_json(path, "scene", lambda d: d["winds"].append(dict(TREE_WIND, flags=[])))
+    assert_problem(path, "wind 1 isn't used by any renderer")
+
+
+def skystudio(texture):
+    return {"kind": "material", "source": "skystudio", "shader": "Funly/Sky Studio/Skybox/3D Standard",
+            "keywords": ["GRADIENT_BACKGROUND", "NOISE_CLOUDS"],
+            "colors": {"_GradientSkyUpperColor": [0.33, 0.557, 1.0, 1.0]}, "floats": {"_CloudDensity": 0.25},
+            "vectors": {}, "textures": [{"raw": "_CloudNoiseTexture", "texture": texture, "offset": [0.0, 0.0],
+                                         "scale": [1.0, 1.0]}], "geometry": []}
+
+
+def test_a_sky_may_be_a_skybox_material(bundle):
+    noise = texture_id(bundle, "Lut_Amount")
+    edit_json(bundle, "variants", lambda d: d["variants"][1].update(sky=skystudio(noise)))
+    assert problems_of(bundle) == []
+
+
+def test_a_material_sky_names_textures_that_exist(bundle):
+    edit_json(bundle, "variants", lambda d: d["variants"][1].update(sky=skystudio("0" * 32)))
+    assert_problem(bundle, "sky _CloudNoiseTexture names texture")
+
+
+def test_a_material_sky_keywords_are_sorted(bundle):
+    noise = texture_id(bundle, "Lut_Amount")
+    edit_json(bundle, "variants", lambda d: d["variants"][1].update(sky=dict(skystudio(noise), keywords=["Z", "A"])))
+    assert_problem(bundle, "sky keywords should be sorted")
+
+
+def test_a_mesh_may_be_marked_batched(bundle):
+    edit_json(bundle, "meshes", lambda d: d["meshes"][0].update(batched=True))
+    assert problems_of(bundle) == []
+
+
+def test_a_batched_mesh_matching_another_is_a_problem(tmp_path):
+    def copy_quad(b):
+        q = b.meshes["quad"]["attributes"]
+        nudged = [[x + 5e-6, y, z] for x, y, z in q["position"]]
+        b.add_mesh("quad_batched", dict(q, position=nudged), b.meshes["quad"]["submeshes"])
+        b.add_node("mo_wall_01", b.nodes[ROOM]["id"], mesh="quad_batched", draws=[(0, "wall")])
+        b.candidates.append({"kind": "structure", "rule": "mo_prefix", "placements": [len(b.nodes) - 1]})
+    path = built(tmp_path, copy_quad)
+    assert problems_of(path, deep=True) == []          # nothing is batched yet: exact identity only
+    edit_json(path, "meshes", lambda d: next(m for m in d["meshes"] if m["name"] == "quad_batched").update(batched=True))
+    assert_problem(path, "match (ADR 0034)", deep=True)
+
+
+def test_batched_is_only_ever_true(bundle):
+    edit_json(bundle, "meshes", lambda d: d["meshes"][0].update(batched=False))
+    assert_problem(bundle, "batched")
 
 
 # --- Candidates and Placements ----------------------------------------------------------------

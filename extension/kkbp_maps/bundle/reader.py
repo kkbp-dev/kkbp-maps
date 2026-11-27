@@ -50,6 +50,7 @@ class Bundle:
     variants: list[dict]
     candidates: list[dict]
     children: list[list[int]] = field(default_factory=list)
+    winds: list[dict] = field(default_factory=list)   # scene.json's SpeedTree winds, by renderers' `wind`
 
     @property
     def game(self) -> str:
@@ -122,6 +123,7 @@ def read(path, *, deep: bool = False) -> Bundle:
         variants=d["variants"]["variants"],
         candidates=d["assets"]["candidates"],
         children=children,
+        winds=d["scene"].get("winds", []),
     )
 
 

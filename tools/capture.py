@@ -1,4 +1,5 @@
-"""Takes Reference Captures of the Golden Maps in KK's Studio with the capture plugin (ADR 0006).
+"""Takes Reference Captures of a Game's Golden Maps with the capture plugin (ADR 0006): KK's in Studio or
+its story game, KKS's in its story game (--game KKS; KKS's Studio loads its own builds of the Maps).
 
 Developers only, never users. Run with KKBP's dev venv (numpy, for the one axis conversion):
 
@@ -37,24 +38,54 @@ import numpy as np
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "extension"))
+sys.path.insert(0, str(REPO / "tools"))
+import look_compare as lc  # noqa: E402
 from kkbp_maps.extractor import space  # noqa: E402  (the one place axes are converted, ADR 0011)
 
+from kkbp_maps.jobs import memory  # noqa: E402  (the game's own memory, watched while it runs)
+
 GAMES = Path(os.environ.get("KKBP_GAMES_DIR", REPO.parent / "games"))
-GAME_DIR = GAMES / "Koikatsu"
-PROCESSES = ("CharaStudio.exe", "Koikatu.exe")   # Linux keeps 15 characters of a process name
-CONFIG = GAME_DIR / "BepinEx" / "config"
-PLUGINS = GAME_DIR / "BepinEx" / "plugins"
-PLUGIN_DLL = "KKMaps.Capture.KK.dll"
-BUILT = REPO / "tests" / ".work" / "capture" / "bin" / PLUGIN_DLL
-LOOK = REPO / "tests" / "look" / "KK.json"
-VIEWS = REPO / "tests" / "look" / "views" / "KK.json"
-OUT = REPO / "captures" / "KK"
-GOLDEN = REPO / "golden" / "KK"
 OFF = ".kkbp-maps-off"
-EXES = {"studio": "CharaStudio.exe", "game": "Koikatu.exe"}   # the game each Camera Profile runs in
-TIME_TYPE = {"day": 0, "evening": 1, "night": 2}   # SunLightInfo.Info.Type
-SEED_YAWS = (0, 90, 180, 270)   # eye-level views about Studio's camera target
+SEED_YAWS = (0, 90, 180, 270)   # eye-level views about the seed's anchor
 SEED_EYE = 1.6
+# Stop the game before it takes the desktop down (the user's rule): its own memory, or the machine's.
+GAME_MAX_GB, MIN_AVAILABLE_GB, MIN_SWAP_FREE_GB = 10.0, 1.2, 6.0
+
+# Per Game: its folder, play.sh's name for it, the program each Camera Profile runs in, the processes to
+# watch and stop (Linux keeps 15 characters of a process name), SunLightInfo.Info.Type by Time of Day,
+# and the seed's overview view name per Camera Profile (Studio's camera; KKS's story game: the free-H
+# point's overview).
+GAME_DATA = {
+    "KK": {"dir": "Koikatsu", "play": "koikatsu", "exes": {"studio": "CharaStudio.exe", "game": "Koikatu.exe"},
+           "processes": ("CharaStudio.exe", "Koikatu.exe"), "times": {"day": 0, "evening": 1, "night": 2},
+           "overview": {"studio": "studio", "game": "studio"}},
+    "KKS": {"dir": "Koikatsu Sunshine", "play": "kks",
+            "exes": {"studio": "CharaStudio.exe", "game": "KoikatsuSunshine.exe"},
+            "processes": ("CharaStudio.exe", "KoikatsuSunshin"), "times": {"morning": 0, "day": 1, "evening": 2, "night": 3},
+            "overview": {"studio": "studio", "game": "overview"}},
+}
+
+
+def use_game(game: str):
+    """Points the module's paths at one Game."""
+    global GAME, GAME_DIR, PROCESSES, CONFIG, PLUGINS, PLUGIN_DLL, BUILT, LOOK, VIEWS, OUT, GOLDEN, EXES, TIME_TYPE
+    GAME = game
+    d = GAME_DATA[game]
+    GAME_DIR = GAMES / d["dir"]
+    PROCESSES = d["processes"]
+    CONFIG = GAME_DIR / "BepinEx" / "config"
+    PLUGINS = GAME_DIR / "BepinEx" / "plugins"
+    PLUGIN_DLL = f"KKMaps.Capture.{game}.dll"
+    BUILT = REPO / "tests" / ".work" / "capture" / ("bin" if game == "KK" else f"bin-{game.lower()}") / PLUGIN_DLL
+    LOOK = REPO / "tests" / "look" / f"{game}.json"
+    VIEWS = REPO / "tests" / "look" / "views" / f"{game}.json"
+    OUT = REPO / "captures" / game
+    GOLDEN = REPO / "golden" / game
+    EXES = d["exes"]
+    TIME_TYPE = d["times"]
+
+
+use_game("KK")
 
 
 def winpath(p: Path) -> str:
@@ -87,15 +118,15 @@ def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[
     """With `lights`, a run that only dumps each Map Variant's lights and those renderers, taking no frames."""
     views = {} if seed else json.loads(VIEWS.read_text(encoding="utf-8"))["views"]
     maps = []
-    for key in look["maps"]:
+    for key in lc.maps_of(look, camera):
         if only and key not in only:
             continue
         bundle = next(s["path"] for s in json.loads((GOLDEN / key / "manifest.json").read_text())["sources"]
-                      if s["path"].startswith("abdata/map/scene/")).removeprefix("abdata/")
+                      if s["path"].removeprefix("abdata/").rsplit(".", 1)[0] == key).removeprefix("abdata/")
         vs = []
         for v in variants(key):
             if seed:
-                vv = [{"name": "studio", "studio_default": 0}] + [
+                vv = [{"name": GAME_DATA[GAME]["overview"][camera], "studio_default": 0}] + [
                     {"name": f"eye-{y}", "studio_default": y, "eye": SEED_EYE} for y in SEED_YAWS]
             else:
                 vv = [{"name": w["name"], "position": to_unity(w["position"]), "target": to_unity(w["target"]),
@@ -104,7 +135,7 @@ def request(look: dict, seed: bool, only: list[str] | None = None, lights: list[
             if vv or lights is not None:
                 vs.append({"name": v["id"], "type": TIME_TYPE[v["times_of_day"][0]], "views": vv})
         maps.append({"folder": key, "bundle": bundle, "variants": vs})
-    out_dir = OUT if camera == "studio" else OUT / camera
+    out_dir = OUT if camera == "studio" else OUT / camera   # as tools/look.py's captures_of
     out = {"camera": camera, "output": winpath(out_dir), "width": look["width"], "height": look["height"],
            "disable": look["disable_effects"], "maps": maps}
     if lights is not None:
@@ -154,8 +185,9 @@ def run(req: dict, look: dict, timeout: int) -> dict | None:
     print(f"capture: set aside {len(moved)} plugins; starting {exe}", flush=True)
     try:
         log = open(REPO / "tests" / ".work" / "capture" / "play.log", "w")
-        subprocess.Popen([str(GAMES / "play.sh"), "koikatsu", exe], stdout=log, stderr=log)
+        subprocess.Popen([str(GAMES / "play.sh"), GAME_DATA[GAME]["play"], exe], stdout=log, stderr=log)
         start = time.monotonic()
+        peak = 0
         while _state(result) in (None, "running"):
             if time.monotonic() > start + timeout:
                 print(f"capture: not done after {timeout}s; stopping the game", file=sys.stderr)
@@ -163,7 +195,14 @@ def run(req: dict, look: dict, timeout: int) -> dict | None:
             if time.monotonic() > start + 120 and not running():
                 print("capture: the game exited before it finished", file=sys.stderr)
                 break
-            time.sleep(2)
+            why = memory_breach()
+            if why:
+                print(f"capture: stopping the game: {why}", file=sys.stderr)
+                break
+            used = game_memory()
+            peak = max(peak, used or 0)
+            time.sleep(0.5)
+        print(f"capture: the game's peak memory {peak / 2**30:.1f} GB", flush=True)
         time.sleep(3)
     finally:
         for p in PROCESSES:
@@ -177,6 +216,35 @@ def run(req: dict, look: dict, timeout: int) -> dict | None:
     return json.loads(result.read_text(encoding="utf-8")) if result.exists() else None
 
 
+def game_memory() -> int | None:
+    """The game's own memory (resident and swapped) in bytes, by its exact process name."""
+    if os.name == "nt":
+        return None
+    total = None
+    for name in PROCESSES:
+        r = subprocess.run(["pgrep", "-x", name], capture_output=True, text=True)
+        for pid in r.stdout.split():
+            used = memory.process_memory(int(pid))
+            if used is not None:
+                total = (total or 0) + used
+    return total
+
+
+def memory_breach() -> str:
+    """Why the game must stop now, or "": past GAME_MAX_GB, or the machine short of memory or swap."""
+    gb = 2 ** 30
+    used = game_memory()
+    if used is not None and used > GAME_MAX_GB * gb:
+        return f"the game uses {used / gb:.1f} GB"
+    available = memory.available_memory()
+    if available is not None and available < MIN_AVAILABLE_GB * gb:
+        return f"only {available / gb:.1f} GB of memory left"
+    swap = memory.swap_free()
+    if swap is not None and swap < MIN_SWAP_FREE_GB * gb:
+        return f"only {swap / gb:.1f} GB of swap left"
+    return ""
+
+
 def keep_views(placed: list[dict]):
     """The views the plugin placed, in Blender space, as Capture Views, replacing those of the same Map
     Variants and keeping the others."""
@@ -188,14 +256,16 @@ def keep_views(placed: list[dict]):
     views = [v for v in old if (v["map"], v["variant"]) not in redone] + new
     views.sort(key=lambda v: (v["map"], v["variant"], v["name"]))
     VIEWS.parent.mkdir(parents=True, exist_ok=True)
-    VIEWS.write_text(json.dumps({"game": "KK", "space": "blender", "views": views}, indent=1) + "\n", encoding="utf-8")
+    VIEWS.write_text(json.dumps({"game": GAME, "space": "blender", "views": views}, indent=1) + "\n", encoding="utf-8")
     print(f"capture: kept {len(new)} new Capture Views, {len(views)} in all, in {VIEWS.relative_to(REPO)}")
 
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--camera", choices=sorted(EXES), default="studio",
-                    help="the Camera Profile, and so the game: CharaStudio (studio) or the story game (game)")
+    ap.add_argument("--game", choices=sorted(GAME_DATA), default="KK")
+    ap.add_argument("--camera", choices=["studio", "game"], default=None,
+                    help="the Camera Profile, and so the game: CharaStudio (studio) or the story game (game); "
+                         "the look file's by default")
     ap.add_argument("--seed", action="store_true", help="capture Studio's own cameras and keep them as the Capture Views")
     ap.add_argument("--deploy", action="store_true", help="copy the built plugin into the game, then stop")
     ap.add_argument("--undeploy", action="store_true", help="take the plugin out of the game, then stop")
@@ -209,9 +279,17 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--also-disable", action="append", metavar="EFFECT",
                     help="also switch off this camera effect, such as SunShafts; frames go to "
                          "captures/<Game>/[<profile>/]no-<EFFECT>/ (a measurement)")
+    ap.add_argument("--globals", nargs="+", metavar="NAME",
+                    help="take no frames: dump these shader globals per Map Variant (globals.json)")
     ap.add_argument("--sun-no-shadows", action="store_true",
                     help="the Map's sun casts no shadows; frames go to captures/<Game>/sun-no-shadows/ (a measurement)")
     args = ap.parse_args(argv)
+    use_game(args.game)
+    look_camera = json.loads(LOOK.read_text(encoding="utf-8")).get("camera", "studio") if LOOK.exists() else "studio"
+    args.camera = args.camera or look_camera
+    if args.camera not in EXES:
+        print(f"capture: {args.game} has no {args.camera} camera to capture with", file=sys.stderr)
+        return 2
 
     if running():
         print(f"capture: {', '.join(running())} is running; close it first", file=sys.stderr)
@@ -228,12 +306,15 @@ def main(argv: list[str]) -> int:
         print("capture: the plugin isn't deployed (--deploy)", file=sys.stderr)
         return 2
 
-    if args.seed and args.camera != "studio":
-        print("capture: --seed takes Studio's own cameras; it needs --camera studio", file=sys.stderr)
+    if args.seed and args.game == "KK" and args.camera != "studio":
+        print("capture: KK's --seed takes Studio's own cameras; it needs --camera studio", file=sys.stderr)
         return 2
     look = json.loads(LOOK.read_text(encoding="utf-8"))
-    res = run(request(look, args.seed, args.map, args.lights, args.view, args.sun_off,
-                      args.sun_no_shadows, args.camera, args.also_disable), look, args.timeout)
+    req = request(look, args.seed, args.map, args.lights if args.lights is not None else ([] if args.globals else None),
+                  args.view, args.sun_off, args.sun_no_shadows, args.camera, args.also_disable)
+    if args.globals:
+        req["globals"] = args.globals
+    res = run(req, look, args.timeout)
     if res is None:
         print("capture: no result", file=sys.stderr)
         return 1

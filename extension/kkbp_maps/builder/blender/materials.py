@@ -222,9 +222,10 @@ def _lut_lookup(g: Graph, image, color):
     return g.mix(frac, texels[0], texels[1])
 
 
-def grade_group(name: str, lut_image) -> bpy.types.ShaderNodeTree:
+def grade_group(name: str, lut_image, blend_image=None, amount: float = 0.0) -> bpy.types.ShaderNodeTree:
     """`.KKM Grade <LUT>`: AmplifyColor on a linear colour, with no tonemapper and exposure 1 (the assumed
-    Camera Profile, ADR 0010): sRGB-encode, look up the LUT, decode."""
+    Camera Profile, ADR 0010): sRGB-encode, look up the LUT, decode. With a blend LUT (KKS, Map Bundle
+    0.7) both are looked up and mixed by `amount`, as AmplifyColor does when its BlendAmount isn't 0."""
     tree = bpy.data.node_groups.get(name)
     if tree is not None:
         return tree
@@ -233,6 +234,8 @@ def grade_group(name: str, lut_image) -> bpy.types.ShaderNodeTree:
     g, i, o = io(tree)
     enc = _srgb_encode(g, (i, "Color"))
     graded = _lut_lookup(g, lut_image, enc)
+    if blend_image is not None and amount > 0:
+        graded = g.mix(amount, graded, _lut_lookup(g, blend_image, enc))
     g.link(_srgb_decode(g, graded), (o, "Color"))
     return tree
 
@@ -251,15 +254,20 @@ def base_material(bundle, material_id: str, images: Images) -> bpy.types.ShaderN
             return tree
     m = bundle.materials[material_id]
     tier = shaders.tier(m["shader"])
-    tree = new_group(f".KKM {m['name']} {material_id[:8]}", outputs=BASE_OUTPUTS)
+    inputs = [("Light Tint", "NodeSocketColor", (1.0, 1.0, 1.0, 1.0))] if tier.model == "koikano" else []
+    tree = new_group(f".KKM {m['name']} {material_id[:8]}", inputs=inputs, outputs=BASE_OUTPUTS)
     tree[PROP_HASH] = material_id
     tree["kkbp_maps_shader"] = m["shader"]
     tree["kkbp_maps_tier"] = tier.level
-    g, _, out = io(tree)
-    if tier.model == "unlit":
+    g, tree_in, out = io(tree)
+    if tier.model == "koikano":
+        _koikano(g, out, tree_in, bundle, m, images)
+    elif tier.model == "unlit":
         _unlit(g, out, bundle, m, tier, images)
+    elif tier.model == "water":
+        _water(g, out, m, tier)
     else:
-        _standard(g, out, bundle, m, images)
+        _standard(g, out, bundle, m, images, vertex_color=tier.vertex_color)
     return tree
 
 
@@ -267,10 +275,16 @@ def _texture(bundle, m, raw):
     return next((t for t in m["textures"] if t["raw"] == raw), None)
 
 
-def _sample(g, bundle, m, raw, images, uv):
+def _sample(g, bundle, m, raw, images, uv, tiling_of=None):
+    """A texture slot's sample; with `tiling_of`, at another slot's scale and offset: Unity's Standard samples
+    its normal, metallic, occlusion, emission and detail-mask maps with _MainTex_ST, whatever their own
+    tiling, and its detail normal map with _DetailAlbedoMap_ST."""
     slot = _texture(bundle, m, raw)
     if slot is None:
         return None
+    if tiling_of is not None and _texture(bundle, m, tiling_of) is not None:
+        other = _texture(bundle, m, tiling_of)
+        slot = {**slot, "scale": other["scale"], "offset": other["offset"]}
     img = images.get(bundle, slot["texture"])
     return image_node(g, img, bundle.textures[slot["texture"]], uv, slot)
 
@@ -279,9 +293,10 @@ def _uv(g, name=UV0):
     return (g.node("ShaderNodeUVMap", uv_map=name), "UV")
 
 
-def _standard(g: Graph, out, bundle, m, images):
+def _standard(g: Graph, out, bundle, m, images, vertex_color: bool = False):
     """Unity's Standard shader by its fixed rules (D13): metallic setup, albedo alpha or metallic alpha
-    smoothness, normal and detail maps, occlusion, emission, cutout. Parallax is left out."""
+    smoothness, normal and detail maps, occlusion, emission, cutout. Parallax is left out. With
+    `vertex_color` (ProBuilder's Standard Vertex Color) the albedo is multiplied by the mesh's colour."""
     kw = set(m["keywords"])
     fl, co = m["floats"], m["colors"]
     uv = _uv(g)
@@ -290,6 +305,9 @@ def _standard(g: Graph, out, bundle, m, images):
     albedo = g.rgb(linear_rgb(color))
     if main is not None:
         albedo = g.mix(1.0, albedo, (main, "Color"), blend_type="MULTIPLY")
+    if vertex_color:   # the colour as stored; the look check says whether ProBuilder decodes it
+        vc = g.node("ShaderNodeAttribute", attribute_type="GEOMETRY", attribute_name="color0")
+        albedo = g.mix(1.0, albedo, (vc, "Color"), blend_type="MULTIPLY")
     smooth_from_albedo = fl.get("_SmoothnessTextureChannel", 0.0) >= 0.5
     if main is not None and not smooth_from_albedo:
         alpha = g.math("MULTIPLY", (main, "Alpha"), float(color[3]))
@@ -299,14 +317,14 @@ def _standard(g: Graph, out, bundle, m, images):
     if "_DETAIL_MULX2" in kw:
         uv_detail = _uv(g, UV1) if fl.get("_UVSec", 0.0) >= 0.5 else uv
         detail = _sample(g, bundle, m, "_DetailAlbedoMap", images, uv_detail)
-        mask_tex = _sample(g, bundle, m, "_DetailMask", images, uv)
+        mask_tex = _sample(g, bundle, m, "_DetailMask", images, uv, tiling_of="_MainTex")
         mask = (mask_tex, "Alpha") if mask_tex is not None else 1.0
         if detail is not None:
             doubled = g.mix(1.0, (detail, "Color"), (COLOR_SPACE_DOUBLE,) * 3 + (1.0,), blend_type="MULTIPLY")
             factor = g.mix(mask, (1.0, 1.0, 1.0, 1.0), doubled)
             albedo = g.mix(1.0, albedo, factor, blend_type="MULTIPLY")
 
-    gloss_map = _sample(g, bundle, m, "_MetallicGlossMap", images, uv) if "_METALLICGLOSSMAP" in kw else None
+    gloss_map = _sample(g, bundle, m, "_MetallicGlossMap", images, uv, tiling_of="_MainTex") if "_METALLICGLOSSMAP" in kw else None
     if gloss_map is not None:
         metallic = (g.node("ShaderNodeSeparateColor", Color=(gloss_map, "Color")), "Red")
         source = (main, "Alpha") if smooth_from_albedo and main is not None else (gloss_map, "Alpha")
@@ -319,15 +337,15 @@ def _standard(g: Graph, out, bundle, m, images):
             smoothness = g.value(fl.get("_Glossiness", 0.5))
 
     normal = (g.node("ShaderNodeNewGeometry"), "Normal")
-    bump = _sample(g, bundle, m, "_BumpMap", images, uv) if "_NORMALMAP" in kw else None
+    bump = _sample(g, bundle, m, "_BumpMap", images, uv, tiling_of="_MainTex") if "_NORMALMAP" in kw else None
     detail_bump = None
     if "_DETAIL_MULX2" in kw:
         uv_detail = _uv(g, UV1) if fl.get("_UVSec", 0.0) >= 0.5 else uv
-        detail_bump = _sample(g, bundle, m, "_DetailNormalMap", images, uv_detail)
+        detail_bump = _sample(g, bundle, m, "_DetailNormalMap", images, uv_detail, tiling_of="_DetailAlbedoMap")
     if bump is not None or detail_bump is not None:
         tangent = _tangent_normal(g, bump, fl.get("_BumpScale", 1.0))
         if detail_bump is not None:
-            mask_tex = _sample(g, bundle, m, "_DetailMask", images, uv)
+            mask_tex = _sample(g, bundle, m, "_DetailMask", images, uv, tiling_of="_MainTex")
             detail_t = _tangent_normal(g, detail_bump, fl.get("_DetailNormalMapScale", 1.0))
             if mask_tex is not None:
                 detail_t = g.mix((mask_tex, "Alpha"), (0.0, 0.0, 1.0), detail_t, data_type="VECTOR")
@@ -336,7 +354,7 @@ def _standard(g: Graph, out, bundle, m, images):
         normal = (g.node("ShaderNodeNormalMap", uv_map=UV0, Color=encoded), "Normal")
 
     occlusion = 1.0
-    occ = _sample(g, bundle, m, "_OcclusionMap", images, uv)
+    occ = _sample(g, bundle, m, "_OcclusionMap", images, uv, tiling_of="_MainTex")
     if occ is not None:
         green = (g.node("ShaderNodeSeparateColor", Color=(occ, "Color")), "Green")
         occlusion = g.math("MULTIPLY_ADD", g.math("SUBTRACT", green, 1.0), fl.get("_OcclusionStrength", 1.0), 1.0)
@@ -345,7 +363,7 @@ def _standard(g: Graph, out, bundle, m, images):
     if "_EMISSION" in kw:
         e = co.get("_EmissionColor", [0.0, 0.0, 0.0, 1.0])
         emission = g.rgb(linear_rgb(e))
-        etex = _sample(g, bundle, m, "_EmissionMap", images, uv)
+        etex = _sample(g, bundle, m, "_EmissionMap", images, uv, tiling_of="_MainTex")
         if etex is not None:
             emission = g.mix(1.0, emission, (etex, "Color"), blend_type="MULTIPLY")
 
@@ -363,6 +381,75 @@ def _standard(g: Graph, out, bundle, m, images):
     for key, value in (("Alpha", alpha), ("Albedo", albedo), ("Metallic", metallic), ("Smoothness", smoothness),
                        ("Occlusion", occlusion), ("Normal", normal),
                        ("Reflections", 0.0 if "_GLOSSYREFLECTIONS_OFF" in kw else 1.0)):
+        g.set(out, key, value)
+
+
+def _koikano(g: Graph, out, tree_in, bundle, m, images):
+    """Koikano/main_item_map as KKS's globals leave it (games.KOIKANO, transcribed from its ForwardBase
+    program): the colour mask's mix of _Color to _Color4 over the main texture, times the Map Variant's
+    light tint (the group's input, plan.koikano_tint), lit as Unity's Standard with metallic 0 and
+    smoothness 0, with its DXT5nm _NormalMap; alpha-tested at _Cutoff."""
+    co, fl = m["colors"], m["floats"]
+    uv = _uv(g)
+    main = _sample(g, bundle, m, "_MainTex", images, uv)
+    mask = _sample(g, bundle, m, "_ColorMask", images, uv)   # unset: black, so _Color4 alone
+
+    def col(name):
+        return g.rgb(linear_rgb(co.get(name, [1.0, 1.0, 1.0, 1.0])))
+    if mask is not None:
+        ch = g.node("ShaderNodeSeparateColor", Color=(mask, "Color"))
+        r, gg, b = (ch, "Red"), (ch, "Green"), (ch, "Blue")
+        c = g.mix(r, g.rgb((1.0, 1.0, 1.0)), col("_Color"))
+        c = g.mix(gg, c, col("_Color2"))
+        c = g.mix(b, c, col("_Color3"))
+        rest = g.math("SUBTRACT", 1.0, g.math("MAXIMUM", g.math("MAXIMUM", r, gg), b))
+        colors = g.mix(rest, c, col("_Color4"))
+    else:
+        colors = col("_Color4")
+    albedo = colors if main is None else g.mix(1.0, (main, "Color"), colors, blend_type="MULTIPLY")
+    albedo = g.mix(1.0, albedo, (tree_in, "Light Tint"), blend_type="MULTIPLY")
+    alpha = g.math("GREATER_THAN", (main, "Alpha") if main is not None else 1.0, fl.get("_Cutoff", 0.5) - 1e-6)
+
+    normal = (g.node("ShaderNodeNewGeometry"), "Normal")
+    nm = _sample(g, bundle, m, "_NormalMap", images, uv)
+    if nm is not None:   # DXT5nm: x from R · A, y from G; scaled by _BumpScale
+        ch = g.node("ShaderNodeSeparateColor", Color=(nm, "Color"))
+        scale = fl.get("_BumpScale", 1.0)
+        x = g.math("MULTIPLY", g.math("MULTIPLY_ADD", g.math("MULTIPLY", (ch, "Red"), (nm, "Alpha")), 2.0, -1.0), scale)
+        y = g.math("MULTIPLY", g.math("MULTIPLY_ADD", (ch, "Green"), 2.0, -1.0), scale)
+        z = g.math("SQRT", g.math("MAXIMUM", g.math("SUBTRACT", 1.0, g.math("ADD", g.math("MULTIPLY", x, x),
+                                                                              g.math("MULTIPLY", y, y))), 0.0))
+        tangent = g.node("ShaderNodeCombineXYZ", X=x, Y=y, Z=z)
+        encoded = g.vmath("MULTIPLY_ADD", (tangent, "Vector"), (0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        normal = (g.node("ShaderNodeNormalMap", uv_map=UV0, Color=encoded), "Normal")
+    bsdf = g.node("ShaderNodeBsdfPrincipled", **{"Base Color": albedo, "Metallic": 0.0, "Roughness": 1.0,
+                                                  "Normal": normal, "Specular IOR Level": 0.5})
+    g.link(bsdf, (out, "BSDF"))
+    for key, value in (("Alpha", alpha), ("Albedo", albedo), ("Metallic", 0.0), ("Smoothness", 0.0),
+                       ("Occlusion", 1.0), ("Normal", normal), ("Reflections", 1.0)):
+        g.set(out, key, value)
+
+
+# The depth of water a see-through water surface is drawn as covering, in metres: Lux Water absorbs what
+# lies behind it by its _Density over the depth it sees through, which a surface in Blender can't measure.
+# Fitted on the KKS Golden Maps' captures 2026-11-26 (2, 5 and 15 tried; aquariuminside's ΔE 8.4 with
+# the tier's constant alpha, 6.5 at 5).
+WATER_DEPTH = 5.0
+
+
+def _water(g: Graph, out, m, tier):
+    """Water as a smooth surface of one colour, partly see-through (shaders._water): its alpha is the
+    tier's, or 1 − exp(−density · WATER_DEPTH) where the tier names a density property."""
+    albedo = g.rgb(linear_rgb(m["colors"].get(tier.color, [0.0, 0.4, 0.7, 1.0])))
+    normal = (g.node("ShaderNodeNewGeometry"), "Normal")
+    bsdf = g.node("ShaderNodeBsdfPrincipled", **{"Base Color": albedo, "Metallic": 0.0, "Roughness": 0.05,
+                                                  "Normal": normal, "Specular IOR Level": 0.5})
+    g.link(bsdf, (out, "BSDF"))
+    alpha = tier.alpha
+    if tier.density and tier.density in m["floats"]:
+        alpha = 1.0 - math.exp(-m["floats"][tier.density] * WATER_DEPTH)
+    for key, value in (("Alpha", alpha), ("Albedo", albedo), ("Metallic", 0.0), ("Smoothness", 0.95),
+                       ("Occlusion", 1.0), ("Normal", normal), ("Reflections", 1.0)):
         g.set(out, key, value)
 
 
@@ -552,8 +639,10 @@ def _env_sample(g, bundle, images, texture_id, direction, mip=None):
 
 def _reflection(g, bundle, variant, images, n, view, geo, perceptual):
     """The reflection along R = reflect(−V, N): the probe the object's property names (box-projected
-    where the probe says so), else the Map's reflection cubemap, else the ambient, at Unity's mip for the
-    surface's perceptual roughness, r · (1.7 − 0.7 r) · 6, from a chain of halved maps."""
+    where the probe says so), else the Map's reflection cubemap, at Unity's mip for the surface's
+    perceptual roughness, r · (1.7 − 0.7 r) · 6, from a chain of halved maps. A Map that reflects its
+    skybox but holds no cubemap of it reflects its ambient light along R (ADR 0037); a custom reflection
+    left empty reflects nothing."""
     if look.get("reflection") == "off":
         return (g.rgb((0.0, 0.0, 0.0)), "Color")
     mip = g.math("MULTIPLY", g.math("MULTIPLY", perceptual, g.math("MULTIPLY_ADD", perceptual, -0.7, 1.7)),
@@ -562,6 +651,8 @@ def _reflection(g, bundle, variant, images, n, view, geo, perceptual):
     refl = variant["reflection"]
     if refl["texture"] is not None:
         env = g.vmath("SCALE", _env_sample(g, bundle, images, refl["texture"], r, mip), scale=refl["intensity"])
+    elif refl["source"] == "skybox":
+        env = g.vmath("SCALE", _ambient(g, variant["ambient"], r), scale=refl["intensity"])
     else:
         env = (g.rgb((0.0, 0.0, 0.0)), "Color")
     probe_index = (_attribute(g, PROP_PROBE), "Fac")
@@ -655,8 +746,9 @@ def _finish(mat, m: dict, tier):
     mat[PROP_HASH] = m["id"]
 
 
-def variant_material(bundle, material_id: str, variant_name: str, base, light) -> bpy.types.Material:
-    """The Variant Material of a Base Material in a Map Variant (ADR 0002, 0008, 0020)."""
+def variant_material(bundle, material_id: str, variant_name: str, base, light, tint=None) -> bpy.types.Material:
+    """The Variant Material of a Base Material in a Map Variant (ADR 0002, 0008, 0020). `tint` is the
+    Map Variant's light tint, for a Base Material that takes one (Koikano's)."""
     m = bundle.materials[material_id]
     tier = shaders.tier(m["shader"])
     mat = bpy.data.materials.new(f"{m['name']}, {variant_name}")
@@ -664,6 +756,8 @@ def variant_material(bundle, material_id: str, variant_name: str, base, light) -
     mat.node_tree.nodes.clear()
     g = Graph(mat.node_tree)
     b = g.group(base)
+    if tint is not None and "Light Tint" in b.inputs:
+        b.inputs["Light Tint"].default_value = (*tint, 1.0)
     rgb = g.node("ShaderNodeShaderToRGB", Shader=(b, "BSDF"))
     additive = 1.0 if m["blend_mode"] == "additive" else 0.0
     lit = g.group(light, Direct=(rgb, "Color"), Albedo=(b, "Albedo"), Metallic=(b, "Metallic"),
@@ -727,6 +821,27 @@ def left_out_material() -> bpy.types.Material:
         mat.surface_render_method = "DITHERED"
         mat["kkbp_maps_left_out"] = True
     return mat
+
+
+def unity_light_rgb(color, intensity: float, lights_use_linear_intensity: bool) -> list[float]:
+    """A Unity light's colour as the shader receives it, linear."""
+    if lights_use_linear_intensity:
+        return [linear(c) * intensity for c in color[:3]]
+    return [linear(c * intensity) for c in color[:3]]
+
+
+def point_power(color, intensity: float, light_range: float, convention) -> tuple[tuple, float]:
+    """A Unity point or spot light as a Blender light's (colour, watts). A Blender light of P watts lights
+    a white diffuse surface at distance d to P / (4π² d²) (measured in both renderers); Unity's to
+    colour · 1 / (1 + 25 (d/range)²). They agree at d = point_reference · range."""
+    rgb = unity_light_rgb(color, intensity, convention.lights_use_linear_intensity)
+    peak = max(rgb)
+    if peak <= 0 or light_range <= 0:
+        return (1.0, 1.0, 1.0), 0.0
+    share = look.number("point_reference", convention.point_reference)
+    d = share * light_range
+    falloff = 1.0 / (1.0 + 25.0 * share ** 2)
+    return tuple(c / peak for c in rgb), 4.0 * math.pi ** 2 * d * d * falloff * peak
 
 
 def sun_strength(color, intensity: float, lights_use_linear_intensity: bool):
